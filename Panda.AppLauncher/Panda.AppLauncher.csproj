@@ -50,6 +50,7 @@
     <Compile Include="AppLauncher.xaml.cs">
       <DependentUpon>AppLauncher.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AppLauncherSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
