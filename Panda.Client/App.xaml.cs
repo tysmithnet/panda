@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using Common.Logging;
 
 namespace Panda.Client
 {
@@ -17,8 +18,11 @@ namespace Panda.Client
     /// </summary>
     public partial class App : Application
     {
+        protected ILog Log = LogManager.GetLogger<App>();
+
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+            Log.Trace("Looking for MEF components");
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll")
                 .Concat(Directory.EnumerateFiles(assemblyPath, "Panda.Client.exe"));
