@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.Client", "Panda.Client\Panda.Client.csproj", "{DB549A22-2157-485B-A310-39C6661C04FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.AppLauncher", "Panda.AppLauncher\Panda.AppLauncher.csproj", "{EBED6D77-988D-4D56-87D2-7E5E414CFC45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{DB549A22-2157-485B-A310-39C6661C04FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB549A22-2157-485B-A310-39C6661C04FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB549A22-2157-485B-A310-39C6661C04FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBED6D77-988D-4D56-87D2-7E5E414CFC45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBED6D77-988D-4D56-87D2-7E5E414CFC45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBED6D77-988D-4D56-87D2-7E5E414CFC45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBED6D77-988D-4D56-87D2-7E5E414CFC45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
