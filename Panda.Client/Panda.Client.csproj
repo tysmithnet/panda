@@ -70,7 +70,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="LauncherSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -79,8 +79,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Launcher.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="LauncherSelector.xaml.cs">
+      <DependentUpon>LauncherSelector.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

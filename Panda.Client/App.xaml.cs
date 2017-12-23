@@ -23,9 +23,7 @@ namespace Panda.Client
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
             var compositionContainer = new CompositionContainer(aggregateCatalog);
-
-            var launchers = compositionContainer.GetExportedValues<Launcher>().First();
-            launchers.Show();
+            
         }
     }
 }

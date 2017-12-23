@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Panda.Client
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for LauncherSelector.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class LauncherSelector : Window
     {
-        public MainWindow()
+        public LauncherSelector()
         {
             InitializeComponent();
         }
