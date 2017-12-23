@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,5 +10,7 @@ namespace Panda.Client
 {
     public class Launcher : Window
     {
+        [Import]
+        public SettingsRepository SettingsRepository { get; set; }
     }
 }

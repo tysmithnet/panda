@@ -28,7 +28,7 @@ namespace Panda.Client
                 .Concat(Directory.EnumerateFiles(assemblyPath, "Panda.Client.exe"));
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
-            var compositionContainer = new CompositionContainer(aggregateCatalog); 
+            var compositionContainer = new CompositionContainer(aggregateCatalog);  
             var selector = compositionContainer.GetExportedValue<LauncherSelector>();
             selector.Show();
         }
