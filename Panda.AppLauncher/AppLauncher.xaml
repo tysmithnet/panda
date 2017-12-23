@@ -6,9 +6,14 @@
              xmlns:local="clr-namespace:Panda.AppLauncher"
              xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Label>Text</Label>   
-    </Grid>
+       <ListBox ItemsSource="{Binding AppViewModels}">
+             <ListBox.ItemTemplate>
+                 <DataTemplate>
+                     <Label>{Binding Name}</Label>
+                 </DataTemplate>
+             </ListBox.ItemTemplate>
+       </ListBox>
 </client:Launcher>
 

@@ -4,8 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Panda.Client"
+        d:DataContext="{d:DesignInstance local:LauncherSelectorViewModel}"
         mc:Ignorable="d"
-        Title="LauncherSelector" Height="350" Width="525">
-    <Grid>
-    </Grid>
+        Title="LauncherSelector" Height="350" Width="525"
+        Activated="LauncherSelector_OnActivated">
+    <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <Label Content="{Binding Name}"></Label>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
 </Window>

@@ -51,6 +51,7 @@
       <DependentUpon>AppLauncher.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppLauncherSettings.cs" />
+    <Compile Include="AppLauncherViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

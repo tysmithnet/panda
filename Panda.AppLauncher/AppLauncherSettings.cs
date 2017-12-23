@@ -10,7 +10,6 @@ namespace Panda.AppLauncher
 {
     [Export(typeof(IPluginSettings))]
     public class AppLauncherSettings : IPluginSettings
-    {
-        public bool ShouldListMostRecentFirst { get; set; }
+    {                                    
     }
 }
