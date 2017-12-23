@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.Data;
@@ -19,11 +20,13 @@ namespace Panda.Client
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll");
+            var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll")
+                .Concat(Directory.EnumerateFiles(assemblyPath, "Panda.Client.exe"));
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
-            var compositionContainer = new CompositionContainer(aggregateCatalog);
-            
+            var compositionContainer = new CompositionContainer(aggregateCatalog); 
+            var selector = compositionContainer.GetExportedValue<LauncherSelector>();
+            selector.Show();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,10 +19,14 @@ namespace Panda.Client
     /// <summary>
     /// Interaction logic for LauncherSelector.xaml
     /// </summary>
+    [Export(typeof(LauncherSelector))]
     public partial class LauncherSelector : Window
-    {
+    {      
+        [ImportMany]
+        public IEnumerable<Launcher> Launchers { get; set; }
+
         public LauncherSelector()
-        {
+        {   
             InitializeComponent();
         }
     }
