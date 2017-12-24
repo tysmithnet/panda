@@ -11,6 +11,6 @@ namespace Panda.Client
     public class Launcher : Window
     {
         [Import]
-        public SettingsRepository SettingsRepository { get; set; }
+        public SettingsService SettingsService { get; set; }
     }
 }

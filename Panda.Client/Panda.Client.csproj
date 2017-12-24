@@ -82,10 +82,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="IPluginSettings.cs" />
     <Compile Include="LauncherSelectorViewModel.cs" />
     <Compile Include="LauncherViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="SettingsRepository.cs" />
+    <Compile Include="SettingsService.cs" />
     <Page Include="LauncherSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
