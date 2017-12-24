@@ -7,8 +7,9 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows;    
 using Common.Logging;
 
 namespace Panda.Client
@@ -30,6 +31,25 @@ namespace Panda.Client
             var aggregateCatalog = new AggregateCatalog(catalogs);
             var compositionContainer = new CompositionContainer(aggregateCatalog);  
             var selector = compositionContainer.GetExportedValue<LauncherSelector>();
+
+            var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
+            var setupTasks = requiresSetup.Select(x => x.Setup(CancellationToken.None).ContinueWith(t =>
+            {
+                if (t.IsCanceled)
+                {
+                    Log.Error($"Setup task for {x.GetType()} was cancelled.");
+                    return;
+                }
+                if (t.IsFaulted)
+                {
+                    t.Exception?.Flatten().Handle(exception =>
+                    {
+                        Log.Error($"Setup task for {x.GetType()} failed: {exception.Message}");
+                        return true;
+                    });
+                }
+            })).ToArray();
+            Task.WaitAll(setupTasks);
             selector.Show();
         }
     }

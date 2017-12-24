@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Primitives;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +21,7 @@ namespace Panda.EverythingLauncher
     /// <summary>
     /// Interaction logic for EverythingLauncher.xaml
     /// </summary>
+    [Export(typeof(Launcher))]
     public partial class EverythingLauncher : Launcher
     {
         public EverythingLauncher()
