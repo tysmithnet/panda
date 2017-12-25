@@ -22,6 +22,9 @@ namespace Panda.EverythingLauncher
         [Import]
         public EverythingService EverythingService { get; set; }
 
+        [ImportMany]
+        public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
+
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             ViewModel.HandleSearchTextChanged(e);
@@ -29,7 +32,7 @@ namespace Panda.EverythingLauncher
 
         private void EverythingLauncher_OnActivated(object sender, EventArgs e)
         {
-            ViewModel = new EverythingLauncherViewModel(EverythingService);
+            ViewModel = new EverythingLauncherViewModel(EverythingService, FileSystemContextMenuProviders);
             DataContext = ViewModel;
         }
 

@@ -2,21 +2,25 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using Panda.Client;
 
 namespace Panda.EverythingLauncher
 {
     public class EverythingLauncherViewModel : INotifyPropertyChanged
     {
-        public EverythingLauncherViewModel(EverythingService everythingService)
+        public EverythingLauncherViewModel(EverythingService everythingService, IFileSystemContextMenuProvider[] fileSystemContextMenuProviders)
         {
             EverythingService = everythingService;
+            FileSystemContextMenuProviders = fileSystemContextMenuProviders;
         }
 
+        public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
         public EverythingService EverythingService { get; set; }
 
         public string SearchText { get; set; }
@@ -42,13 +46,12 @@ namespace Panda.EverythingLauncher
         public void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
         {
             ContextMenuItems.Clear();
-            foreach (var everythingResultViewModel in selectedItems)
+            var fileInfos = selectedItems.Select(s => new FileInfo(s.FullName));
+            var providers = FileSystemContextMenuProviders.Where(f => f.CanHandle(fileInfos));
+            var menuItems = providers.SelectMany(p => p.GetContextMenuItems(fileInfos));
+            foreach (var frameworkElement in menuItems)
             {
-                var menuItem = new MenuItem
-                {
-                    Header = everythingResultViewModel.Name
-                };
-                ContextMenuItems.Add(menuItem);
+                ContextMenuItems.Add(frameworkElement);
             }
         }
 
@@ -63,7 +66,7 @@ namespace Panda.EverythingLauncher
                 {
                     var resultVm = new EverythingResultViewModel
                     {
-                        Name = result.FullPath
+                        FullName = result.FullPath
                     };
                     Application.Current.Dispatcher.Invoke(() => { EverythingResults.Add(resultVm); });
                 });
