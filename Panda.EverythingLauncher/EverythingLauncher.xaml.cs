@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using System.Threading;
-using System.Windows;
+using System.Linq;
 using System.Windows.Controls;
 using Panda.Client;
 
@@ -18,35 +17,25 @@ namespace Panda.EverythingLauncher
             InitializeComponent();
         }
 
+        public EverythingLauncherViewModel ViewModel { get; set; }
+
         [Import]
         public EverythingService EverythingService { get; set; }
 
-        public CancellationTokenSource CancellationTokenSource { get; private set; }
-        public EverythingLauncherViewModel ViewModel { get; set; }
-
-        public IDisposable Subscription { get; set; }
-
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            CancellationTokenSource?.Cancel();
-            CancellationTokenSource = new CancellationTokenSource();
-            Subscription?.Dispose();
-            ViewModel.EverythingResults.Clear();
-            Subscription = EverythingService.Search(ViewModel.SearchText, CancellationTokenSource.Token).Subscribe(
-                result =>
-                {
-                    var resultVm = new EverythingResultViewModel
-                    {
-                        Name = result.FullPath
-                    };
-                    Application.Current.Dispatcher.Invoke(() => { ViewModel.EverythingResults.Add(resultVm); });
-                });
+            ViewModel.HandleSearchTextChanged(e);
         }
 
         private void EverythingLauncher_OnActivated(object sender, EventArgs e)
         {
-            ViewModel = new EverythingLauncherViewModel();
+            ViewModel = new EverythingLauncherViewModel(EverythingService);
             DataContext = ViewModel;
+        }
+
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ViewModel.HandleSelectedResultsChanged(ResultsListBox.SelectedItems.Cast<EverythingResultViewModel>());
         }
     }
 }

@@ -11,7 +11,11 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <TextBox DockPanel.Dock="Top" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBoxBase_OnTextChanged"></TextBox>
-        <ListBox ItemsSource="{Binding EverythingResults}">
+        <ListBox x:Name="ResultsListBox" ItemsSource="{Binding EverythingResults}" SelectionChanged="Selector_OnSelectionChanged">
+            <ListBox.ContextMenu>
+                <ContextMenu ItemsSource="{Binding ContextMenuItems}">
+                </ContextMenu>
+            </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Label Content="{Binding Name}"></Label>
