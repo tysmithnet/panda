@@ -1,12 +1,9 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using System.Drawing;
-using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using Panda.Client;
-using Point = System.Drawing.Point;
 
 namespace Panda.EverythingLauncher
 {
@@ -34,7 +31,7 @@ namespace Panda.EverythingLauncher
             CancellationTokenSource?.Cancel();
             CancellationTokenSource = new CancellationTokenSource();
             Subscription?.Dispose();
-            ViewModel.EverythingResults.Clear();                 
+            ViewModel.EverythingResults.Clear();
             Subscription = EverythingService.Search(ViewModel.SearchText, CancellationTokenSource.Token).Subscribe(
                 result =>
                 {
@@ -43,7 +40,7 @@ namespace Panda.EverythingLauncher
                         Name = result.FullPath
                     };
                     Application.Current.Dispatcher.Invoke(() => { ViewModel.EverythingResults.Add(resultVm); });
-                });                        
+                });
         }
 
         private void EverythingLauncher_OnActivated(object sender, EventArgs e)

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Panda.Client;
@@ -36,7 +33,7 @@ namespace Panda.EverythingLauncher
                             CreateNoWindow = true
                         }
                     };
-                    process.Start();             
+                    process.Start();
                     while (!process.HasExited)
                     {
                         if (cancellationToken.IsCancellationRequested)
@@ -50,11 +47,10 @@ namespace Panda.EverythingLauncher
                             FullPath = await process.StandardOutput.ReadLineAsync()
                         });
                     }
-                        
-                    process.WaitForExit();  // todo: make setting
+
+                    process.WaitForExit(); // todo: make setting
                     observer.OnCompleted();
                 }, cancellationToken);
-                
             });
             return obs.Publish().RefCount();
         }

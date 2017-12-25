@@ -5,9 +5,8 @@ namespace Panda.EverythingLauncher
 {
     public class EverythingResultViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public string Name { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
