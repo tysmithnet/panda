@@ -1,64 +1,58 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using Point = System.Drawing.Point;
 
-namespace Panda.EverythingLauncher
+namespace Panda.EverythingLauncher.Interop
 {
-    /// <summary>
-    /// "Stand-alone" shell context menu
-    /// 
-    /// It isn't really debugged but is mostly working.
-    /// Create an instance and call ShowContextMenu with a list of FileInfo for the files.
-    /// Limitation is that it only handles files in the same directory but it can be fixed
-    /// by changing the way files are translated into PIDLs.
-    /// 
-    /// Based on FileBrowser in C# from CodeProject
-    /// http://www.codeproject.com/useritems/FileBrowser.asp
-    /// 
-    /// Hooking class taken from MSDN Magazine Cutting Edge column
-    /// http://msdn.microsoft.com/msdnmag/issues/02/10/CuttingEdge/
-    /// 
-    /// Andreas Johansson
-    /// afjohansson@hotmail.com
-    /// http://afjohansson.spaces.live.com
-    /// </summary>
-    /// <example>
-    ///    ShellContextMenu scm = new ShellContextMenu();
-    ///    FileInfo[] files = new FileInfo[1];
-    ///    files[0] = new FileInfo(@"c:\windows\notepad.exe");
-    ///    scm.ShowContextMenu(this.Handle, files, Cursor.Position);
-    /// </example>
     public class ShellContextMenu : NativeWindow
     {
-        #region Constructor
+        private const int MAX_PATH = 260;
+        private const uint CMD_FIRST = 1;
+        private const uint CMD_LAST = 30000;
+
+        private const int S_OK = 0;
+        private const int S_FALSE = 1;
+
+        private static readonly int cbMenuItemInfo = Marshal.SizeOf(typeof(MENUITEMINFO));
+        private static readonly int cbInvokeCommand = Marshal.SizeOf(typeof(CMINVOKECOMMANDINFOEX));
+
+
+        private static Guid IID_IShellFolder = new Guid("{000214E6-0000-0000-C000-000000000046}");
+        private static Guid IID_IContextMenu = new Guid("{000214e4-0000-0000-c000-000000000046}");
+        private static Guid IID_IContextMenu2 = new Guid("{000214f4-0000-0000-c000-000000000046}");
+        private static Guid IID_IContextMenu3 = new Guid("{bcfce0a0-ec17-11d0-8d10-00a0c90f2719}");
+        private IntPtr[] _arrPIDLs;
+        private IContextMenu _oContextMenu;
+        private IContextMenu2 _oContextMenu2;
+        private IContextMenu3 _oContextMenu3;
+        private IShellFolder _oDesktopFolder;
+        private IShellFolder _oParentFolder;
+        private string _strParentFolder;
+
         /// <summary>Default constructor</summary>
         public ShellContextMenu()
         {
-            this.CreateHandle(new CreateParams());
+            CreateHandle(new CreateParams());
         }
-        #endregion
 
-        #region Destructor
         /// <summary>Ensure all resources get released</summary>
         ~ShellContextMenu()
         {
             ReleaseAll();
         }
-        #endregion
 
-        #region GetContextMenuInterfaces()
         /// <summary>Gets the interfaces to the context menu</summary>
         /// <param name="oParentFolder">Parent folder</param>
         /// <param name="arrPIDLs">PIDLs</param>
         /// <returns>true if it got the interfaces, otherwise false</returns>
         private bool GetContextMenuInterfaces(IShellFolder oParentFolder, IntPtr[] arrPIDLs, out IntPtr ctxMenuPtr)
         {
-            int nResult = oParentFolder.GetUIObjectOf(
+            var nResult = oParentFolder.GetUIObjectOf(
                 IntPtr.Zero,
-                (uint)arrPIDLs.Length,
+                (uint) arrPIDLs.Length,
                 arrPIDLs,
                 ref IID_IContextMenu,
                 IntPtr.Zero,
@@ -66,102 +60,78 @@ namespace Panda.EverythingLauncher
 
             if (S_OK == nResult)
             {
-                _oContextMenu = (IContextMenu)Marshal.GetTypedObjectForIUnknown(ctxMenuPtr, typeof(IContextMenu));
+                _oContextMenu = (IContextMenu) Marshal.GetTypedObjectForIUnknown(ctxMenuPtr, typeof(IContextMenu));
 
                 return true;
             }
-            else
-            {
-                ctxMenuPtr = IntPtr.Zero;
-                _oContextMenu = null;
-                return false;
-            }
+            ctxMenuPtr = IntPtr.Zero;
+            _oContextMenu = null;
+            return false;
         }
-        #endregion
 
-        #region Override
 
         /// <summary>
-        /// This method receives WindowMessages. It will make the "Open With" and "Send To" work 
-        /// by calling HandleMenuMsg and HandleMenuMsg2. It will also call the OnContextMenuMouseHover 
-        /// method of Browser when hovering over a ContextMenu item.
+        ///     This method receives WindowMessages. It will make the "Open With" and "Send To" work
+        ///     by calling HandleMenuMsg and HandleMenuMsg2. It will also call the OnContextMenuMouseHover
+        ///     method of Browser when hovering over a ContextMenu item.
         /// </summary>
         /// <param name="m">the Message of the Browser's WndProc</param>
         /// <returns>true if the message has been handled, false otherwise</returns>
         protected override void WndProc(ref Message m)
         {
-            #region IContextMenu
-
             if (_oContextMenu != null &&
-                m.Msg == (int)WM.MENUSELECT &&
-                ((int)ShellHelper.HiWord(m.WParam) & (int)MFT.SEPARATOR) == 0 &&
-                ((int)ShellHelper.HiWord(m.WParam) & (int)MFT.POPUP) == 0)
+                m.Msg == (int) WM.MENUSELECT &&
+                ((int) ShellHelper.HiWord(m.WParam) & (int) MFT.SEPARATOR) == 0 &&
+                ((int) ShellHelper.HiWord(m.WParam) & (int) MFT.POPUP) == 0)
             {
-                string info = string.Empty;
+                var info = string.Empty;
 
-                if (ShellHelper.LoWord(m.WParam) == (int)CMD_CUSTOM.ExpandCollapse)
+                if (ShellHelper.LoWord(m.WParam) == (int) CMD_CUSTOM.ExpandCollapse)
                     info = "Expands or collapses the current selected item";
                 else
-                {
                     info = "";
-                }
             }
 
-            #endregion
-
-            #region IContextMenu2
 
             if (_oContextMenu2 != null &&
-                (m.Msg == (int)WM.INITMENUPOPUP ||
-                 m.Msg == (int)WM.MEASUREITEM ||
-                 m.Msg == (int)WM.DRAWITEM))
-            {
+                (m.Msg == (int) WM.INITMENUPOPUP ||
+                 m.Msg == (int) WM.MEASUREITEM ||
+                 m.Msg == (int) WM.DRAWITEM))
                 if (_oContextMenu2.HandleMenuMsg(
-                    (uint)m.Msg, m.WParam, m.LParam) == S_OK)
+                        (uint) m.Msg, m.WParam, m.LParam) == S_OK)
                     return;
-            }
 
-            #endregion
-
-            #region IContextMenu3
 
             if (_oContextMenu3 != null &&
-                m.Msg == (int)WM.MENUCHAR)
-            {
+                m.Msg == (int) WM.MENUCHAR)
                 if (_oContextMenu3.HandleMenuMsg2(
-                    (uint)m.Msg, m.WParam, m.LParam, IntPtr.Zero) == S_OK)
+                        (uint) m.Msg, m.WParam, m.LParam, IntPtr.Zero) == S_OK)
                     return;
-            }
 
-            #endregion
 
             base.WndProc(ref m);
         }
 
-        #endregion
 
-        #region InvokeCommand
         private void InvokeCommand(IContextMenu oContextMenu, uint nCmd, string strFolder, Point pointInvoke)
         {
-            CMINVOKECOMMANDINFOEX invoke = new CMINVOKECOMMANDINFOEX();
+            var invoke = new CMINVOKECOMMANDINFOEX();
             invoke.cbSize = cbInvokeCommand;
-            invoke.lpVerb = (IntPtr)(nCmd - CMD_FIRST);
+            invoke.lpVerb = (IntPtr) (nCmd - CMD_FIRST);
             invoke.lpDirectory = strFolder;
-            invoke.lpVerbW = (IntPtr)(nCmd - CMD_FIRST);
+            invoke.lpVerbW = (IntPtr) (nCmd - CMD_FIRST);
             invoke.lpDirectoryW = strFolder;
             invoke.fMask = CMIC.UNICODE | CMIC.PTINVOKE |
-                ((Control.ModifierKeys & Keys.Control) != 0 ? CMIC.CONTROL_DOWN : 0) |
-                ((Control.ModifierKeys & Keys.Shift) != 0 ? CMIC.SHIFT_DOWN : 0);
-            invoke.ptInvoke = new POINT((int)pointInvoke.X, (int)pointInvoke.Y);
+                           ((Control.ModifierKeys & Keys.Control) != 0 ? CMIC.CONTROL_DOWN : 0) |
+                           ((Control.ModifierKeys & Keys.Shift) != 0 ? CMIC.SHIFT_DOWN : 0);
+            invoke.ptInvoke = new POINT(pointInvoke.X, pointInvoke.Y);
             invoke.nShow = SW.SHOWNORMAL;
 
             oContextMenu.InvokeCommand(ref invoke);
         }
-        #endregion
 
-        #region ReleaseAll()
         /// <summary>
-        /// Release all allocated interfaces, PIDLs 
+        ///     Release all allocated interfaces, PIDLs
         /// </summary>
         private void ReleaseAll()
         {
@@ -196,35 +166,30 @@ namespace Panda.EverythingLauncher
                 _arrPIDLs = null;
             }
         }
-        #endregion
 
-        #region GetDesktopFolder()
         /// <summary>
-        /// Gets the desktop folder
+        ///     Gets the desktop folder
         /// </summary>
         /// <returns>IShellFolder for desktop folder</returns>
         private IShellFolder GetDesktopFolder()
         {
-            IntPtr pUnkownDesktopFolder = IntPtr.Zero;
+            var pUnkownDesktopFolder = IntPtr.Zero;
 
             if (null == _oDesktopFolder)
             {
                 // Get desktop IShellFolder
-                int nResult = SHGetDesktopFolder(out pUnkownDesktopFolder);
+                var nResult = SHGetDesktopFolder(out pUnkownDesktopFolder);
                 if (S_OK != nResult)
-                {
                     throw new ShellContextMenuException("Failed to get the desktop shell folder");
-                }
-                _oDesktopFolder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(pUnkownDesktopFolder, typeof(IShellFolder));
+                _oDesktopFolder =
+                    (IShellFolder) Marshal.GetTypedObjectForIUnknown(pUnkownDesktopFolder, typeof(IShellFolder));
             }
 
             return _oDesktopFolder;
         }
-        #endregion
 
-        #region GetParentFolder()
         /// <summary>
-        /// Gets the parent folder
+        ///     Gets the parent folder
         /// </summary>
         /// <param name="folderName">Folder path</param>
         /// <returns>IShellFolder for the folder (relative from the desktop)</returns>
@@ -232,75 +197,67 @@ namespace Panda.EverythingLauncher
         {
             if (null == _oParentFolder)
             {
-                IShellFolder oDesktopFolder = GetDesktopFolder();
+                var oDesktopFolder = GetDesktopFolder();
                 if (null == oDesktopFolder)
-                {
                     return null;
-                }
 
                 // Get the PIDL for the folder file is in
-                IntPtr pPIDL = IntPtr.Zero;
+                var pPIDL = IntPtr.Zero;
                 uint pchEaten = 0;
                 SFGAO pdwAttributes = 0;
-                int nResult = oDesktopFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, folderName, ref pchEaten, out pPIDL, ref pdwAttributes);
+                var nResult = oDesktopFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, folderName, ref pchEaten,
+                    out pPIDL, ref pdwAttributes);
                 if (S_OK != nResult)
-                {
                     return null;
-                }
 
-                IntPtr pStrRet = Marshal.AllocCoTaskMem(MAX_PATH * 2 + 4);
+                var pStrRet = Marshal.AllocCoTaskMem(MAX_PATH * 2 + 4);
                 Marshal.WriteInt32(pStrRet, 0, 0);
                 nResult = _oDesktopFolder.GetDisplayNameOf(pPIDL, SHGNO.FORPARSING, pStrRet);
-                StringBuilder strFolder = new StringBuilder(MAX_PATH);
+                var strFolder = new StringBuilder(MAX_PATH);
                 StrRetToBuf(pStrRet, pPIDL, strFolder, MAX_PATH);
                 Marshal.FreeCoTaskMem(pStrRet);
                 pStrRet = IntPtr.Zero;
                 _strParentFolder = strFolder.ToString();
 
                 // Get the IShellFolder for folder
-                IntPtr pUnknownParentFolder = IntPtr.Zero;
-                nResult = oDesktopFolder.BindToObject(pPIDL, IntPtr.Zero, ref IID_IShellFolder, out pUnknownParentFolder);
+                var pUnknownParentFolder = IntPtr.Zero;
+                nResult = oDesktopFolder.BindToObject(pPIDL, IntPtr.Zero, ref IID_IShellFolder,
+                    out pUnknownParentFolder);
                 // Free the PIDL first
                 Marshal.FreeCoTaskMem(pPIDL);
                 if (S_OK != nResult)
-                {
                     return null;
-                }
-                _oParentFolder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(pUnknownParentFolder, typeof(IShellFolder));
+                _oParentFolder =
+                    (IShellFolder) Marshal.GetTypedObjectForIUnknown(pUnknownParentFolder, typeof(IShellFolder));
             }
 
             return _oParentFolder;
         }
-        #endregion
 
-        #region GetPIDLs()
         /// <summary>
-        /// Get the PIDLs
+        ///     Get the PIDLs
         /// </summary>
         /// <param name="arrFI">Array of FileInfo</param>
         /// <returns>Array of PIDLs</returns>
         protected IntPtr[] GetPIDLs(FileInfo[] arrFI)
         {
             if (null == arrFI || 0 == arrFI.Length)
-            {
                 return null;
-            }
 
-            IShellFolder oParentFolder = GetParentFolder(arrFI[0].DirectoryName);
+            var oParentFolder = GetParentFolder(arrFI[0].DirectoryName);
             if (null == oParentFolder)
-            {
                 return null;
-            }
 
-            IntPtr[] arrPIDLs = new IntPtr[arrFI.Length];
-            int n = 0;
-            foreach (FileInfo fi in arrFI)
+            var arrPIDLs = new IntPtr[arrFI.Length];
+            var n = 0;
+            foreach (var fi in arrFI)
             {
                 // Get the file relative to folder
                 uint pchEaten = 0;
                 SFGAO pdwAttributes = 0;
-                IntPtr pPIDL = IntPtr.Zero;
-                int nResult = oParentFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fi.Name, ref pchEaten, out pPIDL, ref pdwAttributes);
+                var pPIDL = IntPtr.Zero;
+                var nResult = oParentFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fi.Name, ref pchEaten, out pPIDL,
+                    ref pdwAttributes);
                 if (S_OK != nResult)
                 {
                     FreePIDLs(arrPIDLs);
@@ -314,32 +271,29 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        /// Get the PIDLs
+        ///     Get the PIDLs
         /// </summary>
         /// <param name="arrFI">Array of DirectoryInfo</param>
         /// <returns>Array of PIDLs</returns>
         protected IntPtr[] GetPIDLs(DirectoryInfo[] arrFI)
         {
             if (null == arrFI || 0 == arrFI.Length)
-            {
                 return null;
-            }
 
-            IShellFolder oParentFolder = GetParentFolder(arrFI[0].Parent.FullName);
+            var oParentFolder = GetParentFolder(arrFI[0].Parent.FullName);
             if (null == oParentFolder)
-            {
                 return null;
-            }
 
-            IntPtr[] arrPIDLs = new IntPtr[arrFI.Length];
-            int n = 0;
-            foreach (DirectoryInfo fi in arrFI)
+            var arrPIDLs = new IntPtr[arrFI.Length];
+            var n = 0;
+            foreach (var fi in arrFI)
             {
                 // Get the file relative to folder
                 uint pchEaten = 0;
                 SFGAO pdwAttributes = 0;
-                IntPtr pPIDL = IntPtr.Zero;
-                int nResult = oParentFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fi.Name, ref pchEaten, out pPIDL, ref pdwAttributes);
+                var pPIDL = IntPtr.Zero;
+                var nResult = oParentFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fi.Name, ref pchEaten, out pPIDL,
+                    ref pdwAttributes);
                 if (S_OK != nResult)
                 {
                     FreePIDLs(arrPIDLs);
@@ -351,30 +305,22 @@ namespace Panda.EverythingLauncher
 
             return arrPIDLs;
         }
-        #endregion
 
-        #region FreePIDLs()
         /// <summary>
-        /// Free the PIDLs
+        ///     Free the PIDLs
         /// </summary>
         /// <param name="arrPIDLs">Array of PIDLs (IntPtr)</param>
         protected void FreePIDLs(IntPtr[] arrPIDLs)
         {
             if (null != arrPIDLs)
-            {
-                for (int n = 0; n < arrPIDLs.Length; n++)
-                {
+                for (var n = 0; n < arrPIDLs.Length; n++)
                     if (arrPIDLs[n] != IntPtr.Zero)
                     {
                         Marshal.FreeCoTaskMem(arrPIDLs[n]);
                         arrPIDLs[n] = IntPtr.Zero;
                     }
-                }
-            }
         }
-        #endregion
 
-        #region InvokeContextMenuDefault
         private void InvokeContextMenuDefault(FileInfo[] arrFI)
         {
             // Release all resources first.
@@ -400,7 +346,7 @@ namespace Panda.EverythingLauncher
 
                 pMenu = CreatePopupMenu();
 
-                int nResult = _oContextMenu.QueryContextMenu(
+                var nResult = _oContextMenu.QueryContextMenu(
                     pMenu,
                     0,
                     CMD_FIRST,
@@ -408,11 +354,9 @@ namespace Panda.EverythingLauncher
                     CMF.DEFAULTONLY |
                     ((Control.ModifierKeys & Keys.Shift) != 0 ? CMF.EXTENDEDVERBS : 0));
 
-                uint nDefaultCmd = (uint)GetMenuDefaultItem(pMenu, false, 0);
+                var nDefaultCmd = (uint) GetMenuDefaultItem(pMenu, false, 0);
                 if (nDefaultCmd >= CMD_FIRST)
-                {
                     InvokeCommand(_oContextMenu, nDefaultCmd, arrFI[0].DirectoryName, Control.MousePosition);
-                }
 
                 DestroyMenu(pMenu);
                 pMenu = IntPtr.Zero;
@@ -424,18 +368,13 @@ namespace Panda.EverythingLauncher
             finally
             {
                 if (pMenu != IntPtr.Zero)
-                {
                     DestroyMenu(pMenu);
-                }
                 ReleaseAll();
             }
         }
-        #endregion
-
-        #region ShowContextMenu()
 
         /// <summary>
-        /// Shows the context menu
+        ///     Shows the context menu
         /// </summary>
         /// <param name="files">FileInfos (should all be in same directory)</param>
         /// <param name="pointScreen">Where to show the menu</param>
@@ -444,11 +383,11 @@ namespace Panda.EverythingLauncher
             // Release all resources first.
             ReleaseAll();
             _arrPIDLs = GetPIDLs(files);
-            this.ShowContextMenu(pointScreen);
+            ShowContextMenu(pointScreen);
         }
 
         /// <summary>
-        /// Shows the context menu
+        ///     Shows the context menu
         /// </summary>
         /// <param name="dirs">DirectoryInfos (should all be in same directory)</param>
         /// <param name="pointScreen">Where to show the menu</param>
@@ -457,11 +396,11 @@ namespace Panda.EverythingLauncher
             // Release all resources first.
             ReleaseAll();
             _arrPIDLs = GetPIDLs(dirs);
-            this.ShowContextMenu(pointScreen);
+            ShowContextMenu(pointScreen);
         }
 
         /// <summary>
-        /// Shows the context menu
+        ///     Shows the context menu
         /// </summary>
         /// <param name="arrFI">FileInfos (should all be in same directory)</param>
         /// <param name="pointScreen">Where to show the menu</param>
@@ -488,7 +427,7 @@ namespace Panda.EverythingLauncher
 
                 pMenu = CreatePopupMenu();
 
-                int nResult = _oContextMenu.QueryContextMenu(
+                var nResult = _oContextMenu.QueryContextMenu(
                     pMenu,
                     0,
                     CMD_FIRST,
@@ -500,24 +439,24 @@ namespace Panda.EverythingLauncher
                 Marshal.QueryInterface(iContextMenuPtr, ref IID_IContextMenu2, out iContextMenuPtr2);
                 Marshal.QueryInterface(iContextMenuPtr, ref IID_IContextMenu3, out iContextMenuPtr3);
 
-                _oContextMenu2 = (IContextMenu2)Marshal.GetTypedObjectForIUnknown(iContextMenuPtr2, typeof(IContextMenu2));
-                _oContextMenu3 = (IContextMenu3)Marshal.GetTypedObjectForIUnknown(iContextMenuPtr3, typeof(IContextMenu3));
+                _oContextMenu2 =
+                    (IContextMenu2) Marshal.GetTypedObjectForIUnknown(iContextMenuPtr2, typeof(IContextMenu2));
+                _oContextMenu3 =
+                    (IContextMenu3) Marshal.GetTypedObjectForIUnknown(iContextMenuPtr3, typeof(IContextMenu3));
 
-                uint nSelected = TrackPopupMenuEx(
+                var nSelected = TrackPopupMenuEx(
                     pMenu,
                     TPM.RETURNCMD,
                     pointScreen.X,
                     pointScreen.Y,
-                    this.Handle,
+                    Handle,
                     IntPtr.Zero);
 
                 DestroyMenu(pMenu);
                 pMenu = IntPtr.Zero;
 
                 if (nSelected != 0)
-                {
                     InvokeCommand(_oContextMenu, nSelected, _strParentFolder, pointScreen);
-                }
             }
             catch
             {
@@ -527,9 +466,7 @@ namespace Panda.EverythingLauncher
             {
                 //hook.Uninstall();
                 if (pMenu != IntPtr.Zero)
-                {
                     DestroyMenu(pMenu);
-                }
 
                 if (iContextMenuPtr != IntPtr.Zero)
                     Marshal.Release(iContextMenuPtr);
@@ -543,41 +480,16 @@ namespace Panda.EverythingLauncher
                 ReleaseAll();
             }
         }
-        #endregion
 
-        #region Local variabled
-        private IContextMenu _oContextMenu;
-        private IContextMenu2 _oContextMenu2;
-        private IContextMenu3 _oContextMenu3;
-        private IShellFolder _oDesktopFolder;
-        private IShellFolder _oParentFolder;
-        private IntPtr[] _arrPIDLs;
-        private string _strParentFolder;
-        #endregion
-
-        #region Variables and Constants
-
-        private const int MAX_PATH = 260;
-        private const uint CMD_FIRST = 1;
-        private const uint CMD_LAST = 30000;
-
-        private const int S_OK = 0;
-        private const int S_FALSE = 1;
-
-        private static int cbMenuItemInfo = Marshal.SizeOf(typeof(MENUITEMINFO));
-        private static int cbInvokeCommand = Marshal.SizeOf(typeof(CMINVOKECOMMANDINFOEX));
-
-        #endregion
-
-        #region DLL Import
 
         // Retrieves the IShellFolder interface for the desktop folder, which is the root of the Shell's namespace.
         [DllImport("shell32.dll")]
-        private static extern Int32 SHGetDesktopFolder(out IntPtr ppshf);
+        private static extern int SHGetDesktopFolder(out IntPtr ppshf);
 
         // Takes a STRRET structure returned by IShellFolder::GetDisplayNameOf, converts it to a string, and places the result in a buffer. 
-        [DllImport("shlwapi.dll", EntryPoint = "StrRetToBuf", ExactSpelling = false, CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern Int32 StrRetToBuf(IntPtr pstr, IntPtr pidl, StringBuilder pszBuf, int cchBuf);
+        [DllImport("shlwapi.dll", EntryPoint = "StrRetToBuf", ExactSpelling = false, CharSet = CharSet.Auto,
+            SetLastError = true)]
+        private static extern int StrRetToBuf(IntPtr pstr, IntPtr pidl, StringBuilder pszBuf, int cchBuf);
 
         // The TrackPopupMenuEx function displays a shortcut menu at the specified location and tracks the selection of items on the shortcut menu. The shortcut menu can appear anywhere on the screen.
         [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
@@ -595,26 +507,14 @@ namespace Panda.EverythingLauncher
         [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
         private static extern int GetMenuDefaultItem(IntPtr hMenu, bool fByPos, uint gmdiFlags);
 
-        #endregion
-
-        #region Shell GUIDs
-
-        private static Guid IID_IShellFolder = new Guid("{000214E6-0000-0000-C000-000000000046}");
-        private static Guid IID_IContextMenu = new Guid("{000214e4-0000-0000-c000-000000000046}");
-        private static Guid IID_IContextMenu2 = new Guid("{000214f4-0000-0000-c000-000000000046}");
-        private static Guid IID_IContextMenu3 = new Guid("{bcfce0a0-ec17-11d0-8d10-00a0c90f2719}");
-
-        #endregion
-
-        #region Structs
 
         [StructLayout(LayoutKind.Sequential)]
         private struct CWPSTRUCT
         {
-            public IntPtr lparam;
-            public IntPtr wparam;
-            public int message;
-            public IntPtr hwnd;
+            public readonly IntPtr lparam;
+            public readonly IntPtr wparam;
+            public readonly int message;
+            public readonly IntPtr hwnd;
         }
 
         // Contains extended information about a shortcut menu command
@@ -623,24 +523,18 @@ namespace Panda.EverythingLauncher
         {
             public int cbSize;
             public CMIC fMask;
-            public IntPtr hwnd;
+            public readonly IntPtr hwnd;
             public IntPtr lpVerb;
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string lpParameters;
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string lpDirectory;
+            [MarshalAs(UnmanagedType.LPStr)] public readonly string lpParameters;
+            [MarshalAs(UnmanagedType.LPStr)] public string lpDirectory;
             public SW nShow;
-            public int dwHotKey;
-            public IntPtr hIcon;
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string lpTitle;
+            public readonly int dwHotKey;
+            public readonly IntPtr hIcon;
+            [MarshalAs(UnmanagedType.LPStr)] public readonly string lpTitle;
             public IntPtr lpVerbW;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            public string lpParametersW;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            public string lpDirectoryW;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            public string lpTitleW;
+            [MarshalAs(UnmanagedType.LPWStr)] public readonly string lpParametersW;
+            [MarshalAs(UnmanagedType.LPWStr)] public string lpDirectoryW;
+            [MarshalAs(UnmanagedType.LPWStr)] public readonly string lpTitleW;
             public POINT ptInvoke;
         }
 
@@ -664,19 +558,18 @@ namespace Panda.EverythingLauncher
                 hbmpItem = IntPtr.Zero;
             }
 
-            public int cbSize;
-            public MIIM fMask;
-            public MFT fType;
-            public MFS fState;
-            public uint wID;
-            public IntPtr hSubMenu;
-            public IntPtr hbmpChecked;
-            public IntPtr hbmpUnchecked;
-            public IntPtr dwItemData;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string dwTypeData;
-            public int cch;
-            public IntPtr hbmpItem;
+            public readonly int cbSize;
+            public readonly MIIM fMask;
+            public readonly MFT fType;
+            public readonly MFS fState;
+            public readonly uint wID;
+            public readonly IntPtr hSubMenu;
+            public readonly IntPtr hbmpChecked;
+            public readonly IntPtr hbmpUnchecked;
+            public readonly IntPtr dwItemData;
+            [MarshalAs(UnmanagedType.LPTStr)] public readonly string dwTypeData;
+            public readonly int cch;
+            public readonly IntPtr hbmpItem;
         }
 
         // A generalized global memory handle used for data transfer operations by the 
@@ -684,15 +577,15 @@ namespace Panda.EverythingLauncher
         [StructLayout(LayoutKind.Sequential)]
         private struct STGMEDIUM
         {
-            public TYMED tymed;
-            public IntPtr hBitmap;
-            public IntPtr hMetaFilePict;
-            public IntPtr hEnhMetaFile;
-            public IntPtr hGlobal;
-            public IntPtr lpszFileName;
-            public IntPtr pstm;
-            public IntPtr pstg;
-            public IntPtr pUnkForRelease;
+            public readonly TYMED tymed;
+            public readonly IntPtr hBitmap;
+            public readonly IntPtr hMetaFilePict;
+            public readonly IntPtr hEnhMetaFile;
+            public readonly IntPtr hGlobal;
+            public readonly IntPtr lpszFileName;
+            public readonly IntPtr pstm;
+            public readonly IntPtr pstg;
+            public readonly IntPtr pUnkForRelease;
         }
 
         // Defines the x- and y-coordinates of a point
@@ -705,13 +598,10 @@ namespace Panda.EverythingLauncher
                 this.y = y;
             }
 
-            public int x;
-            public int y;
+            public readonly int x;
+            public readonly int y;
         }
 
-        #endregion
-
-        #region Enums
 
         // Defines the values used with the IShellFolder::GetDisplayNameOf and IShellFolder::SetNameOf 
         // methods to specify the type of file or folder names used by those methods
@@ -775,7 +665,7 @@ namespace Panda.EverythingLauncher
             INIT_ON_FIRST_NEXT = 0x0100,
             NETPRINTERSRCH = 0x0200,
             SHAREABLE = 0x0400,
-            STORAGE = 0x0800,
+            STORAGE = 0x0800
         }
 
         // Specifies how the shortcut menu can be changed when calling IContextMenu::QueryContextMenu
@@ -834,7 +724,7 @@ namespace Panda.EverythingLauncher
         // The cmd for a custom added menu item
         private enum CMD_CUSTOM
         {
-            ExpandCollapse = (int)CMD_LAST + 1
+            ExpandCollapse = (int) CMD_LAST + 1
         }
 
         // Flags used with the CMINVOKECOMMANDINFOEX structure
@@ -870,7 +760,7 @@ namespace Panda.EverythingLauncher
             SHOWMINNOACTIVE = 7,
             SHOWNA = 8,
             RESTORE = 9,
-            SHOWDEFAULT = 10,
+            SHOWDEFAULT = 10
         }
 
         // Window message flags
@@ -1150,9 +1040,6 @@ namespace Panda.EverythingLauncher
             NULL = 0
         }
 
-        #endregion
-
-        #region IShellFolder
         [ComImport]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [Guid("000214E6-0000-0000-C000-000000000046")]
@@ -1161,11 +1048,10 @@ namespace Panda.EverythingLauncher
             // Translates a file object's or folder's display name into an item identifier list.
             // Return value: error code, if any
             [PreserveSig]
-            Int32 ParseDisplayName(
+            int ParseDisplayName(
                 IntPtr hwnd,
                 IntPtr pbc,
-                [MarshalAs(UnmanagedType.LPWStr)]
-            string pszDisplayName,
+                [MarshalAs(UnmanagedType.LPWStr)] string pszDisplayName,
                 ref uint pchEaten,
                 out IntPtr ppidl,
                 ref SFGAO pdwAttributes);
@@ -1174,7 +1060,7 @@ namespace Panda.EverythingLauncher
             // identifier enumeration object and returning its IEnumIDList interface.
             // Return value: error code, if any
             [PreserveSig]
-            Int32 EnumObjects(
+            int EnumObjects(
                 IntPtr hwnd,
                 SHCONTF grfFlags,
                 out IntPtr enumIDList);
@@ -1182,7 +1068,7 @@ namespace Panda.EverythingLauncher
             // Retrieves an IShellFolder object for a subfolder.
             // Return value: error code, if any
             [PreserveSig]
-            Int32 BindToObject(
+            int BindToObject(
                 IntPtr pidl,
                 IntPtr pbc,
                 ref Guid riid,
@@ -1191,7 +1077,7 @@ namespace Panda.EverythingLauncher
             // Requests a pointer to an object's storage interface. 
             // Return value: error code, if any
             [PreserveSig]
-            Int32 BindToStorage(
+            int BindToStorage(
                 IntPtr pidl,
                 IntPtr pbc,
                 ref Guid riid,
@@ -1208,7 +1094,7 @@ namespace Panda.EverythingLauncher
             // follow the second (pidl1 > pidl2).  Zero A return value of zero
             // indicates that the two items are the same (pidl1 = pidl2). 
             [PreserveSig]
-            Int32 CompareIDs(
+            int CompareIDs(
                 IntPtr lParam,
                 IntPtr pidl1,
                 IntPtr pidl2);
@@ -1217,7 +1103,7 @@ namespace Panda.EverythingLauncher
             // with a folder object.
             // Return value: error code, if any
             [PreserveSig]
-            Int32 CreateViewObject(
+            int CreateViewObject(
                 IntPtr hwndOwner,
                 Guid riid,
                 out IntPtr ppv);
@@ -1225,29 +1111,27 @@ namespace Panda.EverythingLauncher
             // Retrieves the attributes of one or more file objects or subfolders. 
             // Return value: error code, if any
             [PreserveSig]
-            Int32 GetAttributesOf(
+            int GetAttributesOf(
                 uint cidl,
-                [MarshalAs(UnmanagedType.LPArray)]
-            IntPtr[] apidl,
+                [MarshalAs(UnmanagedType.LPArray)] IntPtr[] apidl,
                 ref SFGAO rgfInOut);
 
             // Retrieves an OLE interface that can be used to carry out actions on the
             // specified file objects or folders.
             // Return value: error code, if any
             [PreserveSig]
-            Int32 GetUIObjectOf(
+            int GetUIObjectOf(
                 IntPtr hwndOwner,
                 uint cidl,
-                [MarshalAs(UnmanagedType.LPArray)]
-            IntPtr[] apidl,
+                [MarshalAs(UnmanagedType.LPArray)] IntPtr[] apidl,
                 ref Guid riid,
                 IntPtr rgfReserved,
                 out IntPtr ppv);
 
             // Retrieves the display name for the specified file object or subfolder. 
             // Return value: error code, if any
-            [PreserveSig()]
-            Int32 GetDisplayNameOf(
+            [PreserveSig]
+            int GetDisplayNameOf(
                 IntPtr pidl,
                 SHGNO uFlags,
                 IntPtr lpName);
@@ -1256,25 +1140,22 @@ namespace Panda.EverythingLauncher
             // identifier in the process.
             // Return value: error code, if any
             [PreserveSig]
-            Int32 SetNameOf(
+            int SetNameOf(
                 IntPtr hwnd,
                 IntPtr pidl,
-                [MarshalAs(UnmanagedType.LPWStr)]
-            string pszName,
+                [MarshalAs(UnmanagedType.LPWStr)] string pszName,
                 SHGNO uFlags,
                 out IntPtr ppidlOut);
         }
-        #endregion
 
-        #region IContextMenu
-        [ComImport()]
+        [ComImport]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [Guid("000214e4-0000-0000-c000-000000000046")]
         private interface IContextMenu
         {
             // Adds commands to a shortcut menu
-            [PreserveSig()]
-            Int32 QueryContextMenu(
+            [PreserveSig]
+            int QueryContextMenu(
                 IntPtr hmenu,
                 uint iMenu,
                 uint idCmdFirst,
@@ -1282,30 +1163,30 @@ namespace Panda.EverythingLauncher
                 CMF uFlags);
 
             // Carries out the command associated with a shortcut menu item
-            [PreserveSig()]
-            Int32 InvokeCommand(
+            [PreserveSig]
+            int InvokeCommand(
                 ref CMINVOKECOMMANDINFOEX info);
 
             // Retrieves information about a shortcut menu command, 
             // including the help string and the language-independent, 
             // or canonical, name for the command
-            [PreserveSig()]
-            Int32 GetCommandString(
+            [PreserveSig]
+            int GetCommandString(
                 uint idcmd,
                 GCS uflags,
                 uint reserved,
-                [MarshalAs(UnmanagedType.LPArray)]
-            byte[] commandstring,
+                [MarshalAs(UnmanagedType.LPArray)] byte[] commandstring,
                 int cch);
         }
 
-        [ComImport, Guid("000214f4-0000-0000-c000-000000000046")]
+        [ComImport]
+        [Guid("000214f4-0000-0000-c000-000000000046")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         private interface IContextMenu2
         {
             // Adds commands to a shortcut menu
-            [PreserveSig()]
-            Int32 QueryContextMenu(
+            [PreserveSig]
+            int QueryContextMenu(
                 IntPtr hmenu,
                 uint iMenu,
                 uint idCmdFirst,
@@ -1313,38 +1194,38 @@ namespace Panda.EverythingLauncher
                 CMF uFlags);
 
             // Carries out the command associated with a shortcut menu item
-            [PreserveSig()]
-            Int32 InvokeCommand(
+            [PreserveSig]
+            int InvokeCommand(
                 ref CMINVOKECOMMANDINFOEX info);
 
             // Retrieves information about a shortcut menu command, 
             // including the help string and the language-independent, 
             // or canonical, name for the command
-            [PreserveSig()]
-            Int32 GetCommandString(
+            [PreserveSig]
+            int GetCommandString(
                 uint idcmd,
                 GCS uflags,
                 uint reserved,
-                [MarshalAs(UnmanagedType.LPWStr)]
-            StringBuilder commandstring,
+                [MarshalAs(UnmanagedType.LPWStr)] StringBuilder commandstring,
                 int cch);
 
             // Allows client objects of the IContextMenu interface to 
             // handle messages associated with owner-drawn menu items
             [PreserveSig]
-            Int32 HandleMenuMsg(
+            int HandleMenuMsg(
                 uint uMsg,
                 IntPtr wParam,
                 IntPtr lParam);
         }
 
-        [ComImport, Guid("bcfce0a0-ec17-11d0-8d10-00a0c90f2719")]
+        [ComImport]
+        [Guid("bcfce0a0-ec17-11d0-8d10-00a0c90f2719")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         private interface IContextMenu3
         {
             // Adds commands to a shortcut menu
-            [PreserveSig()]
-            Int32 QueryContextMenu(
+            [PreserveSig]
+            int QueryContextMenu(
                 IntPtr hmenu,
                 uint iMenu,
                 uint idCmdFirst,
@@ -1352,26 +1233,25 @@ namespace Panda.EverythingLauncher
                 CMF uFlags);
 
             // Carries out the command associated with a shortcut menu item
-            [PreserveSig()]
-            Int32 InvokeCommand(
+            [PreserveSig]
+            int InvokeCommand(
                 ref CMINVOKECOMMANDINFOEX info);
 
             // Retrieves information about a shortcut menu command, 
             // including the help string and the language-independent, 
             // or canonical, name for the command
-            [PreserveSig()]
-            Int32 GetCommandString(
+            [PreserveSig]
+            int GetCommandString(
                 uint idcmd,
                 GCS uflags,
                 uint reserved,
-                [MarshalAs(UnmanagedType.LPWStr)]
-            StringBuilder commandstring,
+                [MarshalAs(UnmanagedType.LPWStr)] StringBuilder commandstring,
                 int cch);
 
             // Allows client objects of the IContextMenu interface to 
             // handle messages associated with owner-drawn menu items
             [PreserveSig]
-            Int32 HandleMenuMsg(
+            int HandleMenuMsg(
                 uint uMsg,
                 IntPtr wParam,
                 IntPtr lParam);
@@ -1379,204 +1259,11 @@ namespace Panda.EverythingLauncher
             // Allows client objects of the IContextMenu3 interface to 
             // handle messages associated with owner-drawn menu items
             [PreserveSig]
-            Int32 HandleMenuMsg2(
+            int HandleMenuMsg2(
                 uint uMsg,
                 IntPtr wParam,
                 IntPtr lParam,
                 IntPtr plResult);
         }
-        #endregion
     }
-
-    #region ShellContextMenuException
-    public class ShellContextMenuException : Exception
-    {
-        /// <summary>Default contructor</summary>
-        public ShellContextMenuException()
-        {
-        }
-
-        /// <summary>Constructor with message</summary>
-        /// <param name="message">Message</param>
-        public ShellContextMenuException(string message)
-            : base(message)
-        {
-        }
-    }
-    #endregion
-
-    #region Class HookEventArgs
-    public class HookEventArgs : EventArgs
-    {
-        public int HookCode;	// Hook code
-        public IntPtr wParam;	// WPARAM argument
-        public IntPtr lParam;	// LPARAM argument
-    }
-    #endregion
-
-    #region Enum HookType
-    // Hook Types
-    public enum HookType : int
-    {
-        WH_JOURNALRECORD = 0,
-        WH_JOURNALPLAYBACK = 1,
-        WH_KEYBOARD = 2,
-        WH_GETMESSAGE = 3,
-        WH_CALLWNDPROC = 4,
-        WH_CBT = 5,
-        WH_SYSMSGFILTER = 6,
-        WH_MOUSE = 7,
-        WH_HARDWARE = 8,
-        WH_DEBUG = 9,
-        WH_SHELL = 10,
-        WH_FOREGROUNDIDLE = 11,
-        WH_CALLWNDPROCRET = 12,
-        WH_KEYBOARD_LL = 13,
-        WH_MOUSE_LL = 14
-    }
-    #endregion
-
-    #region Class LocalWindowsHook
-    public class LocalWindowsHook
-    {
-        // ************************************************************************
-        // Filter function delegate
-        public delegate int HookProc(int code, IntPtr wParam, IntPtr lParam);
-        // ************************************************************************
-
-        // ************************************************************************
-        // Internal properties
-        protected IntPtr m_hhook = IntPtr.Zero;
-        protected HookProc m_filterFunc = null;
-        protected HookType m_hookType;
-        // ************************************************************************
-
-        // ************************************************************************
-        // Event delegate
-        public delegate void HookEventHandler(object sender, HookEventArgs e);
-        // ************************************************************************
-
-        // ************************************************************************
-        // Event: HookInvoked 
-        public event HookEventHandler HookInvoked;
-        protected void OnHookInvoked(HookEventArgs e)
-        {
-            if (HookInvoked != null)
-                HookInvoked(this, e);
-        }
-        // ************************************************************************
-
-        // ************************************************************************
-        // Class constructor(s)
-        public LocalWindowsHook(HookType hook)
-        {
-            m_hookType = hook;
-            m_filterFunc = new HookProc(this.CoreHookProc);
-        }
-        public LocalWindowsHook(HookType hook, HookProc func)
-        {
-            m_hookType = hook;
-            m_filterFunc = func;
-        }
-        // ************************************************************************
-
-        // ************************************************************************
-        // Default filter function
-        protected int CoreHookProc(int code, IntPtr wParam, IntPtr lParam)
-        {
-            if (code < 0)
-                return CallNextHookEx(m_hhook, code, wParam, lParam);
-
-            // Let clients determine what to do
-            HookEventArgs e = new HookEventArgs();
-            e.HookCode = code;
-            e.wParam = wParam;
-            e.lParam = lParam;
-            OnHookInvoked(e);
-
-            // Yield to the next hook in the chain
-            return CallNextHookEx(m_hhook, code, wParam, lParam);
-        }
-        // ************************************************************************
-
-        // ************************************************************************
-        // Install the hook
-        public void Install()
-        {
-            m_hhook = SetWindowsHookEx(
-                m_hookType,
-                m_filterFunc,
-                IntPtr.Zero,
-                (int)AppDomain.GetCurrentThreadId());
-        }
-        // ************************************************************************
-
-        // ************************************************************************
-        // Uninstall the hook
-        public void Uninstall()
-        {
-            UnhookWindowsHookEx(m_hhook);
-        }
-        // ************************************************************************
-
-
-        #region Win32 Imports
-        // ************************************************************************
-        // Win32: SetWindowsHookEx()
-        [DllImport("user32.dll")]
-        protected static extern IntPtr SetWindowsHookEx(HookType code,
-            HookProc func,
-            IntPtr hInstance,
-            int threadID);
-        // ************************************************************************
-
-        // ************************************************************************
-        // Win32: UnhookWindowsHookEx()
-        [DllImport("user32.dll")]
-        protected static extern int UnhookWindowsHookEx(IntPtr hhook);
-        // ************************************************************************
-
-        // ************************************************************************
-        // Win32: CallNextHookEx()
-        [DllImport("user32.dll")]
-        protected static extern int CallNextHookEx(IntPtr hhook,
-            int code, IntPtr wParam, IntPtr lParam);
-        // ************************************************************************
-        #endregion
-    }
-    #endregion
-
-    #region ShellHelper
-
-    internal static class ShellHelper
-    {
-        #region Low/High Word
-
-        /// <summary>
-        /// Retrieves the High Word of a WParam of a WindowMessage
-        /// </summary>
-        /// <param name="ptr">The pointer to the WParam</param>
-        /// <returns>The unsigned integer for the High Word</returns>
-        public static uint HiWord(IntPtr ptr)
-        {
-            if (((uint)ptr & 0x80000000) == 0x80000000)
-                return ((uint)ptr >> 16);
-            else
-                return ((uint)ptr >> 16) & 0xffff;
-        }
-
-        /// <summary>
-        /// Retrieves the Low Word of a WParam of a WindowMessage
-        /// </summary>
-        /// <param name="ptr">The pointer to the WParam</param>
-        /// <returns>The unsigned integer for the Low Word</returns>
-        public static uint LoWord(IntPtr ptr)
-        {
-            return (uint)ptr & 0xffff;
-        }
-
-        #endregion
-    }
-
-    #endregion
 }
