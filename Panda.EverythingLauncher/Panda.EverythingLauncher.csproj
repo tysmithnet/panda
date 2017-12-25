@@ -57,7 +57,9 @@
     <Compile Include="EverythingLauncher.xaml.cs">
       <DependentUpon>EverythingLauncher.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EverythingLauncherViewModel.cs" />
     <Compile Include="EverythingResult.cs" />
+    <Compile Include="EverythingResultViewModel.cs" />
     <Compile Include="EverythingService.cs" />
     <Compile Include="EverythingSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
