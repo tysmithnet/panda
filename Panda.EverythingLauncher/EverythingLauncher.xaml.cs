@@ -1,9 +1,12 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using Panda.Client;
+using Point = System.Drawing.Point;
 
 namespace Panda.EverythingLauncher
 {
