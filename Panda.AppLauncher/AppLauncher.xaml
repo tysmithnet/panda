@@ -7,13 +7,17 @@
              xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
+                 Activated="AppLauncher_OnActivated"
              d:DesignHeight="300" d:DesignWidth="300">
-       <ListBox ItemsSource="{Binding AppViewModels}">
-             <ListBox.ItemTemplate>
-                 <DataTemplate>
-                     <Label>{Binding Name}</Label>
-                 </DataTemplate>
-             </ListBox.ItemTemplate>
-       </ListBox>
+    <DockPanel>
+        <TextBox DockPanel.Dock="Top"></TextBox>
+        <ListBox ItemsSource="{Binding AppViewModels}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Label Content="{Binding AppName}"></Label>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
 </client:Launcher>
 

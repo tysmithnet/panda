@@ -51,9 +51,12 @@
       <DependentUpon>AppLauncher.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppLauncherContextMenuProvider.cs" />
+    <Compile Include="AppLauncherRepository.cs" />
     <Compile Include="AppLauncherSettings.cs" />
     <Compile Include="AppLauncherViewModel.cs" />
+    <Compile Include="AppViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegisteredApplication.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Panda.Client\Panda.Client.csproj">

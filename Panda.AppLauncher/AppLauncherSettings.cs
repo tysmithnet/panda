@@ -10,6 +10,7 @@ namespace Panda.AppLauncher
 {
     [Export(typeof(IPluginSettings))]
     public class AppLauncherSettings : IPluginSettings
-    {                                    
+    {
+        public IList<RegisteredApplication> RegisteredApplications { get; set; } = new List<RegisteredApplication>();
     }
 }
