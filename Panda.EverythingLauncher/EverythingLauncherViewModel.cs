@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -61,7 +62,9 @@ namespace Panda.EverythingLauncher
             CancellationTokenSource = new CancellationTokenSource();
             Subscription?.Dispose();
             EverythingResults.Clear();
-            Subscription = EverythingService.Search(SearchText, CancellationTokenSource.Token).Subscribe(
+            Subscription = EverythingService.Search(SearchText, CancellationTokenSource.Token)
+                //.ObserveOn(SynchronizationContext.Current) // this doesn't work
+                .Subscribe(
                 result =>
                 {
                     var resultVm = new EverythingResultViewModel

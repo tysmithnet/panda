@@ -42,6 +42,7 @@ namespace Panda.EverythingLauncher
                             observer.OnCompleted();
                             return;
                         }
+                        
                         observer.OnNext(new EverythingResult
                         {
                             FullPath = await process.StandardOutput.ReadLineAsync()
