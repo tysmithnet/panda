@@ -8,7 +8,8 @@ namespace Panda.AppLauncher
     {
         public string AppName { get; set; }
         public string ExecutableLocation { get; set; }
-        
+        public RegisteredApplication RegisteredApplication { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

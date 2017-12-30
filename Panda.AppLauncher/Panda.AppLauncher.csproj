@@ -55,6 +55,7 @@
     <Compile Include="AppLauncherSettings.cs" />
     <Compile Include="AppLauncherViewModel.cs" />
     <Compile Include="AppViewModel.cs" />
+    <Compile Include="IRegisteredApplicationContextMenuProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisteredApplication.cs" />
   </ItemGroup>

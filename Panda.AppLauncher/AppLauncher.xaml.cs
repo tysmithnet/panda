@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
+using System.Windows.Controls;
 using Panda.Client;
 
 namespace Panda.AppLauncher
@@ -13,7 +15,10 @@ namespace Panda.AppLauncher
     {
         [Import]
         public AppLauncherRepository AppLauncherRepository { get; set; }
-                                      
+
+        [ImportMany]
+        public IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+
         public AppLauncher()
         {
             InitializeComponent();
@@ -21,10 +26,16 @@ namespace Panda.AppLauncher
 
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
-            ViewModel = new AppLauncherViewModel(AppLauncherRepository);
+            ViewModel = new AppLauncherViewModel(AppLauncherRepository, RegisteredApplicationContextMenuProviders);
             DataContext = ViewModel;
         }
 
         public AppLauncherViewModel ViewModel { get; set; }
+
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedItems = RegisteredApplications.SelectedItems.Cast<AppViewModel>();
+            ViewModel.HandleSelectedItemsChanged(selectedItems);
+        }
     }
 }

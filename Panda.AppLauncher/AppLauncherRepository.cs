@@ -35,5 +35,16 @@ namespace Panda.AppLauncher
             }
             return Task.CompletedTask;
         }
+
+        public void Remove(RegisteredApplication registeredApplication)
+        {
+            SettingsService.Get<AppLauncherSettings>().Single().RegisteredApplications.Remove(registeredApplication);
+            RegisteredApplications.Remove(registeredApplication);
+        }
+
+        public void Save()
+        {
+            SettingsService.Save(CancellationToken.None); // todo: fix
+        }
     }
 }

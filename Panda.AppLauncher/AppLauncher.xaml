@@ -11,7 +11,10 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <TextBox DockPanel.Dock="Top"></TextBox>
-        <ListBox ItemsSource="{Binding AppViewModels}">
+        <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended" SelectionChanged="Selector_OnSelectionChanged">
+            <ListBox.ContextMenu>
+                <ContextMenu ItemsSource="{Binding ContextMenuItems}"></ContextMenu>
+            </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Label Content="{Binding AppName}"></Label>
