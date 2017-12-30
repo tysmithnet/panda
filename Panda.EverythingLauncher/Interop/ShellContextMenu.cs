@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -384,6 +385,13 @@ namespace Panda.EverythingLauncher.Interop
             ReleaseAll();
             _arrPIDLs = GetPIDLs(files);
             ShowContextMenu(pointScreen);
+        }
+
+        public void ShowContextMenu(FileInfo[] files, DirectoryInfo[] directories, Point point)
+        {
+            ReleaseAll();
+            _arrPIDLs = GetPIDLs(files).Concat(GetPIDLs(directories)).ToArray();
+            ShowContextMenu(point);
         }
 
         /// <summary>

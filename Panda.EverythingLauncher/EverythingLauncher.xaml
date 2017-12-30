@@ -11,7 +11,8 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBoxBase_OnTextChanged"></TextBox>
-        <ListBox x:Name="ResultsListBox" ItemsSource="{Binding EverythingResults}" SelectionChanged="Selector_OnSelectionChanged" SelectionMode="Extended">
+        <ListBox x:Name="ResultsListBox" ItemsSource="{Binding EverythingResults}" SelectionChanged="Selector_OnSelectionChanged" SelectionMode="Extended" 
+                 PreviewMouseRightButtonDown="ResultsListBox_OnPreviewMouseRightButtonDown">
             <ListBox.ContextMenu>
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}">
                 </ContextMenu>

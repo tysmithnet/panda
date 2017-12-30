@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Panda.Client;
 
 namespace Panda.EverythingLauncher
@@ -29,22 +31,29 @@ namespace Panda.EverythingLauncher
         public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
         private BehaviorSubject<string> TextChangedObservable { get; set; } = new BehaviorSubject<string>("");
+        private BehaviorSubject<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObservable { get; set; } = new BehaviorSubject<IEnumerable<EverythingResultViewModel>>(null);
+        private BehaviorSubject<MouseButtonEventArgs> PreviewMouseRightButtonDownObservable { get; set; } = new BehaviorSubject<MouseButtonEventArgs>(null);
 
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            if(!string.IsNullOrWhiteSpace(SearchText.Text))
-                TextChangedObservable.OnNext(SearchText.Text);
+        {                                                   
+            TextChangedObservable.OnNext(SearchText.Text);
         }
 
         private void EverythingLauncher_OnActivated(object sender, EventArgs e)
         {                                                                            
-            ViewModel = new EverythingLauncherViewModel(EverythingService, FileSystemContextMenuProviders, TextChangedObservable);
+            ViewModel = new EverythingLauncherViewModel(EverythingService, FileSystemContextMenuProviders, TextChangedObservable, SelectedItemsChangedObservable, PreviewMouseRightButtonDownObservable);
             DataContext = ViewModel;
         }
                
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ViewModel.HandleSelectedResultsChanged(ResultsListBox.SelectedItems.Cast<EverythingResultViewModel>());
+            var results = ResultsListBox.SelectedItems.Cast<EverythingResultViewModel>().ToList();
+            SelectedItemsChangedObservable.OnNext(results);
+        }
+
+        private void ResultsListBox_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PreviewMouseRightButtonDownObservable.OnNext(e);
         }
     }
 }
