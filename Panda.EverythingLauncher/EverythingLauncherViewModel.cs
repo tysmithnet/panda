@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -15,11 +16,17 @@ namespace Panda.EverythingLauncher
 {
     public class EverythingLauncherViewModel : INotifyPropertyChanged
     {
-        public EverythingLauncherViewModel(EverythingService everythingService, IFileSystemContextMenuProvider[] fileSystemContextMenuProviders)
+        public EverythingLauncherViewModel(EverythingService everythingService, IFileSystemContextMenuProvider[] fileSystemContextMenuProviders, IObservable<string> textChangedObservable)
         {
             EverythingService = everythingService;
             FileSystemContextMenuProviders = fileSystemContextMenuProviders;
+            TextChangedObservable = textChangedObservable
+                .ObserveOn(SynchronizationContext.Current)
+                .Where(s => s != null && s.Length > 1)
+                .Subscribe(HandleSearchTextChanged);
         }
+
+        public IDisposable TextChangedObservable { get; set; }
 
         public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
         public EverythingService EverythingService { get; set; }
@@ -56,14 +63,13 @@ namespace Panda.EverythingLauncher
             }
         }
 
-        public void HandleSearchTextChanged(TextChangedEventArgs textChangedEventArgs)
+        public void HandleSearchTextChanged(string newText)
         {
             CancellationTokenSource?.Cancel();
             CancellationTokenSource = new CancellationTokenSource();
             Subscription?.Dispose();
             EverythingResults.Clear();
-            Subscription = EverythingService.Search(SearchText, CancellationTokenSource.Token)
-                //.ObserveOn(SynchronizationContext.Current) // this doesn't work
+            Subscription = EverythingService.Search(newText, CancellationTokenSource.Token)             
                 .Subscribe(
                 result =>
                 {

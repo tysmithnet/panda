@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Logging;
 using Panda.Client;
 
 namespace Panda.EverythingLauncher
@@ -12,15 +13,17 @@ namespace Panda.EverythingLauncher
     [Export]
     public class EverythingService
     {
+        private ILog Log { get; set; } = LogManager.GetLogger<EverythingService>();
+
         [Import]
         public SettingsService SettingsService { get; set; }
 
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
-            var obs = Observable.Create<EverythingResult>((observer, token) =>
+            var obs = Observable.Create<EverythingResult>(async (observer, token) =>
             {
-                return Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     var process = new Process
                     {
@@ -34,22 +37,24 @@ namespace Panda.EverythingLauncher
                         }
                     };
                     process.Start();
-                    while (!process.HasExited)
+                    Log.Debug($"Started: {process.Id}");
+                    string line;
+                    while ((line = await process.StandardOutput.ReadLineAsync()) != null)
                     {
-                        if (cancellationToken.IsCancellationRequested || token.IsCancellationRequested)
-                        {
-                            process.Kill();
-                            observer.OnCompleted();
-                            return;
-                        }
-                        
+                        Log.Debug($"Process Line: {process.Id} - {line}");
                         observer.OnNext(new EverythingResult
                         {
-                            FullPath = process.StandardOutput.ReadLine()
+                            FullPath = line
                         });
-                    }
 
-                    process.WaitForExit(); // todo: make setting
+                        if (!cancellationToken.IsCancellationRequested && !token.IsCancellationRequested) continue;
+                        Log.Debug($"Killing: {process.Id}");
+                        process.Kill();                     
+                        observer.OnCompleted();
+                        return;
+                    }   
+                    Log.Debug($"Finished: {process.Id}");
+                    process.Kill();
                     observer.OnCompleted();
                 }, cancellationToken);
             });
