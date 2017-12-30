@@ -45,7 +45,7 @@ namespace Panda.Client
                     Log.Error($"Unable to revive settings from {fileName} because {e.Message}, falling back to defaults");
                     try
                     {
-                        File.WriteAllText(fileName, JsonConvert.SerializeObject(settings));
+                        File.WriteAllText(fileName, JsonConvert.SerializeObject(settings, Formatting.Indented));
                     }
                     catch (Exception e2)
                     {
@@ -60,7 +60,7 @@ namespace Panda.Client
         {
             foreach (var settings in AllPluginSettings)
             {
-                var json = JsonConvert.SerializeObject(settings);
+                var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 File.WriteAllText($"{settings.GetType().FullName}.config.json", json);
             }
             return Task.CompletedTask;

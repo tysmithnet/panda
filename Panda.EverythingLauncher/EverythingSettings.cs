@@ -6,6 +6,6 @@ namespace Panda.EverythingLauncher
     [Export(typeof(IPluginSettings))]
     public class EverythingSettings : IPluginSettings
     {
-        public string EsExePath { get; set; } = @"C:\Program Files\Everything\es.exe";
+        public string EsExePath { get; set; }
     }
 }
