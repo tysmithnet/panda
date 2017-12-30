@@ -9,7 +9,7 @@ namespace Panda.AppLauncher
     /// Interaction logic for AppLauncher.xaml
     /// </summary>
     [Export(typeof(Launcher))]
-    public partial class AppLauncher
+    public partial class AppLauncher : Launcher
     {
         [Import]
         public AppLauncherRepository AppLauncherRepository { get; set; }
@@ -22,6 +22,7 @@ namespace Panda.AppLauncher
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
             ViewModel = new AppLauncherViewModel(AppLauncherRepository);
+            DataContext = ViewModel;
         }
 
         public AppLauncherViewModel ViewModel { get; set; }

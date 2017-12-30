@@ -32,7 +32,10 @@ namespace Panda.Client
             var compositionContainer = new CompositionContainer(aggregateCatalog);  
             var selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
+            var settingService = compositionContainer.GetExportedValue<SettingsService>();
+            settingService.Setup(CancellationToken.None).Wait();
             var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
+
             var setupTasks = requiresSetup.Select(x => x.Setup(CancellationToken.None).ContinueWith(t =>
             {
                 if (t.IsCanceled)

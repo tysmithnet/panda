@@ -7,7 +7,8 @@ using Panda.Client;
 
 namespace Panda.AppLauncher
 {
-    [Export]
+    [Export(typeof(IRequiresSetup))]
+    [Export(typeof(AppLauncherRepository))]
     public class AppLauncherRepository : IRequiresSetup
     {
         public IList<RegisteredApplication> RegisteredApplications { get; set; } = new List<RegisteredApplication>();
@@ -15,7 +16,7 @@ namespace Panda.AppLauncher
         [Import]
         public SettingsService SettingsService { get; set; }
 
-        IEnumerable<RegisteredApplication> Get()
+        public IEnumerable<RegisteredApplication> Get()
         {
             return RegisteredApplications;
         }

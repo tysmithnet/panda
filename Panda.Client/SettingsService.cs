@@ -10,10 +10,9 @@ using Common.Logging;
 using Newtonsoft.Json;
 
 namespace Panda.Client
-{
-    [Export(typeof(IRequiresSetup))]
+{                                       
     [Export(typeof(SettingsService))]
-    public class SettingsService : IRequiresSetup
+    public class SettingsService
     {
         protected ILog Log = LogManager.GetLogger<SettingsService>();
 

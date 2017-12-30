@@ -15,11 +15,19 @@ namespace Panda.AppLauncher
         public AppLauncherViewModel(AppLauncherRepository appLauncherRepository)
         {
             AppLauncherRepository = appLauncherRepository;
+            foreach (var registeredApplication in appLauncherRepository.Get())
+            {
+                AppViewModels.Add(new AppViewModel
+                {
+                    AppName = registeredApplication.DisplayName,
+                    ExecutableLocation = registeredApplication.FullPath
+                });
+            }
         }
 
-        public ObservableCollection<AppViewModel> AppViewModels { get; set; }
+        public ObservableCollection<AppViewModel> AppViewModels { get; set; } = new ObservableCollection<AppViewModel>();
         public AppLauncherRepository AppLauncherRepository { get; }
-        public SettingsService SettingsService { get; }
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
 
