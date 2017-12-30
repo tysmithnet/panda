@@ -18,9 +18,9 @@ namespace Panda.EverythingLauncher
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
-            var obs = Observable.Create<EverythingResult>(async (observer, token) =>
+            var obs = Observable.Create<EverythingResult>((observer, token) =>
             {
-                await Task.Run(async () =>
+                return Task.Run(() =>
                 {
                     var process = new Process
                     {
@@ -36,7 +36,7 @@ namespace Panda.EverythingLauncher
                     process.Start();
                     while (!process.HasExited)
                     {
-                        if (cancellationToken.IsCancellationRequested)
+                        if (cancellationToken.IsCancellationRequested || token.IsCancellationRequested)
                         {
                             process.Kill();
                             observer.OnCompleted();
@@ -45,7 +45,7 @@ namespace Panda.EverythingLauncher
                         
                         observer.OnNext(new EverythingResult
                         {
-                            FullPath = await process.StandardOutput.ReadLineAsync()
+                            FullPath = process.StandardOutput.ReadLine()
                         });
                     }
 
