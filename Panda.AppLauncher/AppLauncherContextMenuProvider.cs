@@ -31,12 +31,9 @@ namespace Panda.AppLauncher
             {
                 Header = "Add to Applications"
             };
-            menuItem.Click += (sender, args) =>
-            {
-                SettingsService.Save(CancellationToken.None);
-            };
+
             foreach (var fileInfo in fileInfos)
-            {              
+            {
                 menuItem.Click += (sender, args) =>
                 {
                     var registerdApp = new RegisteredApplication
@@ -47,7 +44,11 @@ namespace Panda.AppLauncher
                     appLauncherSettings.RegisteredApplications.Add(registerdApp);
                 };
                 items.Add(menuItem);
-            }                                            
+            }
+            menuItem.Click += (sender, args) =>
+            {
+                SettingsService.Save(CancellationToken.None);
+            };                                         
             return items;
         }
     }
