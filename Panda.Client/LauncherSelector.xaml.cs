@@ -46,8 +46,7 @@ namespace Panda.Client
                 {
 
                     WindowState = WindowState.Normal;
-                    Activate();
-                    Topmost = true;
+                    Activate();      
                     args.Handled = true;
                 }
             });
