@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.Client
 {
@@ -40,44 +43,48 @@ namespace Panda.Client
                    
         private void LauncherSelector_OnActivated(object sender, EventArgs e)
         {
-            KeyboardMouseHookService.KeyDownObservable.Subscribe(args =>
+            SearchText.Focus();
+            KeyboardMouseHookService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(args =>
             {
                 if (args.Alt && args.KeyCode.HasFlag(Keys.Space))
                 {
-
+                    
                     WindowState = WindowState.Normal;
-                    Activate();      
+                    //Topmost = true;
+                    Show();
+                    Activate();
+                    Focus();
+                    SearchText.Focus();
                     args.Handled = true;
                 }
             });
             ViewModel = new LauncherSelectorViewModel(LauncherRepository, KeyboardMouseHookService, TextChangedObservable);
             DataContext = ViewModel;
         }
-          
-
+              
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var added = e.AddedItems.Cast<LauncherViewModel>();
-            var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
-            if (launcherViewModels.Any())
-            {
-                var first = launcherViewModels.First();
-                Active?.Hide();
-                Active = first.Instance;
-                Active.Show();
-            }
-        }
-
-        public Launcher Active { get; set; }
-
-        private void LauncherSelector_OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            //Hide();
-        }
+            ViewModel.Handle(e); // todo: rename
+        }                                       
 
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {   
             TextChangedObservable.OnNext(SearchText.Text);
+        }
+
+        private void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        {   
+            if (e.Key == Key.Escape)
+            {
+                Hide();
+            }
+
+            if (e.Key == Key.Enter || e.Key == Key.Return)
+            {
+               ViewModel.Submit(); 
+            }
         }
     }
 }

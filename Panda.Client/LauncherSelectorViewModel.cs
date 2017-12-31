@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace Panda.Client
@@ -28,12 +30,24 @@ namespace Panda.Client
             textChangedObservable
                 .ObserveOn(SynchronizationContext.Current)  
                 .Subscribe(FilterApps);
-
-            
         }
 
         public IEnumerable<LauncherViewModel> ViewModels { get; set; }
 
+        public void Handle(SelectionChangedEventArgs e)
+        {
+            var added = e.AddedItems.Cast<LauncherViewModel>();
+            var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
+            if (launcherViewModels.Any())
+            {
+                var first = launcherViewModels.First();
+                Active?.Hide();
+                Active = first.Instance;
+                Active.Show();
+            }
+        }
+
+        public Launcher Active { get; set; }
         public ObservableCollection<LauncherViewModel> LauncherViewModels { get; set; }
 
         public string SearchText { get; set; }
@@ -52,6 +66,14 @@ namespace Panda.Client
             {
                 LauncherViewModels.Add(launcherViewModel);
             }
+        }
+
+        public void Submit()
+        {
+            var first = LauncherViewModels.First();
+            Active?.Hide();
+            Active = first.Instance;
+            Active.Show();
         }
     }
 }

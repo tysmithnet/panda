@@ -40,7 +40,8 @@ namespace Panda.EverythingLauncher
         }
 
         private void EverythingLauncher_OnActivated(object sender, EventArgs e)
-        {                                                                            
+        {
+            SearchText.Focus();
             ViewModel = new EverythingLauncherViewModel(EverythingService, FileSystemContextMenuProviders, TextChangedObservable, SelectedItemsChangedObservable, PreviewMouseRightButtonDownObservable);
             DataContext = ViewModel;
         }

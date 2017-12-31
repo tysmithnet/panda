@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using Panda.Client;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.AppLauncher
 {
@@ -36,6 +38,6 @@ namespace Panda.AppLauncher
         {
             var selectedItems = RegisteredApplications.SelectedItems.Cast<AppViewModel>();
             ViewModel.HandleSelectedItemsChanged(selectedItems);
-        }
+        }   
     }
 }
