@@ -1,6 +1,6 @@
 ﻿namespace Panda.EverythingLauncher
 {
-    public class EverythingResult
+    public sealed class EverythingResult
     {
         public string FullPath { get; set; }
     }

@@ -11,25 +11,25 @@ namespace Panda.AppLauncher
 {
     [Export(typeof(IRequiresSetup))]
     [Export(typeof(RegisteredApplicationRepository))]
-    public class RegisteredApplicationRepository : IRequiresSetup
+    public sealed class RegisteredApplicationRepository : IRequiresSetup
     {
-        protected internal Subject<RegisteredApplication> ApplicationRegisteredSubject =
+        internal Subject<RegisteredApplication> ApplicationRegisteredSubject =
             new Subject<RegisteredApplication>();
 
-        protected internal Subject<RegisteredApplication> ApplicationUnregisteredSubject =
+        internal Subject<RegisteredApplication> ApplicationUnregisteredSubject =
             new Subject<RegisteredApplication>();
 
-        protected internal IList<RegisteredApplication> RegisteredApplications { get; set; } =
+        internal IList<RegisteredApplication> RegisteredApplications { get; set; } =
             new List<RegisteredApplication>();
 
         [Import]
-        protected internal SettingsService SettingsService { get; set; }
+        internal SettingsService SettingsService { get; set; }
 
         public IObservable<RegisteredApplication> ApplicationRegisteredObservable => ApplicationRegisteredSubject;
 
         public IObservable<RegisteredApplication> ApplicationUnregisteredObservable => ApplicationUnregisteredSubject;
 
-        protected internal AppLauncherSettings Settings { get; set; }
+        internal AppLauncherSettings Settings { get; set; }
 
         public Task Setup(CancellationToken cancellationToken)
         {

@@ -7,14 +7,14 @@ using Gma.System.MouseKeyHook;
 namespace Panda.Client
 {
     [Export]
-    public class KeyboardMouseHookService
+    public sealed class KeyboardMouseHookService
     {
-        protected internal Subject<KeyEventArgs> KeyDownSubject = new Subject<KeyEventArgs>();
-        protected internal Subject<KeyPressEventArgs> KeyPressSubject = new Subject<KeyPressEventArgs>();
-        protected internal Subject<KeyEventArgs> KeyUpSubject = new Subject<KeyEventArgs>();
+        internal Subject<KeyEventArgs> KeyDownSubject = new Subject<KeyEventArgs>();
+        internal Subject<KeyPressEventArgs> KeyPressSubject = new Subject<KeyPressEventArgs>();
+        internal Subject<KeyEventArgs> KeyUpSubject = new Subject<KeyEventArgs>();
 
 
-        protected internal KeyboardMouseHookService()
+        internal KeyboardMouseHookService()
         {
             GlobalEvents = Hook.GlobalEvents();
             AppEvents = Hook.AppEvents();
@@ -22,13 +22,13 @@ namespace Panda.Client
             GlobalEvents.KeyPress += (sender, args) => KeyPressSubject.OnNext(args);
             GlobalEvents.KeyUp += (sender, args) => KeyUpSubject.OnNext(args);
         }
-                           
+
         public IObservable<KeyEventArgs> KeyDownObservable => KeyDownSubject;
         public IObservable<KeyPressEventArgs> KeyPressObservable => KeyPressSubject;
         public IObservable<KeyEventArgs> KeyUpObservable => KeyUpSubject;
 
-        protected internal IKeyboardMouseEvents AppEvents { get; set; }
+        internal IKeyboardMouseEvents AppEvents { get; set; }
 
-        protected internal IKeyboardMouseEvents GlobalEvents { get; set; }
+        internal IKeyboardMouseEvents GlobalEvents { get; set; }
     }
 }

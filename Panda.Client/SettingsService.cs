@@ -11,12 +11,12 @@ using Newtonsoft.Json;
 namespace Panda.Client
 {
     [Export(typeof(SettingsService))]
-    public class SettingsService
+    public sealed class SettingsService
     {
-        private ILog Log = LogManager.GetLogger<SettingsService>();
+        private ILog Log { get; } = LogManager.GetLogger<SettingsService>();
 
         [ImportMany]
-        protected internal IPluginSettings[] AllPluginSettings { get; set; }
+        internal IPluginSettings[] AllPluginSettings { get; set; }
 
         public IEnumerable<TSettings> Get<TSettings>() where TSettings : IPluginSettings
         {

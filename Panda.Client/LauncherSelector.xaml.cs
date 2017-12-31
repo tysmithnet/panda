@@ -15,7 +15,7 @@ namespace Panda.Client
     ///     Interaction logic for LauncherSelector.xaml
     /// </summary>
     [Export(typeof(LauncherSelector))]
-    public partial class LauncherSelector : Window
+    public sealed partial class LauncherSelector : Window
     {
         public LauncherSelector()
         {
@@ -23,10 +23,10 @@ namespace Panda.Client
         }
 
         [Import]
-        protected internal LauncherRepository LauncherRepository { get; set; }
+        internal LauncherRepository LauncherRepository { get; set; }
 
         [Import]
-        protected internal KeyboardMouseHookService KeyboardMouseHookService { get; set; }
+        internal KeyboardMouseHookService KeyboardMouseHookService { get; set; }
 
         private LauncherSelectorViewModel ViewModel { get; set; }
         private BehaviorSubject<string> TextChangedObservable { get; } = new BehaviorSubject<string>("");
@@ -54,17 +54,17 @@ namespace Panda.Client
             DataContext = ViewModel;
         }
 
-        protected internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ViewModel.Handle(e); // todo: rename
         }
 
-        protected internal void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+        internal void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             TextChangedObservable.OnNext(SearchText.Text);
         }
 
-        protected internal void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        internal void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
                 Hide();

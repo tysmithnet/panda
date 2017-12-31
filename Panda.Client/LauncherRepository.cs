@@ -5,10 +5,10 @@ using System.Linq;
 namespace Panda.Client
 {
     [Export]
-    public class LauncherRepository
+    public sealed class LauncherRepository
     {
         [ImportMany]
-        protected internal Launcher[] Launchers { get; set; }
+        internal Launcher[] Launchers { get; set; }
 
         public IEnumerable<Launcher> Search(string text)
         {

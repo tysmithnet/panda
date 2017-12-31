@@ -16,7 +16,7 @@ using Point = System.Drawing.Point;
 
 namespace Panda.EverythingLauncher
 {
-    public class EverythingLauncherViewModel : INotifyPropertyChanged
+    public sealed class EverythingLauncherViewModel : INotifyPropertyChanged
     {
         public EverythingLauncherViewModel(EverythingService everythingService,
             IFileSystemContextMenuProvider[] fileSystemContextMenuProviders, IObservable<string> textChangedObservable,
@@ -44,11 +44,11 @@ namespace Panda.EverythingLauncher
                 .Subscribe(tuple => HandlePreviewMouseRightButtonDown(tuple.Item1, tuple.Item2));
         }
 
-        public IDisposable SelectedItemsChangedSubscription { get; set; }
+        internal IDisposable SelectedItemsChangedSubscription { get; set; }
 
-        public IDisposable TextChangedSubscription { get; set; }
-        public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
-        public EverythingService EverythingService { get; set; }
+        internal IDisposable TextChangedSubscription { get; set; }
+        internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
+        internal EverythingService EverythingService { get; set; }
         public string SearchText { get; set; }
 
         public ObservableCollection<EverythingResultViewModel> EverythingResults { get; set; } =
@@ -57,18 +57,18 @@ namespace Panda.EverythingLauncher
         public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
 
-        public CancellationTokenSource CancellationTokenSource { get; private set; }
-        public IDisposable Subscription { get; set; }
+        internal CancellationTokenSource CancellationTokenSource { get; private set; }
+        internal IDisposable Subscription { get; set; }
 
-        public List<EverythingResultViewModel> SelectedItems { get; set; }
+        internal List<EverythingResultViewModel> SelectedItems { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
+        internal void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
         {
             ContextMenuItems = new ObservableCollection<FrameworkElement>();
             SelectedItems = selectedItems.ToList();
@@ -79,7 +79,7 @@ namespace Panda.EverythingLauncher
                 ContextMenuItems.Add(frameworkElement);
         }
 
-        public void HandleSearchTextChanged(string newText)
+        internal void HandleSearchTextChanged(string newText)
         {
             CancellationTokenSource?.Cancel();
             CancellationTokenSource = new CancellationTokenSource();
@@ -96,7 +96,7 @@ namespace Panda.EverythingLauncher
                     }, CancellationTokenSource.Token);
         }
 
-        public void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
+        internal void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
             IEnumerable<EverythingResultViewModel> selectedEverythingResultViewModels)
         {
             if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
@@ -119,13 +119,13 @@ namespace Panda.EverythingLauncher
             }
         }
 
-        public void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
+        internal void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
         {
             if (keyEventArgs.Key == Key.Enter || keyEventArgs.Key == Key.Return)
                 Submit();
         }
 
-        private void Submit()
+        internal void Submit()
         {
             foreach (var everythingResultViewModel in SelectedItems)
                 Process.Start(everythingResultViewModel.FullName);

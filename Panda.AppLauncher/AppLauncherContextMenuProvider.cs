@@ -10,11 +10,11 @@ namespace Panda.AppLauncher
 {
     [Export(typeof(IRegisteredApplicationContextMenuProvider))]
     [Export(typeof(IFileSystemContextMenuProvider))]
-    public class AppLauncherContextMenuProvider : IFileSystemContextMenuProvider,
+    public sealed class AppLauncherContextMenuProvider : IFileSystemContextMenuProvider,
         IRegisteredApplicationContextMenuProvider
     {
         [Import]
-        protected internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
+        internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
 
         public bool CanHandle(IEnumerable<FileInfo> fileInfos)
         {

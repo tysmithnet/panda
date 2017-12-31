@@ -13,7 +13,7 @@ namespace Panda.EverythingLauncher
     ///     Interaction logic for EverythingLauncher.xaml
     /// </summary>
     [Export(typeof(Launcher))]
-    public partial class EverythingLauncher : Launcher
+    public sealed partial class EverythingLauncher : Launcher
     {
         public EverythingLauncher()
         {

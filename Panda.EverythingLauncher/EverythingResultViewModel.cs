@@ -8,7 +8,7 @@ using Panda.Client;
 
 namespace Panda.EverythingLauncher
 {
-    public class EverythingResultViewModel : INotifyPropertyChanged
+    public sealed class EverythingResultViewModel : INotifyPropertyChanged
     {
         private ImageSource _icon;
 
@@ -45,11 +45,12 @@ namespace Panda.EverythingLauncher
                 }
                 catch (Exception)
                 {
+                    // todo: fallback icon
                 }
             });
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

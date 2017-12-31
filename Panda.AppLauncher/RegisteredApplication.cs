@@ -2,10 +2,10 @@
 
 namespace Panda.AppLauncher
 {
-    public class RegisteredApplication
+    public sealed class RegisteredApplication
     {
-        public string DisplayName { get; protected internal set; }
-        public string FullPath { get; protected internal set; }
+        public string DisplayName { get; set; }
+        public string FullPath { get; set; }
 
         public override bool Equals(object obj)
         {

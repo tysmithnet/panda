@@ -11,12 +11,12 @@ using Panda.Client;
 namespace Panda.EverythingLauncher
 {
     [Export]
-    public class EverythingService
+    public sealed class EverythingService
     {
         private ILog Log { get; } = LogManager.GetLogger<EverythingService>();
 
         [Import]
-        protected internal SettingsService SettingsService { get; set; }
+        internal SettingsService SettingsService { get; set; }
 
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {

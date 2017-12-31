@@ -11,7 +11,7 @@ using System.Windows.Controls;
 
 namespace Panda.Client
 {
-    public class LauncherSelectorViewModel : INotifyPropertyChanged
+    public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
         public LauncherSelectorViewModel(LauncherRepository launcherRepository,
             KeyboardMouseHookService keyboardMouseHookService, IObservable<string> textChangedObservable)
@@ -24,18 +24,18 @@ namespace Panda.Client
             });
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
             textChangedObservable
-                .ObserveOn(SynchronizationContext.Current)
+                .ObserveOn(SynchronizationContext.Current) 
                 .Subscribe(FilterApps);
         }
 
-        protected internal LauncherRepository LauncherRepository { get; set; }
+        internal LauncherRepository LauncherRepository { get; set; }
 
-        protected internal IEnumerable<LauncherViewModel> ViewModels { get; set; }
+        internal IEnumerable<LauncherViewModel> ViewModels { get; set; }
 
-        protected internal Launcher Active { get; set; }
-        protected internal ObservableCollection<LauncherViewModel> LauncherViewModels { get; set; }
+        internal Launcher Active { get; set; }
+        public ObservableCollection<LauncherViewModel> LauncherViewModels { get; set; }
 
-        protected internal string SearchText { get; set; }
+        internal string SearchText { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -52,7 +52,7 @@ namespace Panda.Client
             }
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -60,6 +60,16 @@ namespace Panda.Client
         public void FilterApps(string filter)
         {
             LauncherViewModels.Clear();
+
+            if (string.IsNullOrEmpty(filter))
+            {
+                foreach (var launcherViewModel in ViewModels)
+                {
+                    LauncherViewModels.Add(launcherViewModel);
+                }
+                return;
+            }
+
             foreach (var launcherViewModel in ViewModels.Where(vm =>
                 Regex.IsMatch(vm.Name, filter, RegexOptions.IgnoreCase)))
                 LauncherViewModels.Add(launcherViewModel);

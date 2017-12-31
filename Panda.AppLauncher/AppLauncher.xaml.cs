@@ -10,7 +10,7 @@ namespace Panda.AppLauncher
     ///     Interaction logic for AppLauncher.xaml
     /// </summary>
     [Export(typeof(Launcher))]
-    public partial class AppLauncher : Launcher
+    public sealed partial class AppLauncher : Launcher
     {
         public AppLauncher()
         {
@@ -18,12 +18,12 @@ namespace Panda.AppLauncher
         }
 
         [Import]
-        protected internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
+        internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
 
         [ImportMany]
-        protected internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+        internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
 
-        protected internal AppLauncherViewModel ViewModel { get; set; }
+        internal AppLauncherViewModel ViewModel { get; set; }
 
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {

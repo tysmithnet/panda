@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace Panda.AppLauncher
 {
-    public class AppLauncherViewModel : INotifyPropertyChanged
+    public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
         public AppLauncherViewModel(RegisteredApplicationRepository registeredApplicationRepository,
             IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
@@ -22,41 +22,53 @@ namespace Panda.AppLauncher
                     ExecutableLocation = registeredApplication.FullPath,
                     RegisteredApplication = registeredApplication
                 });
-            registeredApplicationRepository.ApplicationRegisteredObservable.Subscribe(application =>
-            {
-                AppViewModels.Add(new AppViewModel
+            ApplicationRegisteredSubscription =
+                registeredApplicationRepository.ApplicationRegisteredObservable.Subscribe(application =>
                 {
-                    AppName = application.DisplayName,
-                    ExecutableLocation = application.FullPath,
-                    RegisteredApplication = application
+                    AppViewModels.Add(new AppViewModel
+                    {
+                        AppName = application.DisplayName,
+                        ExecutableLocation = application.FullPath,
+                        RegisteredApplication = application
+                    });
                 });
-            });
-            registeredApplicationRepository.ApplicationUnregisteredObservable.Subscribe(application =>
-            {
-                var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
-                foreach (var appViewModel in toRemove)
-                    AppViewModels.Remove(appViewModel);
-            });
+            ApplicationUnregisteredSubscription =
+                registeredApplicationRepository.ApplicationUnregisteredObservable.Subscribe(application =>
+                {
+                    var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
+                    foreach (var appViewModel in toRemove)
+                        AppViewModels.Remove(appViewModel);
+                });
         }
 
-        protected internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+        internal IDisposable ApplicationUnregisteredSubscription { get; set; }
 
-        protected internal ObservableCollection<AppViewModel> AppViewModels { get; set; } =
+        internal IDisposable ApplicationRegisteredSubscription { get; set; }
+
+        internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+
+        public ObservableCollection<AppViewModel> AppViewModels { get; set; } =
             new ObservableCollection<AppViewModel>();
 
-        protected internal RegisteredApplicationRepository RegisteredApplicationRepository { get; }
+        internal RegisteredApplicationRepository RegisteredApplicationRepository { get; }
 
-        protected internal ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
+        public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
+
+        public void Dispose()
+        {
+            ApplicationUnregisteredSubscription?.Dispose();
+            ApplicationRegisteredSubscription?.Dispose();
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected internal void HandleSelectedItemsChanged(IEnumerable<AppViewModel> selectedItems)
+        internal void HandleSelectedItemsChanged(IEnumerable<AppViewModel> selectedItems)
         {
             ContextMenuItems.Clear();
             var list = selectedItems.ToList();
