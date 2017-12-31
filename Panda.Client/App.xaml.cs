@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
+﻿using System.Collections.Generic;
 using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,28 +56,10 @@ namespace Panda.Client
                 }
             })).ToArray();
             Task.WaitAll(setupTasks);
-            SetupKeyListeners();
             Selector.Show();
         }
 
         public LauncherSelector Selector { get; set; }
-
-        private void SetupKeyListeners()
-        {
-            GlobalEvents = Hook.GlobalEvents();
-            AppEvents = Hook.AppEvents();
-            GlobalEvents.KeyDown += (sender, args) =>
-            {
-                if (!args.Alt || args.KeyCode != Keys.Space) return;
-                Selector.WindowState = WindowState.Normal;
-                Selector.Activate();
-                Selector.Topmost = true;
-                args.Handled = true;
-            };
-        }
-
-        public IKeyboardMouseEvents AppEvents { get; set; }
-
-        public IKeyboardMouseEvents GlobalEvents { get; set; }
+                                                   
     }
 }

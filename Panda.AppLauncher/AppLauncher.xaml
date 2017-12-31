@@ -7,8 +7,9 @@
              xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
-                 Activated="AppLauncher_OnActivated"
-             d:DesignHeight="300" d:DesignWidth="300">
+             Activated="AppLauncher_OnActivated"
+             d:DesignHeight="300" d:DesignWidth="300"
+             Title="App Launcher">
     <DockPanel>
         <TextBox DockPanel.Dock="Top"></TextBox>
         <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended" SelectionChanged="Selector_OnSelectionChanged">

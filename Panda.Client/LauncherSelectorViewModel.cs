@@ -8,6 +8,7 @@ using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Panda.Client
 {
@@ -15,7 +16,7 @@ namespace Panda.Client
     {
         public LauncherRepository LauncherRepository { get; set; }
 
-        public LauncherSelectorViewModel(LauncherRepository launcherRepository, IObservable<string> textChangedObservable)
+        public LauncherSelectorViewModel(LauncherRepository launcherRepository, KeyboardMouseHookService keyboardMouseHookService ,IObservable<string> textChangedObservable)
         {
             LauncherRepository = launcherRepository;
             ViewModels = LauncherRepository.Get().Select(l => new LauncherViewModel
@@ -28,6 +29,7 @@ namespace Panda.Client
                 .ObserveOn(SynchronizationContext.Current)  
                 .Subscribe(FilterApps);
 
+            
         }
 
         public IEnumerable<LauncherViewModel> ViewModels { get; set; }

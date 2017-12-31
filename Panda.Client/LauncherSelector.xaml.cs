@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -26,18 +27,31 @@ namespace Panda.Client
         [Import]
         protected internal LauncherRepository LauncherRepository { get; set; }
 
+        [Import]
+        protected internal KeyboardMouseHookService KeyboardMouseHookService { get; set; }
+
         private LauncherSelectorViewModel ViewModel { get; set; }
         private BehaviorSubject<string> TextChangedObservable { get; set; } = new BehaviorSubject<string>("");
 
         public LauncherSelector()
         {   
-            InitializeComponent();
-            
+            InitializeComponent(); 
         }
                    
         private void LauncherSelector_OnActivated(object sender, EventArgs e)
         {
-            ViewModel = new LauncherSelectorViewModel(LauncherRepository, TextChangedObservable);
+            KeyboardMouseHookService.KeyDownObservable.Subscribe(args =>
+            {
+                if (args.Alt && args.KeyCode.HasFlag(Keys.Space))
+                {
+
+                    WindowState = WindowState.Normal;
+                    Activate();
+                    Topmost = true;
+                    args.Handled = true;
+                }
+            });
+            ViewModel = new LauncherSelectorViewModel(LauncherRepository, KeyboardMouseHookService, TextChangedObservable);
             DataContext = ViewModel;
         }
           
