@@ -15,12 +15,9 @@ namespace Panda.AppLauncher
     [Export(typeof(IRegisteredApplicationContextMenuProvider))]
     [Export(typeof(IFileSystemContextMenuProvider))]
     public class AppLauncherContextMenuProvider : IFileSystemContextMenuProvider, IRegisteredApplicationContextMenuProvider
-    {
+    {     
         [Import]
-        public SettingsService SettingsService { get; set; }
-
-        [Import]
-        public AppLauncherRepository AppLauncherRepository { get; set; }
+        public RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
 
         public bool CanHandle(IEnumerable<FileInfo> fileInfos)
         {
@@ -28,9 +25,7 @@ namespace Panda.AppLauncher
         }
 
         public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<FileInfo> fileInfos)
-        {
-            var appLauncherSettings = SettingsService.Get<AppLauncherSettings>().Single();
-            var items = new List<MenuItem>();
+        {                                      
             var menuItem = new MenuItem
             {
                 Header = "Add to Applications"
@@ -45,15 +40,11 @@ namespace Panda.AppLauncher
                         FullPath = fileInfo.FullName,
                         DisplayName = fileInfo.Name
                     };
-                    appLauncherSettings.RegisteredApplications.Add(registerdApp);
-                };
-                items.Add(menuItem);
-            }
-            menuItem.Click += (sender, args) =>
-            {
-                SettingsService.Save(CancellationToken.None);
-            };                                         
-            return items;
+                    RegisteredApplicationRepository.Add(registerdApp);
+                };              
+            }                    
+            menuItem.Click += (sender, args) => RegisteredApplicationRepository.Save();
+            return new[] {menuItem};
         }
 
         public bool CanHandle(IEnumerable<RegisteredApplication> items)
@@ -67,9 +58,9 @@ namespace Panda.AppLauncher
             menuItem.Header = "Remove from Applications";
             foreach (var registeredApplication in items)
             {
-                menuItem.Click += (sender, args) => AppLauncherRepository.Remove(registeredApplication);
+                menuItem.Click += (sender, args) => RegisteredApplicationRepository.Remove(registeredApplication);
             }
-            menuItem.Click += (sender, args) => AppLauncherRepository.Save();
+            menuItem.Click += (sender, args) => RegisteredApplicationRepository.Save();
             return new[] {menuItem};
         }
     }

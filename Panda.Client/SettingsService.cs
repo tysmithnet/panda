@@ -55,14 +55,13 @@ namespace Panda.Client
             return Task.CompletedTask;
         }
 
-        public Task Save(CancellationToken cancellationToken)
+        public void Save()
         {
             foreach (var settings in AllPluginSettings)
             {
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 File.WriteAllText($"{settings.GetType().FullName}.config.json", json);
             }
-            return Task.CompletedTask;
         }
     }
 }

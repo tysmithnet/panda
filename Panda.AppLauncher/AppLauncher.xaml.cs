@@ -14,7 +14,7 @@ namespace Panda.AppLauncher
     public partial class AppLauncher : Launcher
     {
         [Import]
-        public AppLauncherRepository AppLauncherRepository { get; set; }
+        public RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
 
         [ImportMany]
         public IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
@@ -26,7 +26,7 @@ namespace Panda.AppLauncher
 
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
-            ViewModel = new AppLauncherViewModel(AppLauncherRepository, RegisteredApplicationContextMenuProviders);
+            ViewModel = new AppLauncherViewModel(RegisteredApplicationRepository, RegisteredApplicationContextMenuProviders);
             DataContext = ViewModel;
         }
 

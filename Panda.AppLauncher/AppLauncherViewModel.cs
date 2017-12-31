@@ -13,11 +13,11 @@ namespace Panda.AppLauncher
 {
     public class AppLauncherViewModel : INotifyPropertyChanged
     {
-        public AppLauncherViewModel(AppLauncherRepository appLauncherRepository, IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
+        public AppLauncherViewModel(RegisteredApplicationRepository registeredApplicationRepository, IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
         {
-            AppLauncherRepository = appLauncherRepository;
+            RegisteredApplicationRepository = registeredApplicationRepository;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
-            foreach (var registeredApplication in appLauncherRepository.Get())
+            foreach (var registeredApplication in registeredApplicationRepository.Get())
             {
                 AppViewModels.Add(new AppViewModel
                 {
@@ -26,11 +26,28 @@ namespace Panda.AppLauncher
                     RegisteredApplication = registeredApplication
                 });
             }
+            registeredApplicationRepository.ApplicationRegisteredObservable.Subscribe(application =>
+            {
+                AppViewModels.Add(new AppViewModel
+                {
+                    AppName = application.DisplayName,
+                    ExecutableLocation = application.FullPath,
+                    RegisteredApplication = application
+                });
+            });
+            registeredApplicationRepository.ApplicationUnregisteredObservable.Subscribe(application =>
+            {
+                var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
+                foreach (var appViewModel in toRemove)
+                {
+                    AppViewModels.Remove(appViewModel);
+                }
+            });
         }
 
         public IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
         public ObservableCollection<AppViewModel> AppViewModels { get; set; } = new ObservableCollection<AppViewModel>();
-        public AppLauncherRepository AppLauncherRepository { get; }
+        public RegisteredApplicationRepository RegisteredApplicationRepository { get; }
         public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } = new ObservableCollection<FrameworkElement>();
 
         public event PropertyChangedEventHandler PropertyChanged;
