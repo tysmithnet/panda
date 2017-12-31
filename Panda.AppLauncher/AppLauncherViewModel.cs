@@ -4,28 +4,24 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using Panda.Client;
 
 namespace Panda.AppLauncher
 {
     public class AppLauncherViewModel : INotifyPropertyChanged
     {
-        public AppLauncherViewModel(RegisteredApplicationRepository registeredApplicationRepository, IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
+        public AppLauncherViewModel(RegisteredApplicationRepository registeredApplicationRepository,
+            IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
         {
             RegisteredApplicationRepository = registeredApplicationRepository;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
             foreach (var registeredApplication in registeredApplicationRepository.Get())
-            {
                 AppViewModels.Add(new AppViewModel
                 {
                     AppName = registeredApplication.DisplayName,
                     ExecutableLocation = registeredApplication.FullPath,
                     RegisteredApplication = registeredApplication
                 });
-            }
             registeredApplicationRepository.ApplicationRegisteredObservable.Subscribe(application =>
             {
                 AppViewModels.Add(new AppViewModel
@@ -39,16 +35,19 @@ namespace Panda.AppLauncher
             {
                 var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
                 foreach (var appViewModel in toRemove)
-                {
                     AppViewModels.Remove(appViewModel);
-                }
             });
         }
 
         public IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
-        public ObservableCollection<AppViewModel> AppViewModels { get; set; } = new ObservableCollection<AppViewModel>();
+
+        public ObservableCollection<AppViewModel> AppViewModels { get; set; } =
+            new ObservableCollection<AppViewModel>();
+
         public RegisteredApplicationRepository RegisteredApplicationRepository { get; }
-        public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } = new ObservableCollection<FrameworkElement>();
+
+        public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
+            new ObservableCollection<FrameworkElement>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -59,16 +58,17 @@ namespace Panda.AppLauncher
 
         public void HandleSelectedItemsChanged(IEnumerable<AppViewModel> selectedItems)
         {
-            ContextMenuItems.Clear(); 
+            ContextMenuItems.Clear();
             var list = selectedItems.ToList();
             foreach (var registeredApplicationContextMenuProvider in RegisteredApplicationContextMenuProviders)
             {
-                var canHandle = registeredApplicationContextMenuProvider.CanHandle(list.Select(model => model.RegisteredApplication));
-                if(canHandle)
-                    foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(list.Select(model => model.RegisteredApplication)))
-                    {
+                var canHandle =
+                    registeredApplicationContextMenuProvider.CanHandle(
+                        list.Select(model => model.RegisteredApplication));
+                if (canHandle)
+                    foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
+                        list.Select(model => model.RegisteredApplication)))
                         ContextMenuItems.Add(item);
-                    }
             }
         }
     }

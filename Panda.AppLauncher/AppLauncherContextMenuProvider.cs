@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Panda.Client;
@@ -14,8 +10,9 @@ namespace Panda.AppLauncher
 {
     [Export(typeof(IRegisteredApplicationContextMenuProvider))]
     [Export(typeof(IFileSystemContextMenuProvider))]
-    public class AppLauncherContextMenuProvider : IFileSystemContextMenuProvider, IRegisteredApplicationContextMenuProvider
-    {     
+    public class AppLauncherContextMenuProvider : IFileSystemContextMenuProvider,
+        IRegisteredApplicationContextMenuProvider
+    {
         [Import]
         public RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
 
@@ -25,14 +22,13 @@ namespace Panda.AppLauncher
         }
 
         public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<FileInfo> fileInfos)
-        {                                      
+        {
             var menuItem = new MenuItem
             {
                 Header = "Add to Applications"
             };
 
             foreach (var fileInfo in fileInfos)
-            {
                 menuItem.Click += (sender, args) =>
                 {
                     var registerdApp = new RegisteredApplication
@@ -41,8 +37,7 @@ namespace Panda.AppLauncher
                         DisplayName = fileInfo.Name
                     };
                     RegisteredApplicationRepository.Add(registerdApp);
-                };              
-            }                    
+                };
             menuItem.Click += (sender, args) => RegisteredApplicationRepository.Save();
             return new[] {menuItem};
         }
@@ -57,9 +52,7 @@ namespace Panda.AppLauncher
             var menuItem = new MenuItem();
             menuItem.Header = "Remove from Applications";
             foreach (var registeredApplication in items)
-            {
                 menuItem.Click += (sender, args) => RegisteredApplicationRepository.Remove(registeredApplication);
-            }
             menuItem.Click += (sender, args) => RegisteredApplicationRepository.Save();
             return new[] {menuItem};
         }

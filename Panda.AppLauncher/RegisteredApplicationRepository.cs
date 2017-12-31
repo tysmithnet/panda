@@ -52,7 +52,7 @@ namespace Panda.AppLauncher
         }
 
         public void Add(RegisteredApplication registeredApplication)
-        {   
+        {
             Settings.RegisteredApplications.Add(registeredApplication);
             RegisteredApplications.Add(registeredApplication);
             ApplicationRegisteredSubject.OnNext(registeredApplication);

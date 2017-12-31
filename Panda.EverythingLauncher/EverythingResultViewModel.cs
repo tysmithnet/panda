@@ -1,11 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Panda.Client;
 
 namespace Panda.EverythingLauncher
@@ -19,19 +17,6 @@ namespace Panda.EverythingLauncher
             FullName = fullName;
             Name = Path.GetFileName(fullName);
             Directory = Path.GetDirectoryName(fullName);
-        }
-
-        public Task LoadIcon()
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    Icon = IconHelper.IconFromFilePath(FullName);
-                }
-                catch(Exception)
-                {}
-            });
         }
 
         public string FullName { get; set; }
@@ -49,6 +34,20 @@ namespace Panda.EverythingLauncher
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public Task LoadIcon()
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    Icon = IconHelper.IconFromFilePath(FullName);
+                }
+                catch (Exception)
+                {
+                }
+            });
+        }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

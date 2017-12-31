@@ -22,7 +22,7 @@ namespace Panda.Client
             GlobalEvents.KeyPress += (sender, args) => KeyPressSubject.OnNext(args);
             GlobalEvents.KeyUp += (sender, args) => KeyUpSubject.OnNext(args);
         }
-                                                                                                                     
+
 
         public IObservable<KeyEventArgs> KeyDownObservable => KeyDownSubject;
         public IObservable<KeyPressEventArgs> KeyPressObservable => KeyPressSubject;

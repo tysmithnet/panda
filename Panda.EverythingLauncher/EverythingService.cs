@@ -13,7 +13,7 @@ namespace Panda.EverythingLauncher
     [Export]
     public class EverythingService
     {
-        private ILog Log { get; set; } = LogManager.GetLogger<EverythingService>();
+        private ILog Log { get; } = LogManager.GetLogger<EverythingService>();
 
         [Import]
         public SettingsService SettingsService { get; set; }
@@ -49,10 +49,10 @@ namespace Panda.EverythingLauncher
 
                         if (!cancellationToken.IsCancellationRequested && !token.IsCancellationRequested) continue;
                         Log.Debug($"Killing: {process.Id}");
-                        process.Kill();                     
+                        process.Kill();
                         observer.OnCompleted();
                         return;
-                    }   
+                    }
                     Log.Debug($"Finished: {process.Id}");
                     process.Kill();
                     observer.OnCompleted();

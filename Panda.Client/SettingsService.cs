@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;  
+using System.Threading.Tasks;
 using Common.Logging;
 using Newtonsoft.Json;
 
 namespace Panda.Client
-{                                       
+{
     [Export(typeof(SettingsService))]
     public class SettingsService
     {
@@ -28,7 +27,7 @@ namespace Panda.Client
         {
             foreach (var settings in AllPluginSettings)
             {
-                string fileName = $"{settings.GetType().FullName}.config.json";
+                var fileName = $"{settings.GetType().FullName}.config.json";
                 try
                 {
                     var json = File.ReadAllText(fileName);
@@ -41,7 +40,8 @@ namespace Panda.Client
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Unable to revive settings from {fileName} because {e.Message}, falling back to defaults");
+                    Log.Error(
+                        $"Unable to revive settings from {fileName} because {e.Message}, falling back to defaults");
                     try
                     {
                         File.WriteAllText(fileName, JsonConvert.SerializeObject(settings, Formatting.Indented));

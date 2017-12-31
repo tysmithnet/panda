@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:Panda.Client"
              Startup="App_OnStartup">
     <Application.Resources>
-         
+
     </Application.Resources>
 </Application>

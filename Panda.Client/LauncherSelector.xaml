@@ -10,11 +10,12 @@
         Activated="LauncherSelector_OnActivated"
         PreviewKeyUp="LauncherSelector_OnPreviewKeyUp">
     <DockPanel>
-        <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}" TextChanged="TextBoxBase_OnTextChanged"></TextBox>
+        <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}"
+                 TextChanged="TextBoxBase_OnTextChanged" />
         <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding Name}"></Label>
+                    <Label Content="{Binding Name}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

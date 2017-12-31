@@ -1,27 +1,27 @@
 ﻿<client:Launcher x:Class="Panda.AppLauncher.AppLauncher"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Panda.AppLauncher"
-             xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
-             mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
-             Activated="AppLauncher_OnActivated"
-             d:DesignHeight="300" d:DesignWidth="300"
-             Title="App Launcher">
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:local="clr-namespace:Panda.AppLauncher"
+                 xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
+                 mc:Ignorable="d"
+                 d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
+                 Activated="AppLauncher_OnActivated"
+                 d:DesignHeight="300" d:DesignWidth="300"
+                 Title="App Launcher">
     <DockPanel>
-        <TextBox DockPanel.Dock="Top"></TextBox>
-        <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended" SelectionChanged="Selector_OnSelectionChanged">
+        <TextBox DockPanel.Dock="Top" />
+        <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended"
+                 SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ContextMenu>
-                <ContextMenu ItemsSource="{Binding ContextMenuItems}"></ContextMenu>
+                <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding AppName}"></Label>
+                    <Label Content="{Binding AppName}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
     </DockPanel>
 </client:Launcher>
-

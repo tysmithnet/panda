@@ -18,7 +18,6 @@ namespace Panda.Client
 
         public void Select()
         {
-            
         }
     }
 }
