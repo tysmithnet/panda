@@ -56,5 +56,10 @@ namespace Panda.EverythingLauncher
         {
             PreviewMouseRightButtonDownObservable.OnNext(e);
         }
+
+        private void ResultsListBox_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            ViewModel.HandlePreviewKeyUp(e);
+        }
     }
 }

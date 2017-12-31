@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -69,12 +70,15 @@ namespace Panda.EverythingLauncher
         public void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
         {
             ContextMenuItems = new ObservableCollection<FrameworkElement>();
-            var fileInfos = selectedItems.Select(s => new FileInfo(s.FullName));
+            SelectedItems = selectedItems.ToList();
+            var fileInfos = SelectedItems.Select(s => new FileInfo(s.FullName));
             var providers = FileSystemContextMenuProviders.Where(f => f.CanHandle(fileInfos));
             var menuItems = providers.SelectMany(p => p.GetContextMenuItems(fileInfos));
             foreach (var frameworkElement in menuItems)
                 ContextMenuItems.Add(frameworkElement);
         }
+
+        public List<EverythingResultViewModel> SelectedItems { get; set; }
 
         public void HandleSearchTextChanged(string newText)
         {
@@ -114,6 +118,22 @@ namespace Panda.EverythingLauncher
                     shellContextMenu.ShowContextMenu(files, pointInfo);
                 else
                     shellContextMenu.ShowContextMenu(files, directoryInfos, pointInfo);
+            }
+        }
+
+        public void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
+        {
+            if (keyEventArgs.Key == Key.Enter || keyEventArgs.Key == Key.Return)
+            {
+                Submit();
+            }
+        }
+
+        private void Submit()
+        {
+            foreach (var everythingResultViewModel in SelectedItems)
+            {
+                Process.Start(everythingResultViewModel.FullName);
             }
         }
     }
