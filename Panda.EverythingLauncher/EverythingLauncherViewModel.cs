@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -60,6 +59,8 @@ namespace Panda.EverythingLauncher
 
         public CancellationTokenSource CancellationTokenSource { get; private set; }
         public IDisposable Subscription { get; set; }
+
+        public List<EverythingResultViewModel> SelectedItems { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -78,24 +79,21 @@ namespace Panda.EverythingLauncher
                 ContextMenuItems.Add(frameworkElement);
         }
 
-        public List<EverythingResultViewModel> SelectedItems { get; set; }
-
         public void HandleSearchTextChanged(string newText)
         {
             CancellationTokenSource?.Cancel();
             CancellationTokenSource = new CancellationTokenSource();
             Subscription?.Dispose();
             EverythingResults.Clear();
-            Subscription = EverythingService.Search(newText, CancellationTokenSource.Token)
-                .Subscribe(
-                    result =>
+            Subscription = EverythingService
+                .Search(newText, CancellationTokenSource.Token)
+                .ForEachAsync(
+                    async result =>
                     {
-                        var resultVm = new EverythingResultViewModel
-                        {
-                            FullName = result.FullPath
-                        };
+                        var resultVm = new EverythingResultViewModel(result.FullPath);
                         Application.Current.Dispatcher.Invoke(() => { EverythingResults.Add(resultVm); });
-                    });
+                        await resultVm.LoadIcon();
+                    }, CancellationTokenSource.Token);
         }
 
         public void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
@@ -103,7 +101,7 @@ namespace Panda.EverythingLauncher
         {
             if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
             {
-                var shellContextMenu = new ShellContextMenu();     
+                var shellContextMenu = new ShellContextMenu();
                 var point = Mouse.GetPosition(null);
                 var fileInfos = selectedEverythingResultViewModels.Select(vm => new FileInfo(vm.FullName)).ToList();
                 var directories = fileInfos.Where(info => info.Attributes.HasFlag(FileAttributes.Directory)).ToList();
@@ -112,9 +110,9 @@ namespace Panda.EverythingLauncher
                 var pointInfo = new Point((int) point.X, (int) point.Y);
                 if (!files.Any() && !directories.Any())
                     return;
-                if(!files.Any())
+                if (!files.Any())
                     shellContextMenu.ShowContextMenu(directoryInfos, pointInfo);
-                else if(!directories.Any())
+                else if (!directories.Any())
                     shellContextMenu.ShowContextMenu(files, pointInfo);
                 else
                     shellContextMenu.ShowContextMenu(files, directoryInfos, pointInfo);
@@ -124,17 +122,13 @@ namespace Panda.EverythingLauncher
         public void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
         {
             if (keyEventArgs.Key == Key.Enter || keyEventArgs.Key == Key.Return)
-            {
                 Submit();
-            }
         }
 
         private void Submit()
         {
             foreach (var everythingResultViewModel in SelectedItems)
-            {
                 Process.Start(everythingResultViewModel.FullName);
-            }
         }
     }
 }

@@ -20,7 +20,13 @@
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding FullName}"></Label>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Icon}"></Image>
+                        <StackPanel>
+                            <Label Content="{Binding Name}"></Label>
+                            <Label Content="{Binding Directory}"></Label>
+                        </StackPanel>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

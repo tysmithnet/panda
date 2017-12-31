@@ -1,11 +1,53 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Panda.Client;
 
 namespace Panda.EverythingLauncher
 {
     public class EverythingResultViewModel : INotifyPropertyChanged
     {
+        private ImageSource _icon;
+
+        public EverythingResultViewModel(string fullName)
+        {
+            FullName = fullName;
+            Name = Path.GetFileName(fullName);
+            Directory = Path.GetDirectoryName(fullName);
+        }
+
+        public Task LoadIcon()
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    Icon = IconHelper.IconFromFilePath(FullName);
+                }
+                catch(Exception)
+                {}
+            });
+        }
+
         public string FullName { get; set; }
+        public string Directory { get; set; }
+        public string Name { get; set; }
+
+        public ImageSource Icon
+        {
+            get => _icon;
+            set
+            {
+                _icon = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
