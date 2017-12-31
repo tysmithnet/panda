@@ -9,8 +9,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;    
+using System.Windows;
+using System.Windows.Forms;
 using Common.Logging;
+using Gma.System.MouseKeyHook;
+using Application = System.Windows.Application;
 
 namespace Panda.Client
 {
@@ -30,7 +33,7 @@ namespace Panda.Client
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
             var compositionContainer = new CompositionContainer(aggregateCatalog);  
-            var selector = compositionContainer.GetExportedValue<LauncherSelector>();
+            Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
             var settingService = compositionContainer.GetExportedValue<SettingsService>();
             settingService.Setup(CancellationToken.None).Wait();
@@ -53,7 +56,28 @@ namespace Panda.Client
                 }
             })).ToArray();
             Task.WaitAll(setupTasks);
-            selector.Show();
+            SetupKeyListeners();
+            Selector.Show();
         }
+
+        public LauncherSelector Selector { get; set; }
+
+        private void SetupKeyListeners()
+        {
+            GlobalEvents = Hook.GlobalEvents();
+            AppEvents = Hook.AppEvents();
+            GlobalEvents.KeyDown += (sender, args) =>
+            {
+                if (!args.Alt || args.KeyCode != Keys.Space) return;
+                Selector.WindowState = WindowState.Normal;
+                Selector.Activate();
+                Selector.Topmost = true;
+                args.Handled = true;
+            };
+        }
+
+        public IKeyboardMouseEvents AppEvents { get; set; }
+
+        public IKeyboardMouseEvents GlobalEvents { get; set; }
     }
 }

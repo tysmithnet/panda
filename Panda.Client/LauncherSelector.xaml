@@ -7,12 +7,16 @@
         d:DataContext="{d:DesignInstance local:LauncherSelectorViewModel}"
         mc:Ignorable="d"
         Title="LauncherSelector" Height="350" Width="525"
-        Activated="LauncherSelector_OnActivated">
-    <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
-        <ListBox.ItemTemplate>
-            <DataTemplate>
-                <Label Content="{Binding Name}"></Label>
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+        Activated="LauncherSelector_OnActivated"
+        PreviewLostKeyboardFocus="LauncherSelector_OnPreviewLostKeyboardFocus">
+    <DockPanel>
+        <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}" TextChanged="TextBoxBase_OnTextChanged"></TextBox>
+        <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Label Content="{Binding Name}"></Label>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
 </Window>
