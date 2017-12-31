@@ -14,7 +14,7 @@ namespace Panda.Client
         protected internal Subject<KeyEventArgs> KeyUpSubject = new Subject<KeyEventArgs>();
 
 
-        public KeyboardMouseHookService()
+        protected internal KeyboardMouseHookService()
         {
             GlobalEvents = Hook.GlobalEvents();
             AppEvents = Hook.AppEvents();
@@ -22,14 +22,13 @@ namespace Panda.Client
             GlobalEvents.KeyPress += (sender, args) => KeyPressSubject.OnNext(args);
             GlobalEvents.KeyUp += (sender, args) => KeyUpSubject.OnNext(args);
         }
-
-
+                           
         public IObservable<KeyEventArgs> KeyDownObservable => KeyDownSubject;
         public IObservable<KeyPressEventArgs> KeyPressObservable => KeyPressSubject;
         public IObservable<KeyEventArgs> KeyUpObservable => KeyUpSubject;
 
-        public IKeyboardMouseEvents AppEvents { get; set; }
+        protected internal IKeyboardMouseEvents AppEvents { get; set; }
 
-        public IKeyboardMouseEvents GlobalEvents { get; set; }
+        protected internal IKeyboardMouseEvents GlobalEvents { get; set; }
     }
 }

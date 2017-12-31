@@ -28,14 +28,14 @@ namespace Panda.Client
                 .Subscribe(FilterApps);
         }
 
-        public LauncherRepository LauncherRepository { get; set; }
+        protected internal LauncherRepository LauncherRepository { get; set; }
 
-        public IEnumerable<LauncherViewModel> ViewModels { get; set; }
+        protected internal IEnumerable<LauncherViewModel> ViewModels { get; set; }
 
-        public Launcher Active { get; set; }
-        public ObservableCollection<LauncherViewModel> LauncherViewModels { get; set; }
+        protected internal Launcher Active { get; set; }
+        protected internal ObservableCollection<LauncherViewModel> LauncherViewModels { get; set; }
 
-        public string SearchText { get; set; }
+        protected internal string SearchText { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

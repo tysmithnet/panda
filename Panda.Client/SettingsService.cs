@@ -13,7 +13,7 @@ namespace Panda.Client
     [Export(typeof(SettingsService))]
     public class SettingsService
     {
-        protected ILog Log = LogManager.GetLogger<SettingsService>();
+        private ILog Log = LogManager.GetLogger<SettingsService>();
 
         [ImportMany]
         protected internal IPluginSettings[] AllPluginSettings { get; set; }

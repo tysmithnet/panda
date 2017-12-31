@@ -18,12 +18,12 @@ namespace Panda.AppLauncher
         }
 
         [Import]
-        public RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
+        protected internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
 
         [ImportMany]
-        public IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+        protected internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
 
-        public AppLauncherViewModel ViewModel { get; set; }
+        protected internal AppLauncherViewModel ViewModel { get; set; }
 
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {

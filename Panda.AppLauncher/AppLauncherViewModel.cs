@@ -39,14 +39,14 @@ namespace Panda.AppLauncher
             });
         }
 
-        public IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+        protected internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
 
-        public ObservableCollection<AppViewModel> AppViewModels { get; set; } =
+        protected internal ObservableCollection<AppViewModel> AppViewModels { get; set; } =
             new ObservableCollection<AppViewModel>();
 
-        public RegisteredApplicationRepository RegisteredApplicationRepository { get; }
+        protected internal RegisteredApplicationRepository RegisteredApplicationRepository { get; }
 
-        public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
+        protected internal ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -56,7 +56,7 @@ namespace Panda.AppLauncher
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void HandleSelectedItemsChanged(IEnumerable<AppViewModel> selectedItems)
+        protected internal void HandleSelectedItemsChanged(IEnumerable<AppViewModel> selectedItems)
         {
             ContextMenuItems.Clear();
             var list = selectedItems.ToList();

@@ -6,9 +6,9 @@ namespace Panda.AppLauncher
 {
     public class AppViewModel : INotifyPropertyChanged
     {
-        public string AppName { get; set; }
-        public string ExecutableLocation { get; set; }
-        public RegisteredApplication RegisteredApplication { get; set; }
+        protected internal string AppName { get; set; }
+        protected internal string ExecutableLocation { get; set; }
+        protected internal RegisteredApplication RegisteredApplication { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

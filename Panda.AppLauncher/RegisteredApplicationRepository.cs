@@ -29,7 +29,7 @@ namespace Panda.AppLauncher
 
         public IObservable<RegisteredApplication> ApplicationUnregisteredObservable => ApplicationUnregisteredSubject;
 
-        public AppLauncherSettings Settings { get; set; }
+        protected internal AppLauncherSettings Settings { get; set; }
 
         public Task Setup(CancellationToken cancellationToken)
         {

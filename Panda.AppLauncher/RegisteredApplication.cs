@@ -4,13 +4,12 @@ namespace Panda.AppLauncher
 {
     public class RegisteredApplication
     {
-        public string DisplayName { get; set; }
-        public string FullPath { get; set; }
+        public string DisplayName { get; protected internal set; }
+        public string FullPath { get; protected internal set; }
 
         public override bool Equals(object obj)
         {
-            var application = obj as RegisteredApplication;
-            return application != null &&
+            return obj is RegisteredApplication application &&
                    DisplayName == application.DisplayName &&
                    FullPath == application.FullPath;
         }

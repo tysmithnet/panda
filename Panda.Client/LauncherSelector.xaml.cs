@@ -54,17 +54,17 @@ namespace Panda.Client
             DataContext = ViewModel;
         }
 
-        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        protected internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ViewModel.Handle(e); // todo: rename
         }
 
-        private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+        protected internal void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             TextChangedObservable.OnNext(SearchText.Text);
         }
 
-        private void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        protected internal void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
                 Hide();

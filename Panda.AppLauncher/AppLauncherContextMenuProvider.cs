@@ -14,7 +14,7 @@ namespace Panda.AppLauncher
         IRegisteredApplicationContextMenuProvider
     {
         [Import]
-        public RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
+        protected internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
 
         public bool CanHandle(IEnumerable<FileInfo> fileInfos)
         {
@@ -49,8 +49,7 @@ namespace Panda.AppLauncher
 
         public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<RegisteredApplication> items)
         {
-            var menuItem = new MenuItem();
-            menuItem.Header = "Remove from Applications";
+            var menuItem = new MenuItem {Header = "Remove from Applications"};
             foreach (var registeredApplication in items)
                 menuItem.Click += (sender, args) => RegisteredApplicationRepository.Remove(registeredApplication);
             menuItem.Click += (sender, args) => RegisteredApplicationRepository.Save();

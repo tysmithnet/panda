@@ -5,8 +5,8 @@ namespace Panda.Client
 {
     public class LauncherViewModel : INotifyPropertyChanged
     {
-        public string Name { get; set; }
-        public Launcher Instance { get; set; }
+        protected internal string Name { get; set; }
+        protected internal Launcher Instance { get; set; }
 
 
         public event PropertyChangedEventHandler PropertyChanged;

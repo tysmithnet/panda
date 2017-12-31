@@ -16,7 +16,7 @@ namespace Panda.EverythingLauncher
         private ILog Log { get; } = LogManager.GetLogger<EverythingService>();
 
         [Import]
-        public SettingsService SettingsService { get; set; }
+        protected internal SettingsService SettingsService { get; set; }
 
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {

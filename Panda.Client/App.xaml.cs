@@ -22,7 +22,7 @@ namespace Panda.Client
     /// </summary>
     public partial class App : Application
     {
-        protected ILog Log = LogManager.GetLogger<App>();
+        private ILog Log = LogManager.GetLogger<App>();
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
