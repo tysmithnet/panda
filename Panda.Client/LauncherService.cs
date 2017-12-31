@@ -5,7 +5,7 @@ using System.Linq;
 namespace Panda.Client
 {
     [Export]
-    public sealed class LauncherRepository
+    public sealed class LauncherService
     {
         [ImportMany]
         internal Launcher[] Launchers { get; set; }

@@ -13,11 +13,11 @@ namespace Panda.Client
 {
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
-        public LauncherSelectorViewModel(LauncherRepository launcherRepository,
+        public LauncherSelectorViewModel(LauncherService launcherService,
             KeyboardMouseHookService keyboardMouseHookService, IObservable<string> textChangedObservable)
         {
-            LauncherRepository = launcherRepository;
-            ViewModels = LauncherRepository.Get().Select(l => new LauncherViewModel
+            LauncherService = launcherService;
+            ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
             {
                 Name = l.GetType().FullName,
                 Instance = l
@@ -28,7 +28,7 @@ namespace Panda.Client
                 .Subscribe(FilterApps);
         }
 
-        internal LauncherRepository LauncherRepository { get; set; }
+        internal LauncherService LauncherService { get; set; }
 
         internal IEnumerable<LauncherViewModel> ViewModels { get; set; }
 

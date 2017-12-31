@@ -10,12 +10,12 @@ namespace Panda.AppLauncher
 {
     public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
-        public AppLauncherViewModel(RegisteredApplicationRepository registeredApplicationRepository,
+        public AppLauncherViewModel(RegisteredApplicationService registeredApplicationService,
             IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
         {
-            RegisteredApplicationRepository = registeredApplicationRepository;
+            RegisteredApplicationService = registeredApplicationService;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
-            foreach (var registeredApplication in registeredApplicationRepository.Get())
+            foreach (var registeredApplication in registeredApplicationService.Get())
                 AppViewModels.Add(new AppViewModel
                 {
                     AppName = registeredApplication.DisplayName,
@@ -23,7 +23,7 @@ namespace Panda.AppLauncher
                     RegisteredApplication = registeredApplication
                 });
             ApplicationRegisteredSubscription =
-                registeredApplicationRepository.ApplicationRegisteredObservable.Subscribe(application =>
+                registeredApplicationService.ApplicationRegisteredObservable.Subscribe(application =>
                 {
                     AppViewModels.Add(new AppViewModel
                     {
@@ -33,7 +33,7 @@ namespace Panda.AppLauncher
                     });
                 });
             ApplicationUnregisteredSubscription =
-                registeredApplicationRepository.ApplicationUnregisteredObservable.Subscribe(application =>
+                registeredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
                 {
                     var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
                     foreach (var appViewModel in toRemove)
@@ -50,7 +50,7 @@ namespace Panda.AppLauncher
         public ObservableCollection<AppViewModel> AppViewModels { get; set; } =
             new ObservableCollection<AppViewModel>();
 
-        internal RegisteredApplicationRepository RegisteredApplicationRepository { get; }
+        internal RegisteredApplicationService RegisteredApplicationService { get; }
 
         public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();

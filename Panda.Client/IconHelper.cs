@@ -8,6 +8,7 @@ namespace Panda.Client
 {
     public class IconHelper
     {
+        // todo: make async
         public static ImageSource IconFromFilePath(string filePath)
         {
             var img = Imaging.CreateBitmapSourceFromHIcon(

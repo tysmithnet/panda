@@ -18,7 +18,7 @@ namespace Panda.AppLauncher
         }
 
         [Import]
-        internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
+        internal RegisteredApplicationService RegisteredApplicationService { get; set; }
 
         [ImportMany]
         internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
@@ -27,7 +27,7 @@ namespace Panda.AppLauncher
 
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
-            ViewModel = new AppLauncherViewModel(RegisteredApplicationRepository,
+            ViewModel = new AppLauncherViewModel(RegisteredApplicationService,
                 RegisteredApplicationContextMenuProviders);
             DataContext = ViewModel;
         }

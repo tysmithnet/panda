@@ -10,8 +10,8 @@ using Panda.Client;
 namespace Panda.AppLauncher
 {
     [Export(typeof(IRequiresSetup))]
-    [Export(typeof(RegisteredApplicationRepository))]
-    public sealed class RegisteredApplicationRepository : IRequiresSetup
+    [Export(typeof(RegisteredApplicationService))]
+    public sealed class RegisteredApplicationService : IRequiresSetup
     {
         internal Subject<RegisteredApplication> ApplicationRegisteredSubject =
             new Subject<RegisteredApplication>();

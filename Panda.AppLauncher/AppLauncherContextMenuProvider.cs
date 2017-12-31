@@ -14,7 +14,7 @@ namespace Panda.AppLauncher
         IRegisteredApplicationContextMenuProvider
     {
         [Import]
-        internal RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
+        internal RegisteredApplicationService RegisteredApplicationService { get; set; }
 
         public bool CanHandle(IEnumerable<FileInfo> fileInfos)
         {
@@ -36,9 +36,9 @@ namespace Panda.AppLauncher
                         FullPath = fileInfo.FullName,
                         DisplayName = fileInfo.Name
                     };
-                    RegisteredApplicationRepository.Add(registerdApp);
+                    RegisteredApplicationService.Add(registerdApp);
                 };
-            menuItem.Click += (sender, args) => RegisteredApplicationRepository.Save();
+            menuItem.Click += (sender, args) => RegisteredApplicationService.Save();
             return new[] {menuItem};
         }
 
@@ -51,8 +51,8 @@ namespace Panda.AppLauncher
         {
             var menuItem = new MenuItem {Header = "Remove from Applications"};
             foreach (var registeredApplication in items)
-                menuItem.Click += (sender, args) => RegisteredApplicationRepository.Remove(registeredApplication);
-            menuItem.Click += (sender, args) => RegisteredApplicationRepository.Save();
+                menuItem.Click += (sender, args) => RegisteredApplicationService.Remove(registeredApplication);
+            menuItem.Click += (sender, args) => RegisteredApplicationService.Save();
             return new[] {menuItem};
         }
     }
