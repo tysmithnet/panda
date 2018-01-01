@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Composition.Hosting;
+﻿using System;
+using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -48,8 +49,24 @@ namespace Panda.Client
 
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();
             var systemServiceSetupTasks =
-                systemServices.Select(service => service.Setup(CancellationToken.None)); // todo: use real CT
-            Task.WaitAll(systemServiceSetupTasks.ToArray()); // todo: continue with error checking
+                systemServices.Select(service => service.Setup(CancellationToken.None).ContinueWith(task =>
+                {
+                    if (task.IsFaulted)
+                        Log.Error($"Service failed to setup: {service.GetType().FullName}");
+                    
+                    if(task.IsCanceled)
+                        Log.Warn($"Service was cancelled during setup: {service.GetType().FullName}");
+                })); // todo: use real CT
+
+            try
+            {
+                Task.WaitAll(systemServiceSetupTasks.ToArray());
+            }
+            catch (Exception)
+            {
+                Log.Fatal($"One or more system  services failed during startup. Check the logs for more information.");
+                Application.Current.Shutdown(-1);
+            }                       
 
             var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
             var setupTasks = requiresSetup.Select(x => x.Setup(CancellationToken.None).ContinueWith(t =>
