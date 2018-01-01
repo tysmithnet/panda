@@ -11,6 +11,11 @@ namespace Panda.Client
         [Import]
         protected internal ISettingsService SettingsService { get; set; }
 
+        protected Launcher()
+        {
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             Hide();
