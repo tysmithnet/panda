@@ -19,7 +19,10 @@
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding AppName}" />
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding ImageSource}"></Image>
+                        <Label Content="{Binding AppName}" />
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

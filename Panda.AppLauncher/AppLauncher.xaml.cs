@@ -18,7 +18,7 @@ namespace Panda.AppLauncher
         }
 
         [Import]
-        internal RegisteredApplicationService RegisteredApplicationService { get; set; }
+        internal IRegisteredApplicationService RegisteredApplicationService { get; set; }
 
         [ImportMany]
         internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
@@ -34,7 +34,7 @@ namespace Panda.AppLauncher
 
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItems = RegisteredApplications.SelectedItems.Cast<AppViewModel>();
+            var selectedItems = RegisteredApplications.SelectedItems.Cast<RegisteredApplicationViewModel>();
             ViewModel.HandleSelectedItemsChanged(selectedItems);
         }
     }

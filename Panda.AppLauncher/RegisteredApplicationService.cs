@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,8 +11,8 @@ using Panda.Client;
 namespace Panda.AppLauncher
 {
     [Export(typeof(IRequiresSetup))]
-    [Export(typeof(RegisteredApplicationService))]
-    public sealed class RegisteredApplicationService : IRequiresSetup
+    [Export(typeof(IRegisteredApplicationService))]
+    public sealed class RegisteredApplicationService : IRequiresSetup, IRegisteredApplicationService
     {
         internal Subject<RegisteredApplication> ApplicationRegisteredSubject =
             new Subject<RegisteredApplication>();
@@ -46,9 +47,9 @@ namespace Panda.AppLauncher
             return Task.CompletedTask;
         }
 
-        public IEnumerable<RegisteredApplication> Get()
+        public IObservable<RegisteredApplication> Get()
         {
-            return RegisteredApplications;
+            return RegisteredApplications.ToObservable();
         }
 
         public void Add(RegisteredApplication registeredApplication)

@@ -14,7 +14,7 @@ namespace Panda.AppLauncher
         IRegisteredApplicationContextMenuProvider
     {
         [Import]
-        internal RegisteredApplicationService RegisteredApplicationService { get; set; }
+        internal IRegisteredApplicationService RegisteredApplicationService { get; set; }
 
         public bool CanHandle(IEnumerable<FileInfo> fileInfos)
         {

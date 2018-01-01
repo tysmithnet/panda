@@ -34,7 +34,7 @@ namespace Panda.Client
         internal Launcher Active { get; set; }
         public ObservableCollection<LauncherViewModel> LauncherViewModels { get; set; }
 
-        internal string SearchText { get; set; }
+        public string SearchText { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

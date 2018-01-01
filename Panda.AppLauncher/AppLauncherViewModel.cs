@@ -10,28 +10,36 @@ namespace Panda.AppLauncher
 {
     public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
-        public AppLauncherViewModel(RegisteredApplicationService registeredApplicationService,
+        public AppLauncherViewModel(IRegisteredApplicationService registeredApplicationService,
             IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
         {
             RegisteredApplicationService = registeredApplicationService;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
-            foreach (var registeredApplication in registeredApplicationService.Get())
-                AppViewModels.Add(new AppViewModel
+            registeredApplicationService.Get().Subscribe(async application =>
+            {
+                var item = new RegisteredApplicationViewModel
                 {
-                    AppName = registeredApplication.DisplayName,
-                    ExecutableLocation = registeredApplication.FullPath,
-                    RegisteredApplication = registeredApplication
-                });
+                    AppName = application.DisplayName,
+                    ExecutableLocation = application.FullPath,
+                    RegisteredApplication = application
+                };
+                AppViewModels.Add(item);
+                await item.LoadIcon();
+            });
+
             ApplicationRegisteredSubscription =
-                registeredApplicationService.ApplicationRegisteredObservable.Subscribe(application =>
+                registeredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
                 {
-                    AppViewModels.Add(new AppViewModel
+                    var item = new RegisteredApplicationViewModel
                     {
                         AppName = application.DisplayName,
                         ExecutableLocation = application.FullPath,
                         RegisteredApplication = application
-                    });
+                    };
+                    AppViewModels.Add(item);
+                    await item.LoadIcon();
                 });
+
             ApplicationUnregisteredSubscription =
                 registeredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
                 {
@@ -47,10 +55,10 @@ namespace Panda.AppLauncher
 
         internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
 
-        public ObservableCollection<AppViewModel> AppViewModels { get; set; } =
-            new ObservableCollection<AppViewModel>();
+        public ObservableCollection<RegisteredApplicationViewModel> AppViewModels { get; set; } =
+            new ObservableCollection<RegisteredApplicationViewModel>();
 
-        internal RegisteredApplicationService RegisteredApplicationService { get; }
+        internal IRegisteredApplicationService RegisteredApplicationService { get; }
 
         public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
@@ -68,7 +76,7 @@ namespace Panda.AppLauncher
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal void HandleSelectedItemsChanged(IEnumerable<AppViewModel> selectedItems)
+        internal void HandleSelectedItemsChanged(IEnumerable<RegisteredApplicationViewModel> selectedItems)
         {
             ContextMenuItems.Clear();
             var list = selectedItems.ToList();
