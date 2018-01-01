@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Panda.Client
 {
@@ -14,6 +15,19 @@ namespace Panda.Client
         protected Launcher()
         {
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                Hide();
+                e.Handled = true;
+            }
+            else
+            {
+                base.OnPreviewKeyDown(e);
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
