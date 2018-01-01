@@ -8,6 +8,6 @@ namespace Panda.Client
         // todo: make it so escape minimizes
         // todo: close makes it minimize
         [Import]
-        protected internal SettingsService SettingsService { get; set; }
+        protected internal ISettingsService SettingsService { get; set; }
     }
 }

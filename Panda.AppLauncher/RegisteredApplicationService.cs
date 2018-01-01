@@ -23,7 +23,7 @@ namespace Panda.AppLauncher
             new List<RegisteredApplication>();
 
         [Import]
-        internal SettingsService SettingsService { get; set; }
+        internal ISettingsService SettingsService { get; set; }
 
         public IObservable<RegisteredApplication> ApplicationRegisteredObservable => ApplicationRegisteredSubject;
 

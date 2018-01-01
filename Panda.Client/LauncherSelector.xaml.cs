@@ -23,10 +23,10 @@ namespace Panda.Client
         }
 
         [Import]
-        internal LauncherService LauncherService { get; set; }
+        internal ILauncherService LauncherService { get; set; }
 
         [Import]
-        internal KeyboardMouseHookService KeyboardMouseHookService { get; set; }
+        internal IKeyboardMouseHookService KeyboardMouseHookService { get; set; }
 
         private LauncherSelectorViewModel ViewModel { get; set; }
         private BehaviorSubject<string> TextChangedObservable { get; } = new BehaviorSubject<string>("");
@@ -49,7 +49,7 @@ namespace Panda.Client
                         args.Handled = true;
                     }
                 });
-            ViewModel = new LauncherSelectorViewModel(LauncherService, KeyboardMouseHookService,
+            ViewModel = new LauncherSelectorViewModel(LauncherService,
                 TextChangedObservable);
             DataContext = ViewModel;
         }

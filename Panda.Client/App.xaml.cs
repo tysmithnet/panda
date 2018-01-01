@@ -29,7 +29,7 @@ namespace Panda.Client
             var compositionContainer = new CompositionContainer(aggregateCatalog);
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
-            var settingService = compositionContainer.GetExportedValue<SettingsService>();
+            var settingService = compositionContainer.GetExportedValue<ISettingsService>();
             settingService.Setup(CancellationToken.None).Wait();
             var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
 

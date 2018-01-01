@@ -6,8 +6,8 @@ using Gma.System.MouseKeyHook;
 
 namespace Panda.Client
 {
-    [Export]
-    public sealed class KeyboardMouseHookService
+    [Export(typeof(IKeyboardMouseHookService))]
+    public sealed class KeyboardMouseHookService : IKeyboardMouseHookService
     {
         internal Subject<KeyEventArgs> KeyDownSubject = new Subject<KeyEventArgs>();
         internal Subject<KeyPressEventArgs> KeyPressSubject = new Subject<KeyPressEventArgs>();

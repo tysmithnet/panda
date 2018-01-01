@@ -103,8 +103,11 @@
     <Compile Include="IconHelper.cs" />
     <Compile Include="IContextMenuProvider.cs" />
     <Compile Include="IFileSystemContextMenuProvider.cs" />
+    <Compile Include="IKeyboardMouseHookService.cs" />
+    <Compile Include="ILauncherService.cs" />
     <Compile Include="IPluginSettings.cs" />
     <Compile Include="IRequiresSetup.cs" />
+    <Compile Include="ISettingsService.cs" />
     <Compile Include="KeyboardMouseHookService.cs" />
     <Compile Include="LauncherService.cs" />
     <Compile Include="LauncherSelectorViewModel.cs" />
