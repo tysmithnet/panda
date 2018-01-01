@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Panda.Client;
 
 namespace Panda.AppLauncher
@@ -14,7 +16,18 @@ namespace Panda.AppLauncher
     public sealed partial class AppLauncher : Launcher
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="AppLauncher" /> class.
+        /// Gets or sets the text changed subject.
+        /// </summary>
+        /// <value>
+        /// The text changed subject.
+        /// </value>
+        internal Subject<string> TextChangedSubject { get; set; } = new Subject<string>();
+
+        internal Subject<KeyEventArgs> PreviewKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
+
+        /// <inheritdoc />
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="T:Panda.AppLauncher.AppLauncher" /> class.
         /// </summary>
         public AppLauncher()
         {
@@ -55,7 +68,7 @@ namespace Panda.AppLauncher
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
             ViewModel = new AppLauncherViewModel(RegisteredApplicationService,
-                RegisteredApplicationContextMenuProviders);
+                RegisteredApplicationContextMenuProviders, TextChangedSubject, PreviewKeyUpSubject);
             DataContext = ViewModel;
         }
 
@@ -68,6 +81,16 @@ namespace Panda.AppLauncher
         {
             var selectedItems = RegisteredApplications.SelectedItems.Cast<RegisteredApplicationViewModel>();
             ViewModel.HandleSelectedItemsChanged(selectedItems);
+        }
+
+        private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextChangedSubject.OnNext(SearchText.Text);
+        }
+
+        private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            PreviewKeyUpSubject.OnNext(e);
         }
     }
 }

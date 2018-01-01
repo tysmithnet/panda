@@ -11,7 +11,7 @@
                  d:DesignHeight="300" d:DesignWidth="300"
                  Title="App Launcher">
     <DockPanel>
-        <TextBox DockPanel.Dock="Top" />
+        <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}" TextChanged="TextBoxBase_OnTextChanged" PreviewKeyUp="SearchText_OnPreviewKeyUp" />
         <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended"
                  SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ContextMenu>
@@ -19,10 +19,10 @@
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding ImageSource}"></Image>
+                    <DockPanel>
+                        <Image DockPanel.Dock="Left" Source="{Binding ImageSource}"></Image>
                         <Label Content="{Binding AppName}" />
-                    </StackPanel>
+                    </DockPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

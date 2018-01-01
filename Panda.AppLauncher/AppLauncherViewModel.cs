@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Panda.AppLauncher
 {
@@ -20,8 +25,9 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="registeredApplicationService">The registered application service.</param>
         /// <param name="registeredApplicationContextMenuProviders">The registered application context menu providers.</param>
-        public AppLauncherViewModel(IRegisteredApplicationService registeredApplicationService,
-            IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
+        /// <param name="textChangedObservable"></param>
+        /// <param name="previewKeyUpSubject"></param>
+        public AppLauncherViewModel(IRegisteredApplicationService registeredApplicationService, IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders, IObservable<string> textChangedObservable, Subject<KeyEventArgs> previewKeyUpSubject)
         {
             RegisteredApplicationService = registeredApplicationService;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
@@ -57,6 +63,39 @@ namespace Panda.AppLauncher
                     foreach (var appViewModel in toRemove)
                         AppViewModels.Remove(appViewModel);
                 });
+
+            textChangedObservable
+                .Where(s => s != null)
+                .Subscribe(async s =>
+            {
+                AppViewModels.Clear();
+                var filteredApps = RegisteredApplicationService.Get().Where(application =>
+                    Regex.IsMatch(application.DisplayName, s, RegexOptions.IgnoreCase) ||
+                    Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
+                foreach (var registeredApplication in filteredApps)
+                {
+                    var item = new RegisteredApplicationViewModel
+                    {
+                        AppName = registeredApplication.DisplayName,
+                        ExecutableLocation = registeredApplication.FullPath,
+                        RegisteredApplication = registeredApplication
+                    };
+                    AppViewModels.Add(item);
+                    await item.LoadIcon();
+                }
+            });
+
+            previewKeyUpSubject.Subscribe(args =>
+            {
+                if (args.Key == Key.Enter || args.Key == Key.Return)
+                {
+                    var first = AppViewModels.FirstOrDefault();
+                    if (first != null)
+                    {
+                        Process.Start(first.ExecutableLocation);
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -110,6 +149,14 @@ namespace Panda.AppLauncher
             new ObservableCollection<FrameworkElement>();
 
         /// <summary>
+        /// Gets or sets the search text.
+        /// </summary>
+        /// <value>
+        /// The search text.
+        /// </value>
+        public string SearchText { get; set; }
+                                                      
+        /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.
         /// </summary>
         public void Dispose()
@@ -136,7 +183,7 @@ namespace Panda.AppLauncher
         ///     Handles the selected items changed event
         /// </summary>
         /// <param name="selectedItems">The currently selected items.</param>
-        internal void HandleSelectedItemsChanged(IEnumerable<RegisteredApplicationViewModel> selectedItems)
+        internal void HandleSelectedItemsChanged(IEnumerable<RegisteredApplicationViewModel> selectedItems) // todo: replace with subscription
         {
             ContextMenuItems.Clear();
             var list = selectedItems.ToList();
@@ -145,10 +192,13 @@ namespace Panda.AppLauncher
                 var canHandle =
                     registeredApplicationContextMenuProvider.CanHandle(
                         list.Select(model => model.RegisteredApplication));
-                if (canHandle)
-                    foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
-                        list.Select(model => model.RegisteredApplication)))
+
+                if (!canHandle) continue;
+
+                foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
+                    list.Select(model => model.RegisteredApplication)))
                         ContextMenuItems.Add(item);
+                
             }
         }
     }
