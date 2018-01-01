@@ -33,10 +33,9 @@ namespace Panda.Client
         private BehaviorSubject<string> TextChangedObservable { get; } = new BehaviorSubject<string>("");
 
         protected override void OnClosing(CancelEventArgs e)
-        {
-            e.Cancel = true;
+        {                    
             Hide();
-            base.OnClosing(e);
+            e.Cancel = true;
         }
 
         private void LauncherSelector_OnActivated(object sender, EventArgs e)
@@ -46,7 +45,7 @@ namespace Panda.Client
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(args =>
                 {
-                    if (args.Alt && args.KeyCode.HasFlag(Keys.Space))
+                    if (args.Alt && args.KeyCode == Keys.Space)
                     {
                         WindowState = WindowState.Normal;
                         //Topmost = true;

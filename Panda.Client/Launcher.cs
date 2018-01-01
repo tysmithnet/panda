@@ -13,9 +13,8 @@ namespace Panda.Client
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            e.Cancel = true;
             Hide();
-            base.OnClosing(e);
+            e.Cancel = true;
         }
     }
 }

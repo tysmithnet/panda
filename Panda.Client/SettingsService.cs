@@ -11,7 +11,8 @@ using Newtonsoft.Json;
 namespace Panda.Client
 {
     [Export(typeof(ISettingsService))]
-    public sealed class SettingsService : ISettingsService
+    [Export(typeof(ISystemService))]
+    public sealed class SettingsService : ISettingsService, ISystemService
     {
         private ILog Log { get; } = LogManager.GetLogger<SettingsService>();
 

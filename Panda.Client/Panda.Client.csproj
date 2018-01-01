@@ -111,12 +111,14 @@
     <Compile Include="IPluginSettings.cs" />
     <Compile Include="IRequiresSetup.cs" />
     <Compile Include="ISettingsService.cs" />
+    <Compile Include="ISystemService.cs" />
     <Compile Include="KeyboardMouseHookService.cs" />
     <Compile Include="LauncherService.cs" />
     <Compile Include="LauncherSelectorViewModel.cs" />
     <Compile Include="LauncherViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SettingsService.cs" />
+    <Compile Include="SystemTrayService.cs" />
     <Page Include="LauncherSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
