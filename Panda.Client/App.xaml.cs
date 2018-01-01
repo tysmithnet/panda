@@ -1,11 +1,15 @@
-﻿using System.ComponentModel.Composition.Hosting;
+﻿using System;
+using System.ComponentModel.Composition.Hosting;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using Common.Logging;
+using Application = System.Windows.Application;
 
 namespace Panda.Client
 {
@@ -14,12 +18,20 @@ namespace Panda.Client
     /// </summary>
     public sealed partial class App : Application
     {
-        private readonly ILog Log = LogManager.GetLogger<App>();
+        private ILog Log { get; } = LogManager.GetLogger<App>();
 
         public LauncherSelector Selector { get; set; }
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+            NotifyIcon icon = new NotifyIcon();
+            var stream = Application.GetResourceStream(new Uri(@"pack://application:,,,/"
+                                                               + Assembly.GetExecutingAssembly().GetName().Name
+                                                               + ";component/"
+                                                               + "quicklogo.ico", UriKind.Absolute)).Stream; // todo: extract
+            icon.Icon = new Icon(stream);
+            stream.Dispose();
+            icon.Visible = true;
             Log.Trace("Looking for MEF components");
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll")

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -30,6 +31,13 @@ namespace Panda.Client
 
         private LauncherSelectorViewModel ViewModel { get; set; }
         private BehaviorSubject<string> TextChangedObservable { get; } = new BehaviorSubject<string>("");
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+            base.OnClosing(e);
+        }
 
         private void LauncherSelector_OnActivated(object sender, EventArgs e)
         {
