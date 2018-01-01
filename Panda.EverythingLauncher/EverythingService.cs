@@ -10,14 +10,35 @@ using Panda.Client;
 
 namespace Panda.EverythingLauncher
 {
+    /// <summary>
+    ///     Service that will manage the interaction with es.exe
+    /// </summary>
     [Export]
     public sealed class EverythingService
     {
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>
+        ///     The log.
+        /// </value>
         private ILog Log { get; } = LogManager.GetLogger<EverythingService>();
 
+        /// <summary>
+        ///     Gets or sets the settings service.
+        /// </summary>
+        /// <value>
+        ///     The settings service.
+        /// </value>
         [Import]
         internal ISettingsService SettingsService { get; set; }
 
+        /// <summary>
+        ///     Searches the specified query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;

@@ -23,12 +23,12 @@ namespace Panda.Client
             GlobalEvents.KeyUp += (sender, args) => KeyUpSubject.OnNext(args);
         }
 
-        public IObservable<KeyEventArgs> KeyDownObservable => KeyDownSubject;
-        public IObservable<KeyPressEventArgs> KeyPressObservable => KeyPressSubject;
-        public IObservable<KeyEventArgs> KeyUpObservable => KeyUpSubject;
-
         internal IKeyboardMouseEvents AppEvents { get; set; }
 
         internal IKeyboardMouseEvents GlobalEvents { get; set; }
+
+        public IObservable<KeyEventArgs> KeyDownObservable => KeyDownSubject;
+        public IObservable<KeyPressEventArgs> KeyPressObservable => KeyPressSubject;
+        public IObservable<KeyEventArgs> KeyUpObservable => KeyUpSubject;
     }
 }

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Common.Logging;
-using Application = System.Windows.Application;
 
 namespace Panda.Client
 {
@@ -15,10 +14,27 @@ namespace Panda.Client
     /// </summary>
     public sealed partial class App : Application
     {
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>
+        ///     The log.
+        /// </value>
         private ILog Log { get; } = LogManager.GetLogger<App>();
 
+        /// <summary>
+        ///     Gets or sets the selector.
+        /// </summary>
+        /// <value>
+        ///     The selector.
+        /// </value>
         public LauncherSelector Selector { get; set; }
 
+        /// <summary>
+        ///     Handles the OnStartup event of the App control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="StartupEventArgs" /> instance containing the event data.</param>
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             Log.Trace("Looking for MEF components");
@@ -31,9 +47,10 @@ namespace Panda.Client
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();
-            var systemServiceSetupTasks = systemServices.Select(service => service.Setup(CancellationToken.None)); // todo: use real CT
+            var systemServiceSetupTasks =
+                systemServices.Select(service => service.Setup(CancellationToken.None)); // todo: use real CT
             Task.WaitAll(systemServiceSetupTasks.ToArray()); // todo: continue with error checking
-                                                                
+
             var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
             var setupTasks = requiresSetup.Select(x => x.Setup(CancellationToken.None).ContinueWith(t =>
             {

@@ -6,9 +6,17 @@ using System.Windows.Media.Imaging;
 
 namespace Panda.Client
 {
-    public class IconHelper
+    /// <summary>
+    ///     Class that assists with the loading of icons
+    /// </summary>
+    public static class IconHelper
     {
-        // todo: make async
+        /// <summary>
+        ///     Gets an icon from a file path using windows shell
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <returns>ImageSource for the icon for the icon at filePath</returns>
+        // todo: add exception handling
         public static ImageSource IconFromFilePath(string filePath)
         {
             var img = Imaging.CreateBitmapSourceFromHIcon(
