@@ -23,42 +23,57 @@ namespace Panda.EverythingLauncher
     public sealed class EverythingLauncherViewModel : INotifyPropertyChanged
     {
         /// <summary>
-        /// The text changed subscription
+        ///     The everything subscription
         /// </summary>
-        private IDisposable _textChangedSubscription;
+        private IDisposable _everythingSubscription;
 
         /// <summary>
-        /// The text changed obs
+        ///     The preview mouse right button down obs
+        /// </summary>
+        private IObservable<MouseButtonEventArgs> _previewMouseRightButtonDownObs;
+
+        /// <summary>
+        ///     The preview mouse right button down subscription
+        /// </summary>
+        private IDisposable _previewMouseRightButtonDownSubscription;
+
+        /// <summary>
+        ///     The selected items changed obs
+        /// </summary>
+        private IObservable<IEnumerable<EverythingResultViewModel>> _selectedItemsChangedObs;
+
+        /// <summary>
+        ///     The selected items changed subscription
+        /// </summary>
+        private IDisposable _selectedItemsChangedSubscription;
+
+        /// <summary>
+        ///     The text changed obs
         /// </summary>
         private IObservable<string> _textChangedObs;
 
         /// <summary>
-        /// The selected items changed obs
+        ///     The text changed subscription
         /// </summary>
-        private IObservable<IEnumerable<EverythingResultViewModel>> _selectedItemsChangedObs;
+        private IDisposable _textChangedSubscription;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
         /// </summary>
         /// <param name="everythingService">The everything service.</param>
-        /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>                
+        /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
         public EverythingLauncherViewModel(EverythingService everythingService,
             IFileSystemContextMenuProvider[] fileSystemContextMenuProviders)
         {
             EverythingService = everythingService;
-            FileSystemContextMenuProviders = fileSystemContextMenuProviders;        
+            FileSystemContextMenuProviders = fileSystemContextMenuProviders;
         }
 
         /// <summary>
-        /// The preview mouse right button down subscription
-        /// </summary>
-        private IDisposable _previewMouseRightButtonDownSubscription;
-
-        /// <summary>
-        /// Gets or sets the preview mouse right button down obs.
+        ///     Gets or sets the preview mouse right button down obs.
         /// </summary>
         /// <value>
-        /// The preview mouse right button down obs.
+        ///     The preview mouse right button down obs.
         /// </value>
         public IObservable<MouseButtonEventArgs> PreviewMouseRightButtonDownObs
         {
@@ -66,7 +81,7 @@ namespace Panda.EverythingLauncher
             set
             {
                 _previewMouseRightButtonDownSubscription?.Dispose();
-                _previewMouseRightButtonDownObs = value; 
+                _previewMouseRightButtonDownObs = value;
                 _previewMouseRightButtonDownSubscription = value
                     .ObserveOn(SynchronizationContext.Current)
                     .Where(args => args != null)
@@ -78,10 +93,11 @@ namespace Panda.EverythingLauncher
                         var shellContextMenu = new ShellContextMenu();
                         var point = Mouse.GetPosition(null);
                         var fileInfos = tuple.Item2.Select(vm => new FileInfo(vm.FullName)).ToList();
-                        var directories = fileInfos.Where(info => info.Attributes.HasFlag(FileAttributes.Directory)).ToList();
+                        var directories = fileInfos.Where(info => info.Attributes.HasFlag(FileAttributes.Directory))
+                            .ToList();
                         var directoryInfos = directories.Select(info => info.Directory).ToArray();
                         var files = fileInfos.Except(directories).ToArray();
-                        var pointInfo = new Point((int)point.X, (int)point.Y);
+                        var pointInfo = new Point((int) point.X, (int) point.Y);
                         if (!files.Any() && !directories.Any())
                             return;
                         if (!files.Any())
@@ -95,28 +111,18 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        /// The selected items changed subscription
-        /// </summary>
-        private IDisposable _selectedItemsChangedSubscription;
-
-        /// <summary>
-        /// The preview mouse right button down obs
-        /// </summary>
-        private IObservable<MouseButtonEventArgs> _previewMouseRightButtonDownObs;
-
-        /// <summary>
-        /// Gets or sets the selected items changed obs.
+        ///     Gets or sets the selected items changed obs.
         /// </summary>
         /// <value>
-        /// The selected items changed obs.
+        ///     The selected items changed obs.
         /// </value>
         public IObservable<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObs
         {
             get => _selectedItemsChangedObs;
             set
-            {                                    
+            {
                 _selectedItemsChangedSubscription?.Dispose();
-                _selectedItemsChangedObs = value; 
+                _selectedItemsChangedObs = value;
                 _selectedItemsChangedSubscription = value
                     .ObserveOn(SynchronizationContext.Current)
                     .Where(model => model != null)
@@ -134,15 +140,10 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        /// The everything subscription
-        /// </summary>
-        private IDisposable _everythingSubscription;
-
-        /// <summary>
-        /// Gets or sets the text changed obs.
+        ///     Gets or sets the text changed obs.
         /// </summary>
         /// <value>
-        /// The text changed obs.
+        ///     The text changed obs.
         /// </value>
         public IObservable<string> TextChangedObs
         {
@@ -150,7 +151,7 @@ namespace Panda.EverythingLauncher
             set
             {
                 _textChangedSubscription?.Dispose();
-                _textChangedObs = value; 
+                _textChangedObs = value;
                 _textChangedSubscription = value
                     .ObserveOn(SynchronizationContext.Current)
                     .Where(s => s != null && s.Length > 1)

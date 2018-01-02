@@ -61,6 +61,15 @@ namespace Panda.Client
         private Subject<string> TextChangedSubject { get; } = new Subject<string>();
 
         /// <summary>
+        ///     Gets or sets the selection changed observable.
+        /// </summary>
+        /// <value>
+        ///     The selection changed observable.
+        /// </value>
+        private Subject<SelectionChangedEventArgs> SelectionChangedObservable { get; } =
+            new Subject<SelectionChangedEventArgs>();
+
+        /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
         /// </summary>
         /// <param name="e">The <see cref="CancelEventArgs" /> instance containing the event data.</param>
@@ -100,14 +109,6 @@ namespace Panda.Client
             };
             DataContext = ViewModel;
         }
-
-        /// <summary>
-        /// Gets or sets the selection changed observable.
-        /// </summary>
-        /// <value>
-        /// The selection changed observable.
-        /// </value>
-        private Subject<SelectionChangedEventArgs> SelectionChangedObservable { get; set; } = new Subject<SelectionChangedEventArgs>();
 
         /// <summary>
         ///     Handles the OnSelectionChanged event of the Selector control.

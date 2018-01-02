@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Windows.Controls;
@@ -16,30 +15,6 @@ namespace Panda.AppLauncher
     [Export(typeof(Launcher))]
     public sealed partial class AppLauncher : Launcher
     {
-        /// <summary>
-        /// Gets or sets the text changed subject.
-        /// </summary>
-        /// <value>
-        /// The text changed subject.
-        /// </value>
-        internal Subject<string> TextChangedSubject { get; set; } = new Subject<string>();
-
-        /// <summary>
-        /// Gets or sets the preview key up subject.
-        /// </summary>
-        /// <value>
-        /// The preview key up subject.
-        /// </value>
-        internal Subject<KeyEventArgs> PreviewKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
-
-        /// <summary>
-        /// Gets or sets the preview double click subject.
-        /// </summary>
-        /// <value>
-        /// The preview double click subject.
-        /// </value>
-        internal Subject<RegisteredApplicationViewModel> PreviewDoubleClickSubject { get; set; } = new Subject<RegisteredApplicationViewModel>();
-
         /// <inheritdoc />
         /// <summary>
         ///     Initializes a new instance of the <see cref="T:Panda.AppLauncher.AppLauncher" /> class.
@@ -48,6 +23,31 @@ namespace Panda.AppLauncher
         {
             InitializeComponent();
         }
+
+        /// <summary>
+        ///     Gets or sets the text changed subject.
+        /// </summary>
+        /// <value>
+        ///     The text changed subject.
+        /// </value>
+        internal Subject<string> TextChangedSubject { get; set; } = new Subject<string>();
+
+        /// <summary>
+        ///     Gets or sets the preview key up subject.
+        /// </summary>
+        /// <value>
+        ///     The preview key up subject.
+        /// </value>
+        internal Subject<KeyEventArgs> PreviewKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
+
+        /// <summary>
+        ///     Gets or sets the preview double click subject.
+        /// </summary>
+        /// <value>
+        ///     The preview double click subject.
+        /// </value>
+        internal Subject<RegisteredApplicationViewModel> PreviewDoubleClickSubject { get; set; } =
+            new Subject<RegisteredApplicationViewModel>();
 
         /// <summary>
         ///     Gets or sets the registered application service.
@@ -105,37 +105,36 @@ namespace Panda.AppLauncher
         }
 
         /// <summary>
-        /// Handles the OnTextChanged event of the TextBoxBase control.
+        ///     Handles the OnTextChanged event of the TextBoxBase control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="TextChangedEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             TextChangedSubject.OnNext(SearchText.Text);
         }
 
         /// <summary>
-        /// Handles the OnPreviewKeyUp event of the SearchText control.
+        ///     Handles the OnPreviewKeyUp event of the SearchText control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
         private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             PreviewKeyUpSubject.OnNext(e);
         }
 
         /// <summary>
-        /// Handles the OnPreviewMouseDoubleClick event of the Control control.
+        ///     Handles the OnPreviewMouseDoubleClick event of the Control control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
         private void Control_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            
             var label = sender as Label;
             var parent = label?.Parent as Grid;
-            if(parent?.DataContext is RegisteredApplicationViewModel vm)
-                PreviewDoubleClickSubject.OnNext(vm);                      
+            if (parent?.DataContext is RegisteredApplicationViewModel vm)
+                PreviewDoubleClickSubject.OnNext(vm);
         }
     }
 }

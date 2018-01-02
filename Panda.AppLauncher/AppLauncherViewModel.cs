@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -20,7 +19,15 @@ namespace Panda.AppLauncher
     /// <seealso cref="System.IDisposable" />
     public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
+        private IObservable<RegisteredApplicationViewModel> _previewDoubleClickObs;
+
+        private IDisposable _previewDoubleClickSubscription;
+        private IObservable<KeyEventArgs> _previewKeyUpObs;
+
+        private IDisposable _previewKeyUpSubscription;
         private IObservable<string> _textChangedObs;
+
+        private IDisposable _textChangedSubscription;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
@@ -30,51 +37,13 @@ namespace Panda.AppLauncher
         /// <param name="textChangedObs"></param>
         /// <param name="previewKeyUpObs"></param>
         public AppLauncherViewModel(
-            IRegisteredApplicationService registeredApplicationService, 
+            IRegisteredApplicationService registeredApplicationService,
             IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
         {
             RegisteredApplicationService = registeredApplicationService;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
         }
 
-        public void Setup()
-        {
-            RegisteredApplicationService.Get().Subscribe(async application =>
-            {
-                var item = new RegisteredApplicationViewModel
-                {
-                    AppName = application.DisplayName,
-                    ExecutableLocation = application.FullPath,
-                    RegisteredApplication = application
-                };
-                AppViewModels.Add(item);
-                await item.LoadIcon();
-            });
-
-            ApplicationRegisteredSubscription =
-                RegisteredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
-                {
-                    var item = new RegisteredApplicationViewModel
-                    {
-                        AppName = application.DisplayName,
-                        ExecutableLocation = application.FullPath,
-                        RegisteredApplication = application
-                    };
-                    AppViewModels.Add(item);
-                    await item.LoadIcon();
-                });
-
-            ApplicationUnregisteredSubscription =
-                RegisteredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
-                {
-                    var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
-                    foreach (var appViewModel in toRemove)
-                        AppViewModels.Remove(appViewModel);
-                });
-                             
-        }                         
-
-        private IDisposable _previewDoubleClickSubscription;
         public IObservable<RegisteredApplicationViewModel> PreviewDoubleClickObs
         {
             get => _previewDoubleClickObs;
@@ -89,29 +58,22 @@ namespace Panda.AppLauncher
             }
         }
 
-        private IDisposable _previewKeyUpSubscription;
         public IObservable<KeyEventArgs> PreviewKeyUpObs
         {
-            get { return _previewKeyUpObs; }
+            get => _previewKeyUpObs;
             set
             {
                 _previewDoubleClickSubscription.Dispose();
-                _previewKeyUpObs = value; 
+                _previewKeyUpObs = value;
                 _previewDoubleClickSubscription = value.Subscribe(args =>
                 {
                     if (args.Key != Key.Enter && args.Key != Key.Return) return;
                     var first = AppViewModels.FirstOrDefault();
                     if (first != null)
-                    {
                         Process.Start(first.ExecutableLocation);
-                    }
                 });
             }
         }
-
-        private IDisposable _textChangedSubscription;
-        private IObservable<RegisteredApplicationViewModel> _previewDoubleClickObs;
-        private IObservable<KeyEventArgs> _previewKeyUpObs;
 
         public IObservable<string> TextChangedObs
         {
@@ -119,8 +81,8 @@ namespace Panda.AppLauncher
             set
             {
                 value = value ?? throw new ArgumentNullException(nameof(value));
-                _textChangedSubscription?.Dispose();                
-                _textChangedObs = value; 
+                _textChangedSubscription?.Dispose();
+                _textChangedObs = value;
                 _textChangedSubscription = value.Where(s => s != null)
                     .Subscribe(async s =>
                     {
@@ -194,13 +156,13 @@ namespace Panda.AppLauncher
             new ObservableCollection<FrameworkElement>();
 
         /// <summary>
-        /// Gets or sets the search text.
+        ///     Gets or sets the search text.
         /// </summary>
         /// <value>
-        /// The search text.
+        ///     The search text.
         /// </value>
         public string SearchText { get; set; }
-                                                      
+
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.
         /// </summary>
@@ -215,6 +177,42 @@ namespace Panda.AppLauncher
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public void Setup()
+        {
+            RegisteredApplicationService.Get().Subscribe(async application =>
+            {
+                var item = new RegisteredApplicationViewModel
+                {
+                    AppName = application.DisplayName,
+                    ExecutableLocation = application.FullPath,
+                    RegisteredApplication = application
+                };
+                AppViewModels.Add(item);
+                await item.LoadIcon();
+            });
+
+            ApplicationRegisteredSubscription =
+                RegisteredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
+                {
+                    var item = new RegisteredApplicationViewModel
+                    {
+                        AppName = application.DisplayName,
+                        ExecutableLocation = application.FullPath,
+                        RegisteredApplication = application
+                    };
+                    AppViewModels.Add(item);
+                    await item.LoadIcon();
+                });
+
+            ApplicationUnregisteredSubscription =
+                RegisteredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
+                {
+                    var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
+                    foreach (var appViewModel in toRemove)
+                        AppViewModels.Remove(appViewModel);
+                });
+        }
+
         /// <summary>
         ///     Called when [property changed].
         /// </summary>
@@ -228,7 +226,9 @@ namespace Panda.AppLauncher
         ///     Handles the selected items changed event
         /// </summary>
         /// <param name="selectedItems">The currently selected items.</param>
-        internal void HandleSelectedItemsChanged(IEnumerable<RegisteredApplicationViewModel> selectedItems) // todo: replace with subscription
+        internal void
+            HandleSelectedItemsChanged(
+                IEnumerable<RegisteredApplicationViewModel> selectedItems) // todo: replace with subscription
         {
             ContextMenuItems.Clear();
             var list = selectedItems.ToList();
@@ -242,9 +242,8 @@ namespace Panda.AppLauncher
 
                 foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
                     list.Select(model => model.RegisteredApplication)))
-                        ContextMenuItems.Add(item);
-                
+                    ContextMenuItems.Add(item);
             }
         }
-    }                                                                                         
+    }
 }

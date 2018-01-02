@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -19,9 +18,24 @@ namespace Panda.Client
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
         /// <summary>
-        /// The text changed obs
+        ///     The selection changed obs
+        /// </summary>
+        private IObservable<SelectionChangedEventArgs> _selectionChangedObs;
+
+        /// <summary>
+        ///     The selection changed subscription
+        /// </summary>
+        private IDisposable _selectionChangedSubscription;
+
+        /// <summary>
+        ///     The text changed obs
         /// </summary>
         private IObservable<string> _textChangedObs;
+
+        /// <summary>
+        ///     The text changed subscription
+        /// </summary>
+        private IDisposable _textChangedSubscription;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
@@ -39,20 +53,10 @@ namespace Panda.Client
         }
 
         /// <summary>
-        /// The text changed subscription
-        /// </summary>
-        private IDisposable _textChangedSubscription;
-
-        /// <summary>
-        /// The selection changed obs
-        /// </summary>
-        private IObservable<SelectionChangedEventArgs> _selectionChangedObs;
-
-        /// <summary>
-        /// Gets or sets the text changed obs.
+        ///     Gets or sets the text changed obs.
         /// </summary>
         /// <value>
-        /// The text changed obs.
+        ///     The text changed obs.
         /// </value>
         public IObservable<string> TextChangedObs
         {
@@ -60,7 +64,7 @@ namespace Panda.Client
             set
             {
                 _textChangedSubscription?.Dispose();
-                _textChangedObs = value; 
+                _textChangedObs = value;
                 _textChangedSubscription = value
                     .ObserveOn(SynchronizationContext.Current)
                     .Subscribe(filter =>
@@ -122,15 +126,10 @@ namespace Panda.Client
         public string SearchText { get; set; }
 
         /// <summary>
-        /// The selection changed subscription
-        /// </summary>
-        private IDisposable _selectionChangedSubscription;
-
-        /// <summary>
-        /// Gets or sets the selection changed obs.
+        ///     Gets or sets the selection changed obs.
         /// </summary>
         /// <value>
-        /// The selection changed obs.
+        ///     The selection changed obs.
         /// </value>
         public IObservable<SelectionChangedEventArgs> SelectionChangedObs
         {
@@ -150,7 +149,7 @@ namespace Panda.Client
                         Active = first.Instance;
                         Active.Show();
                     }
-                });                 
+                });
             }
         }
 
