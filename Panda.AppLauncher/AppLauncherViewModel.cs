@@ -25,9 +25,14 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="registeredApplicationService">The registered application service.</param>
         /// <param name="registeredApplicationContextMenuProviders">The registered application context menu providers.</param>
-        /// <param name="textChangedObservable"></param>
-        /// <param name="previewKeyUpSubject"></param>
-        public AppLauncherViewModel(IRegisteredApplicationService registeredApplicationService, IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders, IObservable<string> textChangedObservable, Subject<KeyEventArgs> previewKeyUpSubject)
+        /// <param name="textChangedObs"></param>
+        /// <param name="previewKeyUpObs"></param>
+        public AppLauncherViewModel(
+            IRegisteredApplicationService registeredApplicationService, 
+            IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders, 
+            IObservable<string> textChangedObs, 
+            IObservable<KeyEventArgs> previewKeyUpObs,
+            IObservable<RegisteredApplicationViewModel> previewDoubleClickObs)
         {
             RegisteredApplicationService = registeredApplicationService;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
@@ -64,7 +69,7 @@ namespace Panda.AppLauncher
                         AppViewModels.Remove(appViewModel);
                 });
 
-            textChangedObservable
+            textChangedObs
                 .Where(s => s != null)
                 .Subscribe(async s =>
             {
@@ -85,7 +90,7 @@ namespace Panda.AppLauncher
                 }
             });
 
-            previewKeyUpSubject.Subscribe(args =>
+            previewKeyUpObs.Subscribe(args =>
             {
                 if (args.Key == Key.Enter || args.Key == Key.Return)
                 {
@@ -95,6 +100,11 @@ namespace Panda.AppLauncher
                         Process.Start(first.ExecutableLocation);
                     }
                 }
+            });
+
+            previewDoubleClickObs.Subscribe(model =>
+            {
+                Process.Start(model.ExecutableLocation);
             });
         }
 

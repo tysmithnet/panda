@@ -26,6 +26,8 @@ namespace Panda.AppLauncher
 
         internal Subject<KeyEventArgs> PreviewKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
 
+        internal Subject<RegisteredApplicationViewModel> PreviewDoubleClickSubject { get; set; } = new Subject<RegisteredApplicationViewModel>();
+
         /// <inheritdoc />
         /// <summary>
         ///     Initializes a new instance of the <see cref="T:Panda.AppLauncher.AppLauncher" /> class.
@@ -69,7 +71,7 @@ namespace Panda.AppLauncher
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
             ViewModel = new AppLauncherViewModel(RegisteredApplicationService,
-                RegisteredApplicationContextMenuProviders, TextChangedSubject, PreviewKeyUpSubject);
+                RegisteredApplicationContextMenuProviders, TextChangedSubject, PreviewKeyUpSubject, PreviewDoubleClickSubject);
             DataContext = ViewModel;
         }
 
@@ -96,10 +98,11 @@ namespace Panda.AppLauncher
 
         private void Control_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            
             var label = sender as Label;
             var parent = label?.Parent as Grid;
             if(parent?.DataContext is RegisteredApplicationViewModel vm)
-                Process.Start(vm.ExecutableLocation);       // todo: move to vm
+                PreviewDoubleClickSubject.OnNext(vm);                      
         }
     }
 }
