@@ -16,8 +16,20 @@ using Point = System.Drawing.Point;
 
 namespace Panda.EverythingLauncher
 {
-    public class EverythingLauncherViewModel : INotifyPropertyChanged
+    /// <summary>
+    ///     View model for the everything launcher
+    /// </summary>
+    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
+    public sealed class EverythingLauncherViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
+        /// </summary>
+        /// <param name="everythingService">The everything service.</param>
+        /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
+        /// <param name="textChangedObservable">The text changed observable.</param>
+        /// <param name="selectedItemsChangedObservable">The selected items changed observable.</param>
+        /// <param name="previewMouseRightButtonDownObservable">The preview mouse right button down observable.</param>
         public EverythingLauncherViewModel(EverythingService everythingService,
             IFileSystemContextMenuProvider[] fileSystemContextMenuProviders, IObservable<string> textChangedObservable,
             IObservable<IEnumerable<EverythingResultViewModel>> selectedItemsChangedObservable,
@@ -44,31 +56,107 @@ namespace Panda.EverythingLauncher
                 .Subscribe(tuple => HandlePreviewMouseRightButtonDown(tuple.Item1, tuple.Item2));
         }
 
-        public IDisposable SelectedItemsChangedSubscription { get; set; }
+        /// <summary>
+        ///     Gets or sets the selected items changed subscription.
+        /// </summary>
+        /// <value>
+        ///     The selected items changed subscription.
+        /// </value>
+        internal IDisposable SelectedItemsChangedSubscription { get; set; }
 
-        public IDisposable TextChangedSubscription { get; set; }
-        public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
-        public EverythingService EverythingService { get; set; }
+        /// <summary>
+        ///     Gets or sets the text changed subscription.
+        /// </summary>
+        /// <value>
+        ///     The text changed subscription.
+        /// </value>
+        internal IDisposable TextChangedSubscription { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the file system context menu providers.
+        /// </summary>
+        /// <value>
+        ///     The file system context menu providers.
+        /// </value>
+        internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the everything service.
+        /// </summary>
+        /// <value>
+        ///     The everything service.
+        /// </value>
+        internal EverythingService EverythingService { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the search text.
+        /// </summary>
+        /// <value>
+        ///     The search text.
+        /// </value>
         public string SearchText { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the everything results.
+        /// </summary>
+        /// <value>
+        ///     The everything results.
+        /// </value>
         public ObservableCollection<EverythingResultViewModel> EverythingResults { get; set; } =
             new ObservableCollection<EverythingResultViewModel>();
 
+        /// <summary>
+        ///     Gets or sets the context menu items.
+        /// </summary>
+        /// <value>
+        ///     The context menu items.
+        /// </value>
         public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
 
-        public CancellationTokenSource CancellationTokenSource { get; private set; }
-        public IDisposable Subscription { get; set; }
+        /// <summary>
+        ///     Gets the cancellation token source.
+        /// </summary>
+        /// <value>
+        ///     The cancellation token source.
+        /// </value>
+        internal CancellationTokenSource CancellationTokenSource { get; private set; }
 
-        public List<EverythingResultViewModel> SelectedItems { get; set; }
+        /// <summary>
+        ///     Gets or sets the subscription.
+        /// </summary>
+        /// <value>
+        ///     The subscription.
+        /// </value>
+        internal IDisposable Subscription { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the selected items.
+        /// </summary>
+        /// <value>
+        ///     The selected items.
+        /// </value>
+        internal List<EverythingResultViewModel> SelectedItems { get; set; }
+
+        /// <summary>
+        ///     Occurs when [property changed].
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        /// <summary>
+        ///     Called when [property changed].
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
+        /// <summary>
+        ///     Handles the selected results changed.
+        /// </summary>
+        /// <param name="selectedItems">The selected items.</param>
+        internal void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
         {
             ContextMenuItems = new ObservableCollection<FrameworkElement>();
             SelectedItems = selectedItems.ToList();
@@ -79,7 +167,11 @@ namespace Panda.EverythingLauncher
                 ContextMenuItems.Add(frameworkElement);
         }
 
-        public void HandleSearchTextChanged(string newText)
+        /// <summary>
+        ///     Handles the search text changed.
+        /// </summary>
+        /// <param name="newText">The new text.</param>
+        internal void HandleSearchTextChanged(string newText)
         {
             CancellationTokenSource?.Cancel();
             CancellationTokenSource = new CancellationTokenSource();
@@ -96,7 +188,12 @@ namespace Panda.EverythingLauncher
                     }, CancellationTokenSource.Token);
         }
 
-        public void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
+        /// <summary>
+        ///     Handles the preview mouse right button down.
+        /// </summary>
+        /// <param name="mouseButtonEventArgs">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
+        /// <param name="selectedEverythingResultViewModels">The selected everything result view models.</param>
+        internal void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
             IEnumerable<EverythingResultViewModel> selectedEverythingResultViewModels)
         {
             if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
@@ -119,13 +216,20 @@ namespace Panda.EverythingLauncher
             }
         }
 
-        public void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
+        /// <summary>
+        ///     Handles the preview key up.
+        /// </summary>
+        /// <param name="keyEventArgs">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
+        internal void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
         {
             if (keyEventArgs.Key == Key.Enter || keyEventArgs.Key == Key.Return)
                 Submit();
         }
 
-        private void Submit()
+        /// <summary>
+        ///     Launches the currently selected item using whatever the shell deems appropriate
+        /// </summary>
+        internal void Submit()
         {
             foreach (var everythingResultViewModel in SelectedItems)
                 Process.Start(everythingResultViewModel.FullName);

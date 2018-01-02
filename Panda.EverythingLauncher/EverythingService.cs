@@ -10,14 +10,35 @@ using Panda.Client;
 
 namespace Panda.EverythingLauncher
 {
+    /// <summary>
+    ///     Service that will manage the interaction with es.exe
+    /// </summary>
     [Export]
-    public class EverythingService
+    public sealed class EverythingService
     {
-        private ILog Log { get; set; } = LogManager.GetLogger<EverythingService>();
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>
+        ///     The log.
+        /// </value>
+        private ILog Log { get; } = LogManager.GetLogger<EverythingService>();
 
+        /// <summary>
+        ///     Gets or sets the settings service.
+        /// </summary>
+        /// <value>
+        ///     The settings service.
+        /// </value>
         [Import]
-        public SettingsService SettingsService { get; set; }
+        internal ISettingsService SettingsService { get; set; }
 
+        /// <summary>
+        ///     Searches the specified query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
@@ -49,10 +70,10 @@ namespace Panda.EverythingLauncher
 
                         if (!cancellationToken.IsCancellationRequested && !token.IsCancellationRequested) continue;
                         Log.Debug($"Killing: {process.Id}");
-                        process.Kill();                     
+                        process.Kill();
                         observer.OnCompleted();
                         return;
-                    }   
+                    }
                     Log.Debug($"Finished: {process.Id}");
                     process.Kill();
                     observer.OnCompleted();

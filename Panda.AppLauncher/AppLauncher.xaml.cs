@@ -1,43 +1,105 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Windows.Controls;
-using System.Windows.Forms;
+using System.Windows.Input;
 using Panda.Client;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.AppLauncher
 {
+    /// <inheritdoc />
     /// <summary>
-    /// Interaction logic for AppLauncher.xaml
+    ///     Interaction logic for AppLauncher.xaml
     /// </summary>
     [Export(typeof(Launcher))]
-    public partial class AppLauncher : Launcher
+    public sealed partial class AppLauncher : Launcher
     {
-        [Import]
-        public RegisteredApplicationRepository RegisteredApplicationRepository { get; set; }
+        /// <summary>
+        /// Gets or sets the text changed subject.
+        /// </summary>
+        /// <value>
+        /// The text changed subject.
+        /// </value>
+        internal Subject<string> TextChangedSubject { get; set; } = new Subject<string>();
 
-        [ImportMany]
-        public IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+        internal Subject<KeyEventArgs> PreviewKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
 
+        /// <inheritdoc />
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="T:Panda.AppLauncher.AppLauncher" /> class.
+        /// </summary>
         public AppLauncher()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        ///     Gets or sets the registered application service.
+        /// </summary>
+        /// <value>
+        ///     The registered application service.
+        /// </value>
+        [Import]
+        internal IRegisteredApplicationService RegisteredApplicationService { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the registered application context menu providers.
+        /// </summary>
+        /// <value>
+        ///     The registered application context menu providers.
+        /// </value>
+        [ImportMany]
+        internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the view model.
+        /// </summary>
+        /// <value>
+        ///     The view model.
+        /// </value>
+        internal AppLauncherViewModel ViewModel { get; set; }
+
+        /// <summary>
+        ///     Handles the OnActivated event of the AppLauncher control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
-            ViewModel = new AppLauncherViewModel(RegisteredApplicationRepository, RegisteredApplicationContextMenuProviders);
+            ViewModel = new AppLauncherViewModel(RegisteredApplicationService,
+                RegisteredApplicationContextMenuProviders, TextChangedSubject, PreviewKeyUpSubject);
             DataContext = ViewModel;
         }
 
-        public AppLauncherViewModel ViewModel { get; set; }
-
+        /// <summary>
+        ///     Handles the OnSelectionChanged event of the Selector control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItems = RegisteredApplications.SelectedItems.Cast<AppViewModel>();
+            var selectedItems = RegisteredApplications.SelectedItems.Cast<RegisteredApplicationViewModel>();
             ViewModel.HandleSelectedItemsChanged(selectedItems);
-        }   
+        }
+
+        private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextChangedSubject.OnNext(SearchText.Text);
+        }
+
+        private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            PreviewKeyUpSubject.OnNext(e);
+        }
+
+        private void Control_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var label = sender as Label;
+            var parent = label?.Parent as Grid;
+            if(parent?.DataContext is RegisteredApplicationViewModel vm)
+                Process.Start(vm.ExecutableLocation);       // todo: move to vm
+        }
     }
 }

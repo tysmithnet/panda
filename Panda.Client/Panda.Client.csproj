@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>quicklogo.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
@@ -103,14 +106,19 @@
     <Compile Include="IconHelper.cs" />
     <Compile Include="IContextMenuProvider.cs" />
     <Compile Include="IFileSystemContextMenuProvider.cs" />
+    <Compile Include="IKeyboardMouseHookService.cs" />
+    <Compile Include="ILauncherService.cs" />
     <Compile Include="IPluginSettings.cs" />
     <Compile Include="IRequiresSetup.cs" />
+    <Compile Include="ISettingsService.cs" />
+    <Compile Include="ISystemService.cs" />
     <Compile Include="KeyboardMouseHookService.cs" />
-    <Compile Include="LauncherRepository.cs" />
+    <Compile Include="LauncherService.cs" />
     <Compile Include="LauncherSelectorViewModel.cs" />
     <Compile Include="LauncherViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SettingsService.cs" />
+    <Compile Include="SystemTrayService.cs" />
     <Page Include="LauncherSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -151,6 +159,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="quicklogo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="unknownfile16x16.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="unknownfile32x32.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

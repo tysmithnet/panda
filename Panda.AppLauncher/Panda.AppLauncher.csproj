@@ -60,10 +60,11 @@
       <DependentUpon>AppLauncher.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppLauncherContextMenuProvider.cs" />
-    <Compile Include="RegisteredApplicationRepository.cs" />
+    <Compile Include="IRegisteredApplicationService.cs" />
+    <Compile Include="RegisteredApplicationService.cs" />
     <Compile Include="AppLauncherSettings.cs" />
     <Compile Include="AppLauncherViewModel.cs" />
-    <Compile Include="AppViewModel.cs" />
+    <Compile Include="RegisteredApplicationViewModel.cs" />
     <Compile Include="IRegisteredApplicationContextMenuProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisteredApplication.cs" />
