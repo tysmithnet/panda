@@ -71,7 +71,13 @@ namespace Panda.AppLauncher
         private void AppLauncher_OnActivated(object sender, EventArgs e)
         {
             ViewModel = new AppLauncherViewModel(RegisteredApplicationService,
-                RegisteredApplicationContextMenuProviders, TextChangedSubject, PreviewKeyUpSubject, PreviewDoubleClickSubject);
+                RegisteredApplicationContextMenuProviders)
+            {
+                TextChangedObs = TextChangedSubject,
+                PreviewDoubleClickObs = PreviewDoubleClickSubject,
+                PreviewKeyUpObs = PreviewKeyUpSubject
+            };
+            ViewModel.Setup();
             DataContext = ViewModel;
         }
 

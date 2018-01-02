@@ -20,6 +20,8 @@ namespace Panda.AppLauncher
     /// <seealso cref="System.IDisposable" />
     public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
+        private IObservable<string> _textChangedObs;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
         /// </summary>
@@ -29,14 +31,15 @@ namespace Panda.AppLauncher
         /// <param name="previewKeyUpObs"></param>
         public AppLauncherViewModel(
             IRegisteredApplicationService registeredApplicationService, 
-            IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders, 
-            IObservable<string> textChangedObs, 
-            IObservable<KeyEventArgs> previewKeyUpObs,
-            IObservable<RegisteredApplicationViewModel> previewDoubleClickObs)
+            IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
         {
             RegisteredApplicationService = registeredApplicationService;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
-            registeredApplicationService.Get().Subscribe(async application =>
+        }
+
+        public void Setup()
+        {
+            RegisteredApplicationService.Get().Subscribe(async application =>
             {
                 var item = new RegisteredApplicationViewModel
                 {
@@ -49,7 +52,7 @@ namespace Panda.AppLauncher
             });
 
             ApplicationRegisteredSubscription =
-                registeredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
+                RegisteredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
                 {
                     var item = new RegisteredApplicationViewModel
                     {
@@ -62,50 +65,82 @@ namespace Panda.AppLauncher
                 });
 
             ApplicationUnregisteredSubscription =
-                registeredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
+                RegisteredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
                 {
                     var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
                     foreach (var appViewModel in toRemove)
                         AppViewModels.Remove(appViewModel);
                 });
+                             
+        }                         
 
-            textChangedObs
-                .Where(s => s != null)
-                .Subscribe(async s =>
+        private IDisposable _previewDoubleClickSubscription;
+        public IObservable<RegisteredApplicationViewModel> PreviewDoubleClickObs
+        {
+            get => _previewDoubleClickObs;
+            set
             {
-                AppViewModels.Clear();
-                var filteredApps = RegisteredApplicationService.Get().Where(application =>
-                    Regex.IsMatch(application.DisplayName, s, RegexOptions.IgnoreCase) ||
-                    Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
-                foreach (var registeredApplication in filteredApps)
+                _previewDoubleClickSubscription?.Dispose();
+                _previewDoubleClickObs = value;
+                _previewDoubleClickSubscription = value.Subscribe(model =>
                 {
-                    var item = new RegisteredApplicationViewModel
-                    {
-                        AppName = registeredApplication.DisplayName,
-                        ExecutableLocation = registeredApplication.FullPath,
-                        RegisteredApplication = registeredApplication
-                    };
-                    AppViewModels.Add(item);
-                    await item.LoadIcon();
-                }
-            });
+                    Process.Start(model.ExecutableLocation);
+                });
+            }
+        }
 
-            previewKeyUpObs.Subscribe(args =>
+        private IDisposable _previewKeyUpSubscription;
+        public IObservable<KeyEventArgs> PreviewKeyUpObs
+        {
+            get { return _previewKeyUpObs; }
+            set
             {
-                if (args.Key == Key.Enter || args.Key == Key.Return)
+                _previewDoubleClickSubscription.Dispose();
+                _previewKeyUpObs = value; 
+                _previewDoubleClickSubscription = value.Subscribe(args =>
                 {
+                    if (args.Key != Key.Enter && args.Key != Key.Return) return;
                     var first = AppViewModels.FirstOrDefault();
                     if (first != null)
                     {
                         Process.Start(first.ExecutableLocation);
                     }
-                }
-            });
+                });
+            }
+        }
 
-            previewDoubleClickObs.Subscribe(model =>
+        private IDisposable _textChangedSubscription;
+        private IObservable<RegisteredApplicationViewModel> _previewDoubleClickObs;
+        private IObservable<KeyEventArgs> _previewKeyUpObs;
+
+        public IObservable<string> TextChangedObs
+        {
+            get => _textChangedObs;
+            set
             {
-                Process.Start(model.ExecutableLocation);
-            });
+                value = value ?? throw new ArgumentNullException(nameof(value));
+                _textChangedSubscription?.Dispose();                
+                _textChangedObs = value; 
+                _textChangedSubscription = value.Where(s => s != null)
+                    .Subscribe(async s =>
+                    {
+                        AppViewModels.Clear();
+                        var filteredApps = RegisteredApplicationService.Get().Where(application =>
+                            Regex.IsMatch(application.DisplayName, s, RegexOptions.IgnoreCase) ||
+                            Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
+                        foreach (var registeredApplication in filteredApps)
+                        {
+                            var item = new RegisteredApplicationViewModel
+                            {
+                                AppName = registeredApplication.DisplayName,
+                                ExecutableLocation = registeredApplication.FullPath,
+                                RegisteredApplication = registeredApplication
+                            };
+                            AppViewModels.Add(item);
+                            await item.LoadIcon();
+                        }
+                    });
+            }
         }
 
         /// <summary>
@@ -211,5 +246,5 @@ namespace Panda.AppLauncher
                 
             }
         }
-    }
+    }                                                                                         
 }
