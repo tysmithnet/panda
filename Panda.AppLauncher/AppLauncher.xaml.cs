@@ -91,6 +91,7 @@ namespace Panda.AppLauncher
             };
             ViewModel.Setup();
             DataContext = ViewModel;
+            SearchText.Focus();
         }
 
         /// <summary>
