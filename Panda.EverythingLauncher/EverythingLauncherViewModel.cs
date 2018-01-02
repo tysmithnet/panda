@@ -22,8 +22,19 @@ namespace Panda.EverythingLauncher
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class EverythingLauncherViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// The text changed subscription
+        /// </summary>
         private IDisposable _textChangedSubscription;
+
+        /// <summary>
+        /// The text changed obs
+        /// </summary>
         private IObservable<string> _textChangedObs;
+
+        /// <summary>
+        /// The selected items changed obs
+        /// </summary>
         private IObservable<IEnumerable<EverythingResultViewModel>> _selectedItemsChangedObs;
 
         /// <summary>
@@ -38,7 +49,17 @@ namespace Panda.EverythingLauncher
             FileSystemContextMenuProviders = fileSystemContextMenuProviders;        
         }
 
+        /// <summary>
+        /// The preview mouse right button down subscription
+        /// </summary>
         private IDisposable _previewMouseRightButtonDownSubscription;
+
+        /// <summary>
+        /// Gets or sets the preview mouse right button down obs.
+        /// </summary>
+        /// <value>
+        /// The preview mouse right button down obs.
+        /// </value>
         public IObservable<MouseButtonEventArgs> PreviewMouseRightButtonDownObs
         {
             get => _previewMouseRightButtonDownObs;
@@ -73,9 +94,22 @@ namespace Panda.EverythingLauncher
             }
         }
 
+        /// <summary>
+        /// The selected items changed subscription
+        /// </summary>
         private IDisposable _selectedItemsChangedSubscription;
+
+        /// <summary>
+        /// The preview mouse right button down obs
+        /// </summary>
         private IObservable<MouseButtonEventArgs> _previewMouseRightButtonDownObs;
 
+        /// <summary>
+        /// Gets or sets the selected items changed obs.
+        /// </summary>
+        /// <value>
+        /// The selected items changed obs.
+        /// </value>
         public IObservable<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObs
         {
             get => _selectedItemsChangedObs;
@@ -99,7 +133,17 @@ namespace Panda.EverythingLauncher
             }
         }
 
+        /// <summary>
+        /// The everything subscription
+        /// </summary>
         private IDisposable _everythingSubscription;
+
+        /// <summary>
+        /// Gets or sets the text changed obs.
+        /// </summary>
+        /// <value>
+        /// The text changed obs.
+        /// </value>
         public IObservable<string> TextChangedObs
         {
             get => _textChangedObs;
@@ -201,35 +245,6 @@ namespace Panda.EverythingLauncher
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        ///     Handles the selected results changed.
-        /// </summary>
-        /// <param name="selectedItems">The selected items.</param>
-        internal void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
-        {
-        
-        }
-
-        /// <summary>
-        ///     Handles the search text changed.
-        /// </summary>
-        /// <param name="newText">The new text.</param>
-        internal void HandleSearchTextChanged(string newText)
-        {
-
-        }
-
-        /// <summary>
-        ///     Handles the preview mouse right button down.
-        /// </summary>
-        /// <param name="mouseButtonEventArgs">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
-        /// <param name="selectedEverythingResultViewModels">The selected everything result view models.</param>
-        internal void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
-            IEnumerable<EverythingResultViewModel> selectedEverythingResultViewModels)
-        {
-            
         }
 
         /// <summary>

@@ -18,6 +18,9 @@ namespace Panda.Client
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// The text changed obs
+        /// </summary>
         private IObservable<string> _textChangedObs;
 
         /// <summary>
@@ -35,9 +38,22 @@ namespace Panda.Client
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
         }
 
+        /// <summary>
+        /// The text changed subscription
+        /// </summary>
         private IDisposable _textChangedSubscription;
+
+        /// <summary>
+        /// The selection changed obs
+        /// </summary>
         private IObservable<SelectionChangedEventArgs> _selectionChangedObs;
 
+        /// <summary>
+        /// Gets or sets the text changed obs.
+        /// </summary>
+        /// <value>
+        /// The text changed obs.
+        /// </value>
         public IObservable<string> TextChangedObs
         {
             get => _textChangedObs;
@@ -105,7 +121,17 @@ namespace Panda.Client
         /// </value>
         public string SearchText { get; set; }
 
+        /// <summary>
+        /// The selection changed subscription
+        /// </summary>
         private IDisposable _selectionChangedSubscription;
+
+        /// <summary>
+        /// Gets or sets the selection changed obs.
+        /// </summary>
+        /// <value>
+        /// The selection changed obs.
+        /// </value>
         public IObservable<SelectionChangedEventArgs> SelectionChangedObs
         {
             get => _selectionChangedObs;

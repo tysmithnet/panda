@@ -101,6 +101,12 @@ namespace Panda.Client
             DataContext = ViewModel;
         }
 
+        /// <summary>
+        /// Gets or sets the selection changed observable.
+        /// </summary>
+        /// <value>
+        /// The selection changed observable.
+        /// </value>
         private Subject<SelectionChangedEventArgs> SelectionChangedObservable { get; set; } = new Subject<SelectionChangedEventArgs>();
 
         /// <summary>
