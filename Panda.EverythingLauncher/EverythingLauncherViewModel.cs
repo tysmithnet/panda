@@ -22,55 +22,114 @@ namespace Panda.EverythingLauncher
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class EverythingLauncherViewModel : INotifyPropertyChanged
     {
+        private IDisposable _textChangedSubscription;
+        private IObservable<string> _textChangedObs;
+        private IObservable<IEnumerable<EverythingResultViewModel>> _selectedItemsChangedObs;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
         /// </summary>
         /// <param name="everythingService">The everything service.</param>
-        /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
-        /// <param name="textChangedObservable">The text changed observable.</param>
-        /// <param name="selectedItemsChangedObservable">The selected items changed observable.</param>
-        /// <param name="previewMouseRightButtonDownObservable">The preview mouse right button down observable.</param>
+        /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>                
         public EverythingLauncherViewModel(EverythingService everythingService,
-            IFileSystemContextMenuProvider[] fileSystemContextMenuProviders, IObservable<string> textChangedObservable,
-            IObservable<IEnumerable<EverythingResultViewModel>> selectedItemsChangedObservable,
-            IObservable<MouseButtonEventArgs> previewMouseRightButtonDownObservable)
+            IFileSystemContextMenuProvider[] fileSystemContextMenuProviders)
         {
             EverythingService = everythingService;
-            FileSystemContextMenuProviders = fileSystemContextMenuProviders;
-
-            TextChangedSubscription = textChangedObservable
-                .ObserveOn(SynchronizationContext.Current)
-                .Where(s => s != null && s.Length > 1)
-                .Subscribe(HandleSearchTextChanged);
-
-            SelectedItemsChangedSubscription = selectedItemsChangedObservable
-                .ObserveOn(SynchronizationContext.Current)
-                .Where(model => model != null)
-                .Subscribe(HandleSelectedResultsChanged);
-
-            previewMouseRightButtonDownObservable
-                .ObserveOn(SynchronizationContext.Current)
-                .Where(args => args != null)
-                .WithLatestFrom(selectedItemsChangedObservable,
-                    (args, models) => (args, models))
-                .Subscribe(tuple => HandlePreviewMouseRightButtonDown(tuple.Item1, tuple.Item2));
+            FileSystemContextMenuProviders = fileSystemContextMenuProviders;        
         }
 
-        /// <summary>
-        ///     Gets or sets the selected items changed subscription.
-        /// </summary>
-        /// <value>
-        ///     The selected items changed subscription.
-        /// </value>
-        internal IDisposable SelectedItemsChangedSubscription { get; set; }
+        private IDisposable _previewMouseRightButtonDownSubscription;
+        public IObservable<MouseButtonEventArgs> PreviewMouseRightButtonDownObs
+        {
+            get => _previewMouseRightButtonDownObs;
+            set
+            {
+                _previewMouseRightButtonDownSubscription?.Dispose();
+                _previewMouseRightButtonDownObs = value; 
+                _previewMouseRightButtonDownSubscription = value
+                    .ObserveOn(SynchronizationContext.Current)
+                    .Where(args => args != null)
+                    .WithLatestFrom(SelectedItemsChangedObs,
+                        (args, models) => (args, models))
+                    .Subscribe(tuple =>
+                    {
+                        if (!Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt)) return;
+                        var shellContextMenu = new ShellContextMenu();
+                        var point = Mouse.GetPosition(null);
+                        var fileInfos = tuple.Item2.Select(vm => new FileInfo(vm.FullName)).ToList();
+                        var directories = fileInfos.Where(info => info.Attributes.HasFlag(FileAttributes.Directory)).ToList();
+                        var directoryInfos = directories.Select(info => info.Directory).ToArray();
+                        var files = fileInfos.Except(directories).ToArray();
+                        var pointInfo = new Point((int)point.X, (int)point.Y);
+                        if (!files.Any() && !directories.Any())
+                            return;
+                        if (!files.Any())
+                            shellContextMenu.ShowContextMenu(directoryInfos, pointInfo);
+                        else if (!directories.Any())
+                            shellContextMenu.ShowContextMenu(files, pointInfo);
+                        else
+                            shellContextMenu.ShowContextMenu(files, directoryInfos, pointInfo);
+                    });
+            }
+        }
 
-        /// <summary>
-        ///     Gets or sets the text changed subscription.
-        /// </summary>
-        /// <value>
-        ///     The text changed subscription.
-        /// </value>
-        internal IDisposable TextChangedSubscription { get; set; }
+        private IDisposable _selectedItemsChangedSubscription;
+        private IObservable<MouseButtonEventArgs> _previewMouseRightButtonDownObs;
+
+        public IObservable<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObs
+        {
+            get => _selectedItemsChangedObs;
+            set
+            {                                    
+                _selectedItemsChangedSubscription?.Dispose();
+                _selectedItemsChangedObs = value; 
+                _selectedItemsChangedSubscription = value
+                    .ObserveOn(SynchronizationContext.Current)
+                    .Where(model => model != null)
+                    .Subscribe(selectedItems =>
+                    {
+                        ContextMenuItems = new ObservableCollection<FrameworkElement>();
+                        SelectedItems = selectedItems.ToList();
+                        var fileInfos = SelectedItems.Select(s => new FileInfo(s.FullName));
+                        var providers = FileSystemContextMenuProviders.Where(f => f.CanHandle(fileInfos));
+                        var menuItems = providers.SelectMany(p => p.GetContextMenuItems(fileInfos));
+                        foreach (var frameworkElement in menuItems)
+                            ContextMenuItems.Add(frameworkElement);
+                    });
+            }
+        }
+
+        private IDisposable _everythingSubscription;
+        public IObservable<string> TextChangedObs
+        {
+            get => _textChangedObs;
+            set
+            {
+                _textChangedSubscription?.Dispose();
+                _textChangedObs = value; 
+                _textChangedSubscription = value
+                    .ObserveOn(SynchronizationContext.Current)
+                    .Where(s => s != null && s.Length > 1)
+                    .Subscribe(s =>
+                    {
+                        CancellationTokenSource?.Cancel();
+                        CancellationTokenSource = new CancellationTokenSource();
+                        _everythingSubscription?.Dispose();
+
+                        EverythingResults.Clear();
+                        _everythingSubscription = EverythingService
+                            .Search(s, CancellationTokenSource.Token)
+                            .ForEachAsync(
+                                async result =>
+                                {
+                                    var resultVm = new EverythingResultViewModel(result.FullPath);
+                                    Application.Current.Dispatcher.Invoke(() => { EverythingResults.Add(resultVm); });
+                                    await resultVm.LoadIcon();
+                                }, CancellationTokenSource.Token);
+                    });
+            }
+        }
+
 
         /// <summary>
         ///     Gets or sets the file system context menu providers.
@@ -123,14 +182,6 @@ namespace Panda.EverythingLauncher
         internal CancellationTokenSource CancellationTokenSource { get; private set; }
 
         /// <summary>
-        ///     Gets or sets the subscription.
-        /// </summary>
-        /// <value>
-        ///     The subscription.
-        /// </value>
-        internal IDisposable Subscription { get; set; }
-
-        /// <summary>
         ///     Gets or sets the selected items.
         /// </summary>
         /// <value>
@@ -158,13 +209,7 @@ namespace Panda.EverythingLauncher
         /// <param name="selectedItems">The selected items.</param>
         internal void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
         {
-            ContextMenuItems = new ObservableCollection<FrameworkElement>();
-            SelectedItems = selectedItems.ToList();
-            var fileInfos = SelectedItems.Select(s => new FileInfo(s.FullName));
-            var providers = FileSystemContextMenuProviders.Where(f => f.CanHandle(fileInfos));
-            var menuItems = providers.SelectMany(p => p.GetContextMenuItems(fileInfos));
-            foreach (var frameworkElement in menuItems)
-                ContextMenuItems.Add(frameworkElement);
+        
         }
 
         /// <summary>
@@ -173,19 +218,7 @@ namespace Panda.EverythingLauncher
         /// <param name="newText">The new text.</param>
         internal void HandleSearchTextChanged(string newText)
         {
-            CancellationTokenSource?.Cancel();
-            CancellationTokenSource = new CancellationTokenSource();
-            Subscription?.Dispose();
-            EverythingResults.Clear();
-            Subscription = EverythingService
-                .Search(newText, CancellationTokenSource.Token)
-                .ForEachAsync(
-                    async result =>
-                    {
-                        var resultVm = new EverythingResultViewModel(result.FullPath);
-                        Application.Current.Dispatcher.Invoke(() => { EverythingResults.Add(resultVm); });
-                        await resultVm.LoadIcon();
-                    }, CancellationTokenSource.Token);
+
         }
 
         /// <summary>
@@ -196,24 +229,7 @@ namespace Panda.EverythingLauncher
         internal void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
             IEnumerable<EverythingResultViewModel> selectedEverythingResultViewModels)
         {
-            if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
-            {
-                var shellContextMenu = new ShellContextMenu();
-                var point = Mouse.GetPosition(null);
-                var fileInfos = selectedEverythingResultViewModels.Select(vm => new FileInfo(vm.FullName)).ToList();
-                var directories = fileInfos.Where(info => info.Attributes.HasFlag(FileAttributes.Directory)).ToList();
-                var directoryInfos = directories.Select(info => info.Directory).ToArray();
-                var files = fileInfos.Except(directories).ToArray();
-                var pointInfo = new Point((int) point.X, (int) point.Y);
-                if (!files.Any() && !directories.Any())
-                    return;
-                if (!files.Any())
-                    shellContextMenu.ShowContextMenu(directoryInfos, pointInfo);
-                else if (!directories.Any())
-                    shellContextMenu.ShowContextMenu(files, pointInfo);
-                else
-                    shellContextMenu.ShowContextMenu(files, directoryInfos, pointInfo);
-            }
+            
         }
 
         /// <summary>
