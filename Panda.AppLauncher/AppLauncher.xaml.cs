@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Windows.Controls;
@@ -91,6 +92,14 @@ namespace Panda.AppLauncher
         private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             PreviewKeyUpSubject.OnNext(e);
+        }
+
+        private void Control_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var label = sender as Label;
+            var parent = label?.Parent as Grid;
+            if(parent?.DataContext is RegisteredApplicationViewModel vm)
+                Process.Start(vm.ExecutableLocation);       // todo: move to vm
         }
     }
 }
