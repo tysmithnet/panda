@@ -58,7 +58,7 @@ namespace Panda.Client
         /// <value>
         ///     The text changed observable.
         /// </value>
-        private Subject<string> TextChangedObservable { get; } = new Subject<string>();
+        private Subject<string> TextChangedSubject { get; } = new Subject<string>();
 
         /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
@@ -93,10 +93,15 @@ namespace Panda.Client
                         args.Handled = true;
                     }
                 });
-            ViewModel = new LauncherSelectorViewModel(LauncherService,
-                TextChangedObservable);
+            ViewModel = new LauncherSelectorViewModel(LauncherService)
+            {
+                TextChangedObs = TextChangedSubject,
+                SelectionChangedObs = SelectionChangedObservable
+            };
             DataContext = ViewModel;
         }
+
+        private Subject<SelectionChangedEventArgs> SelectionChangedObservable { get; set; } = new Subject<SelectionChangedEventArgs>();
 
         /// <summary>
         ///     Handles the OnSelectionChanged event of the Selector control.
@@ -105,7 +110,7 @@ namespace Panda.Client
         /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
         internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ViewModel.HandleSelectionChanged(e); // todo: rename
+            SelectionChangedObservable.OnNext(e);
         }
 
         /// <summary>
@@ -115,7 +120,7 @@ namespace Panda.Client
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         internal void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            TextChangedObservable.OnNext(SearchText.Text);
+            TextChangedSubject.OnNext(SearchText.Text);
         }
 
         /// <summary>
@@ -129,7 +134,7 @@ namespace Panda.Client
                 Hide();
 
             if (e.Key == Key.Enter || e.Key == Key.Return)
-                ViewModel.Submit();
+                ViewModel.StartFirst();
         }
     }
 }

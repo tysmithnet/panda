@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -17,12 +18,13 @@ namespace Panda.Client
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
+        private IObservable<string> _textChangedObs;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
         /// <param name="launcherService">The launcher service.</param>
-        /// <param name="textChangedObservable">The text changed observable.</param>
-        public LauncherSelectorViewModel(ILauncherService launcherService, IObservable<string> textChangedObservable)
+        public LauncherSelectorViewModel(ILauncherService launcherService)
         {
             LauncherService = launcherService;
             ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
@@ -31,9 +33,36 @@ namespace Panda.Client
                 Instance = l
             });
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
-            textChangedObservable
-                .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(FilterApps);
+        }
+
+        private IDisposable _textChangedSubscription;
+        private IObservable<SelectionChangedEventArgs> _selectionChangedObs;
+
+        public IObservable<string> TextChangedObs
+        {
+            get => _textChangedObs;
+            set
+            {
+                _textChangedSubscription?.Dispose();
+                _textChangedObs = value; 
+                _textChangedSubscription = value
+                    .ObserveOn(SynchronizationContext.Current)
+                    .Subscribe(filter =>
+                    {
+                        LauncherViewModels.Clear();
+
+                        if (string.IsNullOrEmpty(filter))
+                        {
+                            foreach (var launcherViewModel in ViewModels)
+                                LauncherViewModels.Add(launcherViewModel);
+                            return;
+                        }
+
+                        foreach (var launcherViewModel in ViewModels.Where(vm =>
+                            Regex.IsMatch(vm.Name, filter, RegexOptions.IgnoreCase)))
+                            LauncherViewModels.Add(launcherViewModel);
+                    });
+            }
         }
 
         /// <summary>
@@ -76,27 +105,33 @@ namespace Panda.Client
         /// </value>
         public string SearchText { get; set; }
 
+        private IDisposable _selectionChangedSubscription;
+        public IObservable<SelectionChangedEventArgs> SelectionChangedObs
+        {
+            get => _selectionChangedObs;
+            set
+            {
+                _selectionChangedSubscription?.Dispose();
+                _selectionChangedObs = value;
+                _selectionChangedSubscription = value.Subscribe(e =>
+                {
+                    var added = e.AddedItems.Cast<LauncherViewModel>();
+                    var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
+                    if (launcherViewModels.Any())
+                    {
+                        var first = launcherViewModels.First();
+                        Active?.Hide();
+                        Active = first.Instance;
+                        Active.Show();
+                    }
+                });                 
+            }
+        }
+
         /// <summary>
         ///     Occurs when [property changed].
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        ///     Handles the selection changing
-        /// </summary>
-        /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
-        public void HandleSelectionChanged(SelectionChangedEventArgs e)
-        {
-            var added = e.AddedItems.Cast<LauncherViewModel>();
-            var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
-            if (launcherViewModels.Any())
-            {
-                var first = launcherViewModels.First();
-                Active?.Hide();
-                Active = first.Instance;
-                Active.Show();
-            }
-        }
 
         /// <summary>
         ///     Called when [property changed].
@@ -108,34 +143,16 @@ namespace Panda.Client
         }
 
         /// <summary>
-        ///     Filters the apps.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        public void FilterApps(string filter)
-        {
-            LauncherViewModels.Clear();
-
-            if (string.IsNullOrEmpty(filter))
-            {
-                foreach (var launcherViewModel in ViewModels)
-                    LauncherViewModels.Add(launcherViewModel);
-                return;
-            }
-
-            foreach (var launcherViewModel in ViewModels.Where(vm =>
-                Regex.IsMatch(vm.Name, filter, RegexOptions.IgnoreCase)))
-                LauncherViewModels.Add(launcherViewModel);
-        }
-
-        /// <summary>
         ///     Submits this instance.
         /// </summary>
-        public void Submit()
+        public void StartFirst()
         {
-            var first = LauncherViewModels.First();
+            var first = LauncherViewModels.FirstOrDefault();
+            if (first == null) return;
             Active?.Hide();
             Active = first.Instance;
             Active.Show();
+            // todo: allow multiple active windows
         }
     }
 }
