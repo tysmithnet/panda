@@ -81,6 +81,10 @@
       <Project>{DB549A22-2157-485B-A310-39C6661C04FA}</Project>
       <Name>Panda.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Panda.CommonControls\Panda.CommonControls.csproj">
+      <Project>{812973bb-0d59-480a-b751-25aba784bd14}</Project>
+      <Name>Panda.CommonControls</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Page Include="AppLauncher.xaml">

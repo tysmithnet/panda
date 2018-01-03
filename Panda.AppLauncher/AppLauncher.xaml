@@ -5,6 +5,7 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:local="clr-namespace:Panda.AppLauncher"
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
+                 xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
                  mc:Ignorable="d"
                  d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
                  Activated="AppLauncher_OnActivated"
@@ -25,14 +26,7 @@
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Source="{Binding ImageSource}"></Image>
-                        <Label Grid.Column="1" Content="{Binding AppName}" PreviewMouseDoubleClick="Control_OnPreviewMouseDoubleClick"></Label>
-                    </Grid>
+                    <commonControls:ImageTextItem ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}" SubHeaderText="{Binding ExecutableLocation}"></commonControls:ImageTextItem>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

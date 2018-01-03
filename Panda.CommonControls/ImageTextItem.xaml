@@ -6,15 +6,15 @@
              xmlns:local="clr-namespace:Panda.CommonControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance local:ImageTextItemViewModel}">
+             >
     <UserControl.Resources>
         <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
     </UserControl.Resources>
-    <DockPanel>
-        <Image DockPanel.Dock="Left" Source="{Binding ImageSource}"></Image>
+    <StackPanel x:Name="LayoutRoot" Orientation="Horizontal" d:DataContext="{d:DesignInstance local:ImageTextItemViewModel}">
+        <Image Source="{Binding ImageSource}"></Image>
         <StackPanel>
-            <TextBox x:Name="HeaderTextBox" Text="{Binding HeaderText}" TextChanged="TextBoxBase_OnTextChanged"></TextBox>
-            <TextBox x:Name="SubHeaderTextBox" Text="{Binding SubHeaderText}" TextChanged="SubHeaderText_OnTextChanged"></TextBox>
+            <Label x:Name="HeaderTextBox" Content="{Binding HeaderText}"></Label>
+            <Label x:Name="SubHeaderTextBox" Content="{Binding SubHeaderText}"></Label>
         </StackPanel>
-    </DockPanel>
+    </StackPanel>
 </UserControl>

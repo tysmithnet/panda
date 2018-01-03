@@ -31,7 +31,7 @@
                             <Label Content="{Binding Directory}" />
                         </StackPanel>
                     </StackPanel>                                                                                                                                          -->
-                    <commonControls:ImageTextItem HeaderText="Hello" SubHeaderText="World"></commonControls:ImageTextItem> 
+                    <commonControls:ImageTextItem HeaderText="{Binding Name}" SubHeaderText="{Binding Directory}" ImageSource="{Binding Icon}"></commonControls:ImageTextItem> 
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

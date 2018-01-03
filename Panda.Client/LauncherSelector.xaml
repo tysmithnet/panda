@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Panda.Client"
+        xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
         d:DataContext="{d:DesignInstance local:LauncherSelectorViewModel}"
         mc:Ignorable="d"
         Title="LauncherSelector" Height="350" Width="525"
@@ -16,7 +17,7 @@
         <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding Name}" />
+                    <commonControls:ImageTextItem HeaderText="{Binding Name}"></commonControls:ImageTextItem>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

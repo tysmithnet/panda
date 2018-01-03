@@ -184,5 +184,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Panda.CommonControls\Panda.CommonControls.csproj">
+      <Project>{812973bb-0d59-480a-b751-25aba784bd14}</Project>
+      <Name>Panda.CommonControls</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
