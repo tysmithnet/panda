@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.Caching;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -13,6 +14,8 @@ namespace Panda.Client
     /// </summary>
     public static class IconHelper
     {
+        internal static MemoryCache IconCache { get; set; } = new MemoryCache(typeof(IconHelper).FullName);
+
         /// <summary>
         ///     Gets an icon from a file path using windows shell
         /// </summary>
@@ -22,6 +25,10 @@ namespace Panda.Client
         {
             try
             {
+                // todo: IconCache.CacheMemoryLimit; setting
+                var cacheItem = IconCache.GetCacheItem(filePath);
+                if(cacheItem != null)
+                    return cacheItem.Value as ImageSource;
                 var shinfo = new ShFileInfo();
                 var hImgSmall = Win32.SHGetFileInfo(filePath, 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
                     Win32.SHGFI_ICON | Win32.SHGFI_LARGEICON); // todo: handle big/small requests
@@ -30,6 +37,12 @@ namespace Panda.Client
                 var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                     BitmapSizeOptions.FromEmptyOptions());
                 img.Freeze();
+                var newItem = new CacheItem(filePath, img);
+                var policy = new CacheItemPolicy
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                IconCache.Add(newItem, policy);
                 return img;
             }
             catch (Exception)
@@ -39,6 +52,12 @@ namespace Panda.Client
                 var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                     BitmapSizeOptions.FromEmptyOptions());
                 img.Freeze();
+                var newItem = new CacheItem(filePath, img);
+                var policy = new CacheItemPolicy
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                IconCache.Add(newItem, policy);
                 return img;
             }
         }
