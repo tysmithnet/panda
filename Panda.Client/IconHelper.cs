@@ -25,7 +25,7 @@ namespace Panda.Client
                 var shinfo = new ShFileInfo();
                 var hImgSmall = Win32.SHGetFileInfo(filePath, 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
                     Win32.SHGFI_ICON | Win32.SHGFI_LARGEICON); // todo: handle big/small requests
-                var icon = (Icon) Icon.FromHandle(shinfo.hIcon).Clone();
+                var icon = (Icon) Icon.FromHandle(shinfo.hIcon);
                 var bmp = icon.ToBitmap();
                 var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                     BitmapSizeOptions.FromEmptyOptions());
