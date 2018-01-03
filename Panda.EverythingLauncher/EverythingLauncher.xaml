@@ -5,6 +5,7 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:local="clr-namespace:Panda.EverythingLauncher"
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
+                 xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
                  d:DataContext="{d:DesignInstance local:EverythingLauncherViewModel}"
                  Activated="EverythingLauncher_OnActivated"
                  mc:Ignorable="d"
@@ -23,13 +24,14 @@
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
+                    <!--<StackPanel Orientation="Horizontal">
                         <Image Source="{Binding Icon}" />
                         <StackPanel>
                             <Label Content="{Binding Name}" />
                             <Label Content="{Binding Directory}" />
                         </StackPanel>
-                    </StackPanel>
+                    </StackPanel>-->
+                    <commonControls:ImageTextItem HeaderText="{Binding Icon}" SubHeaderText="{Binding Directory}" ImageSource="{Binding Icon}"></commonControls:ImageTextItem>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
