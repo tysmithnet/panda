@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
@@ -42,6 +43,10 @@ namespace Panda.EverythingLauncher
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
+            if (string.IsNullOrWhiteSpace(executablePath))
+            {
+                throw new ConfigurationErrorsException($"es.exe is not set in everything launcher settings");
+            }
             var obs = Observable.Create<EverythingResult>(async (observer, token) =>
             {
                 await Task.Run(async () =>

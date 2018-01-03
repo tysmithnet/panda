@@ -91,7 +91,7 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        private void EverythingLauncher_OnActivated(object sender, EventArgs e)
+        private void EverythingLauncher_OnLoaded(object sender, EventArgs e)
         {
             SearchText.Focus();
             ViewModel = new EverythingLauncherViewModel(EverythingService, FileSystemContextMenuProviders)
