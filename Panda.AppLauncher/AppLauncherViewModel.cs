@@ -63,9 +63,9 @@ namespace Panda.AppLauncher
             get => _previewKeyUpObs;
             set
             {
-                _previewDoubleClickSubscription.Dispose();
+                _previewKeyUpSubscription?.Dispose();
                 _previewKeyUpObs = value;
-                _previewDoubleClickSubscription = value.Subscribe(args =>
+                _previewKeyUpSubscription = value.Subscribe(args =>
                 {
                     if (args.Key != Key.Enter && args.Key != Key.Return) return;
                     var first = AppViewModels.FirstOrDefault();
