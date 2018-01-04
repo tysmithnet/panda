@@ -8,7 +8,7 @@
                  xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
                  mc:Ignorable="d"
                  d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
-                 Activated="AppLauncher_OnActivated"
+                 Loaded="AppLauncher_OnLoaded"
                  d:DesignHeight="300" d:DesignWidth="300"
                  Title="App Launcher">
     <DockPanel>
@@ -26,7 +26,7 @@
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <commonControls:ImageTextItem ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}" SubHeaderText="{Binding ExecutableLocation}"></commonControls:ImageTextItem>
+                    <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick" ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}" SubHeaderText="{Binding ExecutableLocation}"></commonControls:ImageTextItem>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

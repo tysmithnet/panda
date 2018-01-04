@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -25,9 +26,10 @@ namespace Panda.AppLauncher
         private IObservable<KeyEventArgs> _previewKeyUpObs;
 
         private IDisposable _previewKeyUpSubscription;
-        private IObservable<string> _textChangedObs;
+        private IObservable<string> _searchTextChangedObs;
 
         private IDisposable _textChangedSubscription;
+        private IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
@@ -75,14 +77,14 @@ namespace Panda.AppLauncher
             }
         }
 
-        public IObservable<string> TextChangedObs
+        public IObservable<string> SearchTextChangedObs
         {
-            get => _textChangedObs;
+            get => _searchTextChangedObs;
             set
             {
                 value = value ?? throw new ArgumentNullException(nameof(value));
                 _textChangedSubscription?.Dispose();
-                _textChangedObs = value;
+                _searchTextChangedObs = value;
                 _textChangedSubscription = value.Where(s => s != null)
                     .Subscribe(async s =>
                     {
@@ -162,6 +164,21 @@ namespace Panda.AppLauncher
         ///     The search text.
         /// </value>
         public string SearchText { get; set; }
+
+        private IDisposable _previewMouseUpSubscription;
+        public IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
+        {
+            get => _previewMouseDoubleClickObs;
+            set
+            {
+                _previewMouseUpSubscription?.Dispose();
+                _previewMouseDoubleClickObs = value;
+                _previewMouseUpSubscription = value.Subscribe(tuple =>
+                {
+                    Process.Start(tuple.Item1.ExecutableLocation);
+                });
+            }
+        }
 
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.

@@ -5,6 +5,7 @@ using System.Reactive.Subjects;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Client;
+using Panda.CommonControls;
 
 namespace Panda.AppLauncher
 {
@@ -30,7 +31,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The text changed subject.
         /// </value>
-        internal Subject<string> TextChangedSubject { get; set; } = new Subject<string>();
+        internal Subject<string> SearchTextChangedSubject { get; set; } = new Subject<string>();
 
         /// <summary>
         ///     Gets or sets the preview key up subject.
@@ -80,14 +81,15 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        private void AppLauncher_OnActivated(object sender, EventArgs e)
+        private void AppLauncher_OnLoaded(object sender, EventArgs e)
         {
             ViewModel = new AppLauncherViewModel(RegisteredApplicationService,
                 RegisteredApplicationContextMenuProviders)
             {
-                TextChangedObs = TextChangedSubject,
+                SearchTextChangedObs = SearchTextChangedSubject,
                 PreviewDoubleClickObs = PreviewDoubleClickSubject,
-                PreviewKeyUpObs = PreviewKeyUpSubject
+                PreviewKeyUpObs = PreviewKeyUpSubject,
+                PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject
             };
             ViewModel.Setup();
             DataContext = ViewModel;
@@ -112,7 +114,7 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            TextChangedSubject.OnNext(SearchText.Text);
+            SearchTextChangedSubject.OnNext(SearchText.Text);  
         }
 
         /// <summary>
@@ -125,17 +127,13 @@ namespace Panda.AppLauncher
             PreviewKeyUpSubject.OnNext(e);
         }
 
-        /// <summary>
-        ///     Handles the OnPreviewMouseDoubleClick event of the Control control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
-        private void Control_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        internal Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; } = new Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>();
+
+        private void UIElement_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var label = sender as Label;
-            var parent = label?.Parent as Grid;
-            if (parent?.DataContext is RegisteredApplicationViewModel vm)
-                PreviewDoubleClickSubject.OnNext(vm);
+            var item = sender as ImageTextItem;
+            var vm = item?.DataContext as RegisteredApplicationViewModel;
+            PreviewMouseDoubleClickSubject.OnNext((vm, e));
         }
     }
 }
