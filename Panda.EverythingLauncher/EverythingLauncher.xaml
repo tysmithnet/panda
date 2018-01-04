@@ -7,33 +7,84 @@
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
                  xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
                  d:DataContext="{d:DesignInstance local:EverythingLauncherViewModel}"
+                 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                  Loaded="EverythingLauncher_OnLoaded"
                  mc:Ignorable="d"
                  d:DesignHeight="300" d:DesignWidth="300"
                  Title="Everything Launcher">
+    <client:Launcher.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </client:Launcher.Resources>
     <DockPanel>
         <TextBox x:Name="SearchText" DockPanel.Dock="Top"
                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                  TextChanged="TextBoxBase_OnTextChanged" />
-        <ListBox x:Name="ResultsListBox" ItemsSource="{Binding EverythingResults}"
-                 SelectionChanged="Selector_OnSelectionChanged" SelectionMode="Extended"
-                 PreviewMouseRightButtonDown="ResultsListBox_OnPreviewMouseRightButtonDown"
-                 PreviewKeyUp="ResultsListBox_OnPreviewKeyUp">
-            <ListBox.ContextMenu>
-                <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
-            </ListBox.ContextMenu>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <!--<StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Icon}" />
-                        <StackPanel>
-                            <Label Content="{Binding Name}" />
-                            <Label Content="{Binding Directory}" />
-                        </StackPanel>
-                    </StackPanel>                                                                                                                                          -->
-                    <commonControls:ImageTextItem PreviewMouseDoubleClick="Control_OnPreviewMouseDoubleClick" HeaderText="{Binding Name}" SubHeaderText="{Binding Directory}" ImageSource="{Binding Icon}"></commonControls:ImageTextItem> 
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <DataGrid
+	Margin="0,8,0,0"
+	materialDesign:DataGridAssist.CellPadding="13 8 8 8"
+	materialDesign:DataGridAssist.ColumnHeaderPadding="8"
+	AutoGenerateColumns="False"
+	CanUserAddRows="False"
+	CanUserSortColumns="True"
+	ItemsSource="{Binding Items3}">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn
+			Binding="{Binding IsSelected}"
+			EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
+			ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}">
+                    <DataGridCheckBoxColumn.Header>
+                        <!--  padding to allow hit test to pass thru for sorting  -->
+                        <Border
+					Padding="6,0,6,0"
+					HorizontalAlignment="Center"
+					Background="Transparent">
+                            <CheckBox
+						HorizontalAlignment="Center"
+						DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=DataContext}"
+						IsChecked="{Binding IsAllItems3Selected}" />
+                        </Border>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+                <DataGridTextColumn
+			Binding="{Binding Code}"
+			EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+			Header="Code" />
+                <!--  if you want to use the pop up style (MaterialDesignDataGridTextColumnPopupEditingStyle), you must use MaterialDataGridTextColumn  -->
+                <materialDesign:MaterialDataGridTextColumn
+			Binding="{Binding Name}"
+			EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
+			Header="Name" />
+                <!--  set a max length to get an indicator in the editor  -->
+                <materialDesign:MaterialDataGridTextColumn
+			Binding="{Binding Description}"
+			EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
+			Header="Description"
+			MaxLength="255" />
+                <materialDesign:MaterialDataGridTextColumn
+			Binding="{Binding Numeric}"
+			EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
+			Header="Numeric">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="HorizontalAlignment" Value="Right" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="HorizontalAlignment" Value="Right" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </materialDesign:MaterialDataGridTextColumn>
+                <!--  use custom combo box column to get better combos. Use ItemsSourceBinding as your binding template to be applied to each combo  -->
+                <materialDesign:MaterialDataGridComboBoxColumn
+			Header="Food"
+			ItemsSourceBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=DataContext.Foods}"
+			SelectedValueBinding="{Binding Food}" />
+            </DataGrid.Columns>
+        </DataGrid>
     </DockPanel>
 </client:Launcher>
