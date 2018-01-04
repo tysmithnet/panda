@@ -156,15 +156,14 @@ namespace Panda.EverythingLauncher
                 _textChangedSubscription?.Dispose();
                 _textChangedObs = value;
                 _textChangedSubscription = value
-                    .ObserveOn(SynchronizationContext.Current)
                     .Where(s => s != null && s.Length > 1)
+                    .Throttle(TimeSpan.FromMilliseconds(333))
                     .Subscribe(s =>
                     {
                         CancellationTokenSource?.Cancel();
                         CancellationTokenSource = new CancellationTokenSource();
                         _everythingSubscription?.Dispose();
-
-                        EverythingResults.Clear();
+                        Application.Current.Dispatcher.Invoke(() => EverythingResults.Clear());                        
                         _everythingSubscription = EverythingService
                             .Search(s, CancellationTokenSource.Token)
                             .ForEachAsync(
