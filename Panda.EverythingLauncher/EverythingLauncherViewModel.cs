@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using Common.Logging;
 using Panda.Client;
 using Panda.EverythingLauncher.Interop;
 using Point = System.Drawing.Point;
@@ -258,13 +259,19 @@ namespace Panda.EverythingLauncher
                 Submit();
         }
 
+        private ILog Log { get; set; } = LogManager.GetLogger<EverythingLauncherViewModel>();
+
         /// <summary>
         ///     Launches the currently selected item using whatever the shell deems appropriate
         /// </summary>
         internal void Submit()
         {
             foreach (var everythingResultViewModel in SelectedItems)
+            {
+                Log.Trace($"Starting {everythingResultViewModel.FullName}");
                 Process.Start(everythingResultViewModel.FullName);
+            }
+                
         }
     }
 }

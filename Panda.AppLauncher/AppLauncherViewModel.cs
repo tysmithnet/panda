@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using Common.Logging;
 
 namespace Panda.AppLauncher
 {
@@ -35,9 +36,7 @@ namespace Panda.AppLauncher
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
         /// </summary>
         /// <param name="registeredApplicationService">The registered application service.</param>
-        /// <param name="registeredApplicationContextMenuProviders">The registered application context menu providers.</param>
-        /// <param name="textChangedObs"></param>
-        /// <param name="previewKeyUpObs"></param>
+        /// <param name="registeredApplicationContextMenuProviders">The registered application context menu providers.</param>        
         public AppLauncherViewModel(
             IRegisteredApplicationService registeredApplicationService,
             IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
@@ -55,6 +54,7 @@ namespace Panda.AppLauncher
                 _previewDoubleClickObs = value;
                 _previewDoubleClickSubscription = value.Subscribe(model =>
                 {
+                    Log.Trace($"Starting {model.ExecutableLocation}");
                     Process.Start(model.ExecutableLocation);
                 });
             }
@@ -72,7 +72,10 @@ namespace Panda.AppLauncher
                     if (args.Key != Key.Enter && args.Key != Key.Return) return;
                     var first = AppViewModels.FirstOrDefault();
                     if (first != null)
+                    {
+                        Log.Trace($"Starting {first.ExecutableLocation}");
                         Process.Start(first.ExecutableLocation);
+                    }                                           
                 });
             }
         }
@@ -165,6 +168,8 @@ namespace Panda.AppLauncher
         /// </value>
         public string SearchText { get; set; }
 
+        private ILog Log { get; set; } = LogManager.GetLogger<AppLauncherViewModel>();
+
         private IDisposable _previewMouseUpSubscription;
         public IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
@@ -175,6 +180,7 @@ namespace Panda.AppLauncher
                 _previewMouseDoubleClickObs = value;
                 _previewMouseUpSubscription = value.Subscribe(tuple =>
                 {
+                    Log.Trace($"Starting {tuple.Item1.ExecutableLocation}");
                     Process.Start(tuple.Item1.ExecutableLocation);
                 });
             }
