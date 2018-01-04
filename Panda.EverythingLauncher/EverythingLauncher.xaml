@@ -33,10 +33,18 @@
             CanUserSortColumns="True"
             ItemsSource="{Binding EverythingResults}">
             <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding Icon}"></Image>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn
                     Binding="{Binding Name}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
-                    Header="Name" />
+                    Header="Name" >
+                </DataGridTextColumn>
                 <materialDesign:MaterialDataGridTextColumn
                     Binding="{Binding FullName}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
