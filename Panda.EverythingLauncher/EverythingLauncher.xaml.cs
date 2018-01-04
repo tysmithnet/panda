@@ -112,8 +112,8 @@ namespace Panda.EverythingLauncher
         /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var results = ResultsListBox.SelectedItems.Cast<EverythingResultViewModel>().ToList();
-            SelectedItemsChangedObservable.OnNext(results);
+            //var results = ResultsListBox.SelectedItems.Cast<EverythingResultViewModel>().ToList();
+            //SelectedItemsChangedObservable.OnNext(results);
         }
 
         /// <summary>
