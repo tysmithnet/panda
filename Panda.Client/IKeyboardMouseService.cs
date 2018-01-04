@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
+using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 
 namespace Panda.Client
 {
     /// <summary>
     ///     A service that will provide functionality related to receiving system wide keyboard and mouse events
     /// </summary>
-    public interface IKeyboardMouseHookService
+    public interface IKeyboardMouseService
     {
         /// <summary>
         ///     Gets an observable that will deliver events when a KeyDown event occurs
@@ -31,5 +34,9 @@ namespace Panda.Client
         ///     The key up observable.
         /// </value>
         IObservable<KeyEventArgs> KeyUpObservable { get; }
+
+        bool IsKeyDown(Key key);
+
+        Point GetMousePosition();
     }
 }

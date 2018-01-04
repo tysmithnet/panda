@@ -43,7 +43,7 @@ namespace Panda.Client
         ///     The keyboard mouse hook service.
         /// </value>
         [Import]
-        internal IKeyboardMouseHookService KeyboardMouseHookService { get; set; }
+        internal IKeyboardMouseService KeyboardMouseService { get; set; }
 
         /// <summary>
         ///     Gets or sets the view model.
@@ -88,7 +88,7 @@ namespace Panda.Client
         private void LauncherSelector_OnLoaded(object sender, EventArgs e)
         {
             SearchText.Focus();
-            KeyboardMouseHookService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
+            KeyboardMouseService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(args =>
                 {

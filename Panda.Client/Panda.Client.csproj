@@ -121,13 +121,13 @@
     <Compile Include="IconSize.cs" />
     <Compile Include="IContextMenuProvider.cs" />
     <Compile Include="IFileSystemContextMenuProvider.cs" />
-    <Compile Include="IKeyboardMouseHookService.cs" />
+    <Compile Include="IKeyboardMouseService.cs" />
     <Compile Include="ILauncherService.cs" />
     <Compile Include="IPluginSettings.cs" />
     <Compile Include="IRequiresSetup.cs" />
     <Compile Include="ISettingsService.cs" />
     <Compile Include="ISystemService.cs" />
-    <Compile Include="KeyboardMouseHookService.cs" />
+    <Compile Include="KeyboardMouseService.cs" />
     <Compile Include="LauncherService.cs" />
     <Compile Include="LauncherSelectorViewModel.cs" />
     <Compile Include="LauncherViewModel.cs" />

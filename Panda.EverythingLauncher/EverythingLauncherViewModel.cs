@@ -86,8 +86,7 @@ namespace Panda.EverythingLauncher
             {
                 _previewMouseRightButtonDownSubscription?.Dispose();
                 _previewMouseRightButtonDownObs = value;
-                _previewMouseRightButtonDownSubscription = value
-                    .ObserveOn(SynchronizationContext.Current)
+                _previewMouseRightButtonDownSubscription = value  
                     .Where(args => args != null)
                     .WithLatestFrom(SelectedItemsChangedObs,
                         (args, models) => (args, models))
