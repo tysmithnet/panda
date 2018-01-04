@@ -118,6 +118,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="IconHelper.cs" />
+    <Compile Include="IconSize.cs" />
     <Compile Include="IContextMenuProvider.cs" />
     <Compile Include="IFileSystemContextMenuProvider.cs" />
     <Compile Include="IKeyboardMouseHookService.cs" />

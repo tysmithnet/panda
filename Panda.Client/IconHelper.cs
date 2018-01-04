@@ -16,12 +16,17 @@ namespace Panda.Client
     {
         internal static MemoryCache IconCache { get; set; } = new MemoryCache(typeof(IconHelper).FullName);
 
+        internal static uint ToIconFlag(this IconSize size)
+        {
+            return (uint) size;
+        }
+
         /// <summary>
         ///     Gets an icon from a file path using windows shell
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <returns>ImageSource for the icon for the icon at filePath</returns>
-        public static ImageSource IconFromFilePath(string filePath, int retryCount = 0)
+        public static ImageSource IconFromFilePath(string filePath, IconSize size)
         {
             try
             {
@@ -31,7 +36,7 @@ namespace Panda.Client
                     return cacheItem.Value as ImageSource;
                 var shinfo = new ShFileInfo();
                 var hImgSmall = Win32.SHGetFileInfo(filePath, 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
-                    Win32.SHGFI_ICON | Win32.SHGFI_LARGEICON); // todo: handle big/small requests
+                    Win32.SHGFI_ICON | size.ToIconFlag());
                 var icon = (Icon) Icon.FromHandle(shinfo.hIcon);
                 var bmp = icon.ToBitmap();
                 var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,

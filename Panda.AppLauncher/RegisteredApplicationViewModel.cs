@@ -67,9 +67,9 @@ namespace Panda.AppLauncher
         ///     Loads the icon.
         /// </summary>
         /// <returns>A task, that when complete, will signal the completion of the loading of the image source</returns>
-        public Task LoadIcon()
+        public Task LoadIcon(IconSize iconSize)
         {
-            return Task.Run(() => { ImageSource = IconHelper.IconFromFilePath(ExecutableLocation); });
+            return Task.Run(() => { ImageSource = IconHelper.IconFromFilePath(ExecutableLocation, iconSize); });
         }
 
         /// <summary>

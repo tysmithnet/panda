@@ -85,7 +85,7 @@ namespace Panda.EverythingLauncher
             {
                 try
                 {
-                    Icon = IconHelper.IconFromFilePath(FullName);
+                    Icon = IconHelper.IconFromFilePath(FullName, IconSize.Small);
                 }
                 catch (Exception)
                 {

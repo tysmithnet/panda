@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using Common.Logging;
+using Panda.Client;
 
 namespace Panda.AppLauncher
 {
@@ -104,7 +105,7 @@ namespace Panda.AppLauncher
                                 RegisteredApplication = registeredApplication
                             };
                             AppViewModels.Add(item);
-                            await item.LoadIcon();
+                            await item.LoadIcon(IconSize.Large);
                         }
                     });
             }
@@ -211,7 +212,7 @@ namespace Panda.AppLauncher
                     RegisteredApplication = application
                 };
                 AppViewModels.Add(item);
-                await item.LoadIcon();
+                await item.LoadIcon(IconSize.Large);
             });
 
             ApplicationRegisteredSubscription =
@@ -224,7 +225,7 @@ namespace Panda.AppLauncher
                         RegisteredApplication = application
                     };
                     AppViewModels.Add(item);
-                    await item.LoadIcon();
+                    await item.LoadIcon(IconSize.Large);
                 });
 
             ApplicationUnregisteredSubscription =
