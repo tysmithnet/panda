@@ -27,6 +27,9 @@ namespace Panda.CommonControls
         protected internal Subject<string> HeaderTextChangedSubject { get; set; } = new Subject<string>();
         protected internal Subject<string> SubHeaderChangedSubject { get; set; } = new Subject<string>();
         protected internal Subject<ImageSource> ImageSourceChangedSubject { get; set; } = new Subject<ImageSource>();
+        protected internal Subject<MouseButtonEventArgs> PreviewMouseButtonUpSubject { get; set; } = new Subject<MouseButtonEventArgs>();
+                                                   
+        public IObservable<MouseButtonEventArgs> PreviewMouseButtonUpObs => PreviewMouseButtonUpSubject;
 
         public string HeaderText
         {
@@ -57,12 +60,17 @@ namespace Panda.CommonControls
                                                                      
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            //HeaderTextChangedSubject.OnNext(HeaderTextBox.Text);
+            HeaderTextChangedSubject.OnNext(HeaderTextBox.Content as string);
         }
 
         private void SubHeaderText_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            //SubHeaderChangedSubject.OnNext(SubHeaderTextBox.Text);
+            SubHeaderChangedSubject.OnNext(SubHeaderTextBox.Content as string);
+        }
+
+        private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            
         }
     }                                           
 }

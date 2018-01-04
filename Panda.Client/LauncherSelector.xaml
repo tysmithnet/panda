@@ -8,7 +8,7 @@
         d:DataContext="{d:DesignInstance local:LauncherSelectorViewModel}"
         mc:Ignorable="d"
         Title="LauncherSelector" Height="350" Width="525"
-        Activated="LauncherSelector_OnActivated"
+        Loaded="LauncherSelector_OnLoaded"
         PreviewKeyUp="LauncherSelector_OnPreviewKeyUp"
         WindowStartupLocation="CenterScreen">
     <DockPanel>
@@ -17,7 +17,7 @@
         <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <commonControls:ImageTextItem HeaderText="{Binding Name}"></commonControls:ImageTextItem>
+                    <commonControls:ImageTextItem PreviewMouseUp="ImageTextItem_OnPreviewMouseUp" HeaderText="{Binding Name}"></commonControls:ImageTextItem>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

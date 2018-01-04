@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Panda.Client
 {
@@ -36,6 +37,8 @@ namespace Panda.Client
         ///     The text changed subscription
         /// </summary>
         private IDisposable _textChangedSubscription;
+
+        private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _previewMouseUpObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
@@ -149,6 +152,23 @@ namespace Panda.Client
                         Active = first.Instance;
                         Active.Show();
                     }
+                });
+            }
+        }
+
+        private IDisposable _previewMouseUpSubscription;
+        public IObservable<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpObs
+        {
+            get => _previewMouseUpObs;
+            set
+            {
+                _previewMouseUpSubscription?.Dispose();
+                _previewMouseUpObs = value;
+                _previewMouseUpSubscription = value.Subscribe(tuple =>
+                {
+                    Active?.Hide();
+                    Active = tuple.Item1.Instance;
+                    Active.Show();
                 });
             }
         }

@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Panda.CommonControls;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.Client
@@ -66,7 +67,7 @@ namespace Panda.Client
         /// <value>
         ///     The selection changed observable.
         /// </value>
-        private Subject<SelectionChangedEventArgs> SelectionChangedObservable { get; } =
+        private Subject<SelectionChangedEventArgs> SelectionChangedSubject { get; } =
             new Subject<SelectionChangedEventArgs>();
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace Panda.Client
         protected override void OnClosing(CancelEventArgs e)
         {
             Hide();
-            e.Cancel = true;
+            e.Cancel = true;      
         }
 
         /// <summary>
@@ -84,7 +85,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        private void LauncherSelector_OnActivated(object sender, EventArgs e)
+        private void LauncherSelector_OnLoaded(object sender, EventArgs e)
         {
             SearchText.Focus();
             KeyboardMouseHookService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
@@ -105,10 +106,13 @@ namespace Panda.Client
             ViewModel = new LauncherSelectorViewModel(LauncherService)
             {
                 TextChangedObs = TextChangedSubject,
-                SelectionChangedObs = SelectionChangedObservable
+                SelectionChangedObs = SelectionChangedSubject,
+                PreviewMouseUpObs = PreviewMouseUpSubject
             };
             DataContext = ViewModel;
         }
+
+        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpSubject { get; set; } = new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
         ///     Handles the OnSelectionChanged event of the Selector control.
@@ -117,7 +121,7 @@ namespace Panda.Client
         /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
         internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SelectionChangedObservable.OnNext(e);
+            SelectionChangedSubject.OnNext(e);
         }
 
         /// <summary>
@@ -142,6 +146,13 @@ namespace Panda.Client
 
             if (e.Key == Key.Enter || e.Key == Key.Return)
                 ViewModel.StartFirst();
+        }
+
+        private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var launcher = sender as ImageTextItem;
+            var vm = launcher?.DataContext as LauncherViewModel;
+            PreviewMouseUpSubject.OnNext((vm, e));
         }
     }
 }
