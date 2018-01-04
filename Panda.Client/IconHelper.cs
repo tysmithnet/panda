@@ -21,7 +21,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <returns>ImageSource for the icon for the icon at filePath</returns>
-        public static ImageSource IconFromFilePath(string filePath)
+        public static ImageSource IconFromFilePath(string filePath, int retryCount = 0)
         {
             try
             {
@@ -51,13 +51,7 @@ namespace Panda.Client
                 var bmp = icon.ToBitmap();
                 var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                     BitmapSizeOptions.FromEmptyOptions());
-                img.Freeze();
-                var newItem = new CacheItem(filePath, img);
-                var policy = new CacheItemPolicy
-                {
-                    SlidingExpiration = TimeSpan.FromMinutes(10)
-                };
-                IconCache.Add(newItem, policy);
+                img.Freeze();                       
                 return img;
             }
         }
