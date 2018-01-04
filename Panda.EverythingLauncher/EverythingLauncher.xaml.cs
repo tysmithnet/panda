@@ -106,17 +106,6 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        ///     Handles the OnSelectionChanged event of the Selector control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
-        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //var results = ResultsListBox.SelectedItems.Cast<EverythingResultViewModel>().ToList();
-            //SelectedItemsChangedObservable.OnNext(results);
-        }
-
-        /// <summary>
         ///     Handles the OnPreviewMouseRightButtonDown event of the ResultsListBox control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -143,6 +132,18 @@ namespace Panda.EverythingLauncher
             var item = sender as ImageTextItem;
             var vm = item?.DataContext as EverythingResultViewModel;
             PreviewMouseDoubleClickSubject.OnNext((vm, e));
+        }
+
+        private void DataGrid_OnSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            var dataGrid = sender as DataGrid;
+            var selectedVms = dataGrid?.SelectedCells.Select(info => info.Item as EverythingResultViewModel).Distinct();
+            SelectedItemsChangedObservable.OnNext(selectedVms);
+        }
+
+        private void UIElement_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PreviewMouseRightButtonDownObservable.OnNext(e);
         }
     }
 }

@@ -31,7 +31,13 @@
             AutoGenerateColumns="False"
             CanUserAddRows="False"
             CanUserSortColumns="True"
-            ItemsSource="{Binding EverythingResults}">
+            ItemsSource="{Binding EverythingResults}"
+            SelectedCellsChanged="DataGrid_OnSelectedCellsChanged"
+            PreviewMouseRightButtonUp="UIElement_OnPreviewMouseRightButtonDown">
+            <DataGrid.ContextMenu>
+                <ContextMenu ItemsSource="{Binding ContextMenuItems}">
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>

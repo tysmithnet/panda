@@ -127,12 +127,11 @@ namespace Panda.EverythingLauncher
             {
                 _selectedItemsChangedSubscription?.Dispose();
                 _selectedItemsChangedObs = value;
-                _selectedItemsChangedSubscription = value
-                    .ObserveOn(SynchronizationContext.Current)
+                _selectedItemsChangedSubscription = value        
                     .Where(model => model != null)
                     .Subscribe(selectedItems =>
                     {
-                        ContextMenuItems = new ObservableCollection<FrameworkElement>();
+                        ContextMenuItems.Clear();
                         SelectedItems = selectedItems.ToList();
                         var fileInfos = SelectedItems.Select(s => new FileInfo(s.FullName));
                         var providers = FileSystemContextMenuProviders.Where(f => f.CanHandle(fileInfos));
