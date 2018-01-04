@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -57,6 +58,8 @@ namespace Panda.EverythingLauncher
         ///     The text changed subscription
         /// </summary>
         private IDisposable _textChangedSubscription;
+
+        private IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
@@ -255,11 +258,28 @@ namespace Panda.EverythingLauncher
         /// <param name="keyEventArgs">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
         internal void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
         {
+            // todo: use new style
             if (keyEventArgs.Key == Key.Enter || keyEventArgs.Key == Key.Return)
                 Submit();
         }
 
         private ILog Log { get; set; } = LogManager.GetLogger<EverythingLauncherViewModel>();
+
+        private IDisposable _previewMouseDoubleClickSubscription;
+        public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
+        {
+            get => _previewMouseDoubleClickObs;
+            set
+            {
+                _previewMouseDoubleClickSubscription?.Dispose();
+                _previewMouseDoubleClickObs = value;
+                _previewMouseDoubleClickSubscription = value.Subscribe(tuple =>
+                {
+                    Log.Trace($"Starting {tuple.Item1.FullName}");
+                    Process.Start(tuple.Item1.FullName);
+                });
+            }
+        }
 
         /// <summary>
         ///     Launches the currently selected item using whatever the shell deems appropriate

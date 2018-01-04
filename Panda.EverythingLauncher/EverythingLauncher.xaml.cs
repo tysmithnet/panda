@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Client;
+using Panda.CommonControls;
 
 namespace Panda.EverythingLauncher
 {
@@ -56,7 +57,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The text changed observable.
         /// </value>
-        private BehaviorSubject<string> TextChangedObservable { get; } = new BehaviorSubject<string>("");
+        private Subject<string> TextChangedObservable { get; } = new Subject<string>();
 
         /// <summary>
         ///     Gets the selected items changed observable.
@@ -64,8 +65,8 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The selected items changed observable.
         /// </value>
-        private BehaviorSubject<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObservable { get; } =
-            new BehaviorSubject<IEnumerable<EverythingResultViewModel>>(null);
+        private Subject<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObservable { get; } =
+            new Subject<IEnumerable<EverythingResultViewModel>>();
 
         /// <summary>
         ///     Gets the preview mouse right button down observable.
@@ -73,8 +74,8 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The preview mouse right button down observable.
         /// </value>
-        private BehaviorSubject<MouseButtonEventArgs> PreviewMouseRightButtonDownObservable { get; } =
-            new BehaviorSubject<MouseButtonEventArgs>(null);
+        private Subject<MouseButtonEventArgs> PreviewMouseRightButtonDownObservable { get; } =
+            new Subject<MouseButtonEventArgs>();
 
         /// <summary>
         ///     Handles the OnTextChanged event of the TextBoxBase control.
@@ -98,7 +99,8 @@ namespace Panda.EverythingLauncher
             {
                 TextChangedObs = TextChangedObservable,
                 SelectedItemsChangedObs = SelectedItemsChangedObservable,
-                PreviewMouseRightButtonDownObs = PreviewMouseRightButtonDownObservable
+                PreviewMouseRightButtonDownObs = PreviewMouseRightButtonDownObservable,
+                PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject
             };
             DataContext = ViewModel;
         }
@@ -132,6 +134,15 @@ namespace Panda.EverythingLauncher
         private void ResultsListBox_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             ViewModel.HandlePreviewKeyUp(e);
+        }
+
+        internal Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; } = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
+
+        private void Control_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var item = sender as ImageTextItem;
+            var vm = item?.DataContext as EverythingResultViewModel;
+            PreviewMouseDoubleClickSubject.OnNext((vm, e));
         }
     }
 }
