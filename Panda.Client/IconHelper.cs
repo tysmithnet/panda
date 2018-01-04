@@ -14,7 +14,8 @@ namespace Panda.Client
     /// </summary>
     public static class IconHelper
     {
-        internal static MemoryCache IconCache { get; set; } = new MemoryCache(typeof(IconHelper).FullName);
+        internal static MemoryCache LargeIconCache { get; set; } = new MemoryCache(typeof(IconHelper).FullName + "_large");
+        internal static MemoryCache SmallIconCache { get; set; } = new MemoryCache(typeof(IconHelper).FullName + "_small");
 
         internal static uint ToIconFlag(this IconSize size)
         {
@@ -28,10 +29,24 @@ namespace Panda.Client
         /// <returns>ImageSource for the icon for the icon at filePath</returns>
         public static ImageSource IconFromFilePath(string filePath, IconSize size)
         {
+            MemoryCache memoryCache;
+            string fallbackIcon;
+            switch (size)
+            {
+                case IconSize.Large:
+                    memoryCache = LargeIconCache;
+                    fallbackIcon = "unknownfile32x32.ico";
+                    break;
+                case IconSize.Small:
+                    memoryCache = SmallIconCache;
+                    fallbackIcon = "unknownfile16x16.ico";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException($"{nameof(size)} is not a valid icon size");}
             try
             {
                 // todo: IconCache.CacheMemoryLimit; setting
-                var cacheItem = IconCache.GetCacheItem(filePath);
+                var cacheItem = LargeIconCache.GetCacheItem(filePath);
                 if(cacheItem != null)
                     return cacheItem.Value as ImageSource;
                 var shinfo = new ShFileInfo();
@@ -47,12 +62,12 @@ namespace Panda.Client
                 {
                     SlidingExpiration = TimeSpan.FromMinutes(10)
                 };
-                IconCache.Add(newItem, policy);
+                memoryCache.Add(newItem, policy);
                 return img;
             }
             catch (Exception)
             {
-                var icon = new Icon("unknownfile32x32.ico");
+                var icon = new Icon(fallbackIcon);
                 var bmp = icon.ToBitmap();
                 var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                     BitmapSizeOptions.FromEmptyOptions());
