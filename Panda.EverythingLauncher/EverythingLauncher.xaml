@@ -56,6 +56,14 @@
                     Binding="{Binding FullName}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
                     Header="Path" />
+                <materialDesign:MaterialDataGridTextColumn
+                    Binding="{Binding Size}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
+                    Header="Size" />
+                <materialDesign:MaterialDataGridTextColumn
+                    Binding="{Binding ModifiedTimeUtc}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
+                    Header="Last Modified" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

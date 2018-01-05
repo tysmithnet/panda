@@ -1,10 +1,12 @@
 ﻿using System;
-using System.ComponentModel;
+using System.ComponentModel;     
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Common.Logging;
 using Panda.Client;
+using Panda.CommonControls.Annotations;
 
 namespace Panda.EverythingLauncher
 {
@@ -14,6 +16,8 @@ namespace Panda.EverythingLauncher
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class EverythingResultViewModel : INotifyPropertyChanged
     {
+        private ILog Log { get; } = LogManager.GetLogger<EverythingResultViewModel>();
+
         /// <summary>
         ///     The icon for this result
         /// </summary>
@@ -24,11 +28,34 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="fullName">The full name.</param>
         public EverythingResultViewModel(string fullName)
-        {
+        {                                         
             FullName = fullName;
-            Name = Path.GetFileName(fullName);
-            Directory = Path.GetDirectoryName(fullName);
+            IsDirectory = System.IO.Directory.Exists(FullName);
+            Name = Path.GetFileName(FullName);
+            Directory = Path.GetDirectoryName(FullName);
+            IsDirectory = System.IO.Directory.Exists(FullName);
+            if (IsDirectory)
+                return;
+            try
+            {
+                FileInfo = new FileInfo(FullName);
+                Size = FileInfo.Length;
+                CreationTimeUtc = FileInfo.CreationTimeUtc;
+                ModifiedTimeUtc = FileInfo.LastWriteTimeUtc;
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Problem loading file info for {fullName} - {e.Message}");
+            }
         }
+
+        public DateTime? ModifiedTimeUtc { get; set; }
+
+        public bool IsDirectory { get; set; }
+        
+        public DateTime? CreationTimeUtc { get; set; }
+                       
+        public FileInfo FileInfo { get; set; }
 
         /// <summary>
         ///     Gets or sets the full name.
@@ -45,6 +72,7 @@ namespace Panda.EverythingLauncher
         ///     The directory.
         /// </value>
         public string Directory { get; set; }
+        public long? Size { get; private set; }
 
         /// <summary>
         ///     Gets or sets the name.
@@ -93,6 +121,7 @@ namespace Panda.EverythingLauncher
                 }
             });
         }
+        
 
         /// <summary>
         ///     Called when [property changed].
