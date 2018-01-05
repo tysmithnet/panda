@@ -14,12 +14,49 @@ namespace Panda.Client
     /// </summary>
     public static class IconHelper
     {
-        internal static MemoryCache LargeIconCache { get; set; } = new MemoryCache(typeof(IconHelper).FullName + "_large");
-        internal static MemoryCache SmallIconCache { get; set; } = new MemoryCache(typeof(IconHelper).FullName + "_small");
+        internal static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(IconHelper).FullName + "_large");
+        internal static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(IconHelper).FullName + "_small");
+        internal static readonly ImageSource UnknownFileLarge;
+        internal static readonly ImageSource UnknownFileSmall;
+
+        static IconHelper()
+        {
+            var shinfo = new ShFileInfo();
+            var hImgSmall = Win32.SHGetFileInfo("unknownfile32x32.ico", 0, ref shinfo, (uint)Marshal.SizeOf(shinfo),
+                Win32.SHGFI_ICON | IconSize.Large.ToIconFlag());
+            var icon = (Icon)Icon.FromHandle(shinfo.hIcon);
+            var bmp = icon.ToBitmap();
+            var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+            img.Freeze();
+            UnknownFileLarge = img;
+
+            hImgSmall = Win32.SHGetFileInfo("unknownfile16x16.ico", 0, ref shinfo, (uint)Marshal.SizeOf(shinfo),
+                Win32.SHGFI_ICON | IconSize.Small.ToIconFlag());
+            icon = (Icon)Icon.FromHandle(shinfo.hIcon);
+            bmp = icon.ToBitmap();
+            img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+            img.Freeze();
+            UnknownFileSmall = img;
+        }
 
         internal static uint ToIconFlag(this IconSize size)
         {
             return (uint) size;
+        }
+
+        public static ImageSource GetFallbackIcon(IconSize size)
+        {
+            switch (size)
+            {
+                case IconSize.Large:
+                    return UnknownFileLarge;
+                case IconSize.Small:
+                    return UnknownFileSmall;
+                default:
+                    throw new ArgumentOutOfRangeException($"{nameof(size)} is not a valid IconSize");
+            }
         }
 
         /// <summary>
@@ -27,26 +64,23 @@ namespace Panda.Client
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <returns>ImageSource for the icon for the icon at filePath</returns>
-        public static ImageSource IconFromFilePath(string filePath, IconSize size)
+        public static ImageSource IconFromFilePath(string filePath, IconSize size, bool shouldFallBack = true)
         {
-            MemoryCache memoryCache;
-            string fallbackIcon;
+            MemoryCache memoryCache;    
             switch (size)
             {
                 case IconSize.Large:
                     memoryCache = LargeIconCache;
-                    fallbackIcon = "unknownfile32x32.ico";
                     break;
                 case IconSize.Small:
-                    memoryCache = SmallIconCache;
-                    fallbackIcon = "unknownfile16x16.ico";
+                    memoryCache = SmallIconCache;         
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"{nameof(size)} is not a valid icon size");}
             try
             {
                 // todo: IconCache.CacheMemoryLimit; setting
-                var cacheItem = LargeIconCache.GetCacheItem(filePath);
+                var cacheItem = memoryCache.GetCacheItem(filePath);
                 if(cacheItem != null)
                     return cacheItem.Value as ImageSource;
                 var shinfo = new ShFileInfo();
@@ -67,12 +101,17 @@ namespace Panda.Client
             }
             catch (Exception)
             {
-                var icon = new Icon(fallbackIcon);
-                var bmp = icon.ToBitmap();
-                var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
-                img.Freeze();                       
-                return img;
+                if (!shouldFallBack)
+                    return null;
+                switch (size)
+                {
+                    case IconSize.Large:
+                        return UnknownFileLarge;
+                    case IconSize.Small:
+                        return UnknownFileSmall;
+                    default:
+                        throw new ArgumentOutOfRangeException($"{nameof(size)} is not a valid IconSize");
+                }
             }
         }
 

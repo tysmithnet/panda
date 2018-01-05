@@ -107,18 +107,24 @@ namespace Panda.EverythingLauncher
         ///     Loads the icon.
         /// </summary>
         /// <returns></returns>
-        public Task LoadIcon()
+        public Task LoadIcon(uint retries = 0)
         {
-            return Task.Run(() =>
+            return Task.Run(async() =>
             {
-                try
+                for (int i = 0; i < retries + 1; i++)
                 {
-                    Icon = IconHelper.IconFromFilePath(FullName, IconSize.Small);
-                }
-                catch (Exception)
-                {
-                    // todo: fallback icon
-                }
+                    try
+                    {
+                        Icon = IconHelper.IconFromFilePath(FullName, IconSize.Small);
+                        return;
+                    }
+                    catch (Exception)
+                    {
+                        int timeoutMs = 1000; // todo: make setting
+                        await Task.Delay(timeoutMs);
+                        Icon = IconHelper.GetFallbackIcon(IconSize.Small);
+                    }
+                }    
             });
         }
         
