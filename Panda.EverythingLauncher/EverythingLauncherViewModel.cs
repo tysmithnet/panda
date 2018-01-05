@@ -65,14 +65,29 @@ namespace Panda.EverythingLauncher
         ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
         /// </summary>
         /// <param name="everythingService">The everything service.</param>
+        /// <param name="keyboardMouseService"></param>
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
-        public EverythingLauncherViewModel(EverythingService everythingService, IKeyboardMouseService keyboardMouseService, // todo: abstract EverythingService
-            IFileSystemContextMenuProvider[] fileSystemContextMenuProviders)
+        public EverythingLauncherViewModel(
+            EverythingService everythingService, 
+            IKeyboardMouseService keyboardMouseService, // todo: abstract EverythingService
+            IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
+            IEventHub eventHub)
         {
             EverythingService = everythingService;
             FileSystemContextMenuProviders = fileSystemContextMenuProviders;
             KeyboardMouseService = keyboardMouseService;
-            
+            EventHub = eventHub;
+            EventHub.Get<FileDeletedEvent>().Subscribe(@event =>
+            {
+                var toRemove = EverythingResults.Where(model => model.FullName == @event.FullName);
+                foreach (var everythingResultViewModel in toRemove)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        EverythingResults.Remove(everythingResultViewModel);
+                    });                                                     
+                }
+            });
         }
 
         /// <summary>
@@ -98,7 +113,18 @@ namespace Panda.EverythingLauncher
                         var shellContextMenu = new ShellContextMenu();
                         var point = Mouse.GetPosition(null);
                         var fileInfos = tuple.Item2.Select(vm => new FileInfo(vm.FullName)).ToList();
-                        var directories = fileInfos.Where(info => info.Attributes.HasFlag(FileAttributes.Directory))
+                        var directories = fileInfos.Where(info =>
+                            {
+                                try
+                                {
+                                    return info.Attributes.HasFlag(FileAttributes.Directory);
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.Error($"Couldn't get attributes for {info.FullName} - {e.Message}");
+                                    return false;
+                                }      
+                            })
                             .ToList();
                         var directoryInfos = directories.Select(info => info.Directory).ToArray();
                         var files = fileInfos.Except(directories).ToArray();
@@ -108,9 +134,7 @@ namespace Panda.EverythingLauncher
                         if (!files.Any())
                             shellContextMenu.ShowContextMenu(directoryInfos, pointInfo);
                         else if (!directories.Any())
-                            shellContextMenu.ShowContextMenu(files, pointInfo);
-                        else
-                            shellContextMenu.ShowContextMenu(files, directoryInfos, pointInfo);
+                            shellContextMenu.ShowContextMenu(files, pointInfo);                
                     });
             }
         }
@@ -189,6 +213,7 @@ namespace Panda.EverythingLauncher
 
         
         public IKeyboardMouseService KeyboardMouseService { get; set; }
+        public IEventHub EventHub { get; private set; }
 
         /// <summary>
         ///     Gets or sets the everything service.

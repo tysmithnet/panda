@@ -117,9 +117,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="EventHub.cs" />
+    <Compile Include="FileDeletedEvent.cs" />
     <Compile Include="IconHelper.cs" />
     <Compile Include="IconSize.cs" />
     <Compile Include="IContextMenuProvider.cs" />
+    <Compile Include="IDomainEvent.cs" />
+    <Compile Include="IEventHub.cs" />
     <Compile Include="IFileSystemContextMenuProvider.cs" />
     <Compile Include="IKeyboardMouseService.cs" />
     <Compile Include="ILauncherService.cs" />
