@@ -66,11 +66,13 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="everythingService">The everything service.</param>
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
-        public EverythingLauncherViewModel(EverythingService everythingService,
+        public EverythingLauncherViewModel(EverythingService everythingService, IKeyboardMouseService keyboardMouseService, // todo: abstract EverythingService
             IFileSystemContextMenuProvider[] fileSystemContextMenuProviders)
         {
             EverythingService = everythingService;
             FileSystemContextMenuProviders = fileSystemContextMenuProviders;
+            KeyboardMouseService = keyboardMouseService;
+            
         }
 
         /// <summary>
@@ -185,6 +187,9 @@ namespace Panda.EverythingLauncher
         /// </value>
         internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
+        
+        public IKeyboardMouseService KeyboardMouseService { get; set; }
+
         /// <summary>
         ///     Gets or sets the everything service.
         /// </summary>
@@ -263,6 +268,7 @@ namespace Panda.EverythingLauncher
         private ILog Log { get; set; } = LogManager.GetLogger<EverythingLauncherViewModel>();
 
         private IDisposable _previewMouseDoubleClickSubscription;
+
         public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
             get => _previewMouseDoubleClickObs;

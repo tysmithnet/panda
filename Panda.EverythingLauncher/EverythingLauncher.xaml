@@ -31,6 +31,7 @@
             AutoGenerateColumns="False"
             CanUserAddRows="False"
             CanUserSortColumns="True"
+            IsReadOnly="True"
             ItemsSource="{Binding EverythingResults}"
             SelectedCellsChanged="DataGrid_OnSelectedCellsChanged"
             PreviewMouseRightButtonUp="UIElement_OnPreviewMouseRightButtonDown">

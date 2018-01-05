@@ -51,6 +51,9 @@ namespace Panda.EverythingLauncher
         [ImportMany]
         public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
+        [Import]
+        public IKeyboardMouseService KeyboardMouseService { get; set; }
+
         /// <summary>
         ///     Gets the text changed observable.
         /// </summary>
@@ -95,7 +98,7 @@ namespace Panda.EverythingLauncher
         private void EverythingLauncher_OnLoaded(object sender, EventArgs e)
         {
             SearchText.Focus();
-            ViewModel = new EverythingLauncherViewModel(EverythingService, FileSystemContextMenuProviders)
+            ViewModel = new EverythingLauncherViewModel(EverythingService, KeyboardMouseService, FileSystemContextMenuProviders)
             {
                 TextChangedObs = TextChangedObservable,
                 SelectedItemsChangedObs = SelectedItemsChangedObservable,
