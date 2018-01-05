@@ -107,35 +107,9 @@ namespace Panda.EverythingLauncher
             };
             DataContext = ViewModel;
         }
-
-        /// <summary>
-        ///     Handles the OnPreviewMouseRightButtonDown event of the ResultsListBox control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
-        private void ResultsListBox_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            PreviewMouseRightButtonDownObservable.OnNext(e);
-        }
-
-        /// <summary>
-        ///     Handles the OnPreviewKeyUp event of the ResultsListBox control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-        private void ResultsListBox_OnPreviewKeyUp(object sender, KeyEventArgs e)
-        {
-            ViewModel.HandlePreviewKeyUp(e);
-        }
-
+            
         internal Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; } = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
-
-        private void Control_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var item = sender as ImageTextItem;
-            var vm = item?.DataContext as EverythingResultViewModel;
-            PreviewMouseDoubleClickSubject.OnNext((vm, e));
-        }
+                                                               
 
         private void DataGrid_OnSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
@@ -147,6 +121,12 @@ namespace Panda.EverythingLauncher
         private void UIElement_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             PreviewMouseRightButtonDownObservable.OnNext(e);
+        }
+
+        private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
+        {
+            if(sender is DataGridRow dataGridRow && dataGridRow.DataContext is EverythingResultViewModel vm)
+                PreviewMouseDoubleClickSubject.OnNext((vm, e));
         }
     }
 }

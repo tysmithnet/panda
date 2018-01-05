@@ -35,6 +35,11 @@
             ItemsSource="{Binding EverythingResults}"
             SelectedCellsChanged="DataGrid_OnSelectedCellsChanged"
             PreviewMouseRightButtonUp="UIElement_OnPreviewMouseRightButtonDown">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="EventSetter_OnHandler"/>
+                </Style>
+            </DataGrid.Resources>
             <DataGrid.ContextMenu>
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}">
                 </ContextMenu>
