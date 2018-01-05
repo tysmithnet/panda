@@ -46,7 +46,7 @@
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTemplateColumn>
+                <DataGridTemplateColumn MinWidth="20">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image Source="{Binding Icon}" />
@@ -56,19 +56,23 @@
                 <DataGridTextColumn
                     Binding="{Binding Name}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
-                    Header="Name" />
+                    Header="Name"
+                    MinWidth="100"/>
                 <materialDesign:MaterialDataGridTextColumn
                     Binding="{Binding FullName}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
-                    Header="Path" />
+                    Header="Path" 
+                    MinWidth="100"/>
                 <materialDesign:MaterialDataGridTextColumn
                     Binding="{Binding Size}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
-                    Header="Size" />
+                    Header="Size" 
+                    MinWidth="50"/>
                 <materialDesign:MaterialDataGridTextColumn
                     Binding="{Binding ModifiedTimeUtc}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
-                    Header="Last Modified" />
+                    Header="Last Modified" 
+                    MinWidth="100"/>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

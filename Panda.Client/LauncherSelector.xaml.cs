@@ -87,6 +87,7 @@ namespace Panda.Client
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void LauncherSelector_OnLoaded(object sender, EventArgs e)
         {
+            // todo: move to VM
             SearchText.Focus();
             KeyboardMouseService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
                 .ObserveOn(SynchronizationContext.Current)
@@ -140,10 +141,8 @@ namespace Panda.Client
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.Windows.Input.KeyEventArgs" /> instance containing the event data.</param>
         internal void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-                Hide();
-
+        {         
+            // todo: to observable pattern
             if (e.Key == Key.Enter || e.Key == Key.Return)
                 ViewModel.StartFirst();
         }

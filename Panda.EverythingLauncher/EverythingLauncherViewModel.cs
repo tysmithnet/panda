@@ -199,6 +199,12 @@ namespace Panda.EverythingLauncher
                                     EverythingResults.Add(resultVm);
                                     await resultVm.LoadIcon();
                                 });   
+                            }, exception =>
+                            {
+                                // todo: log
+                            }, () =>
+                            {
+                                RefreshDataGridAction?.Invoke();
                             });
                     });
             }

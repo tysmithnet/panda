@@ -122,7 +122,7 @@ namespace Panda.EverythingLauncher
                     {  
                         foreach (var dataGridColumn in ResultsDataGrid.Columns)
                         {
-                            dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
+                            dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.SizeToCells);
                         }
                     });
                 }
