@@ -68,6 +68,7 @@ namespace Panda.EverythingLauncher
         /// <param name="everythingService">The everything service.</param>
         /// <param name="keyboardMouseService"></param>
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
+        /// <param name="eventHub"></param>
         public EverythingLauncherViewModel(
             EverythingService everythingService,
             IKeyboardMouseService keyboardMouseService, // todo: abstract EverythingService
@@ -86,6 +87,8 @@ namespace Panda.EverythingLauncher
                         () => { EverythingResults.Remove(everythingResultViewModel); });
             });
         }
+
+        public Action RefreshDataGridAction { get; set; }
 
         /// <summary>
         ///     Gets or sets the preview mouse right button down obs.
@@ -188,13 +191,15 @@ namespace Panda.EverythingLauncher
                         Application.Current.Dispatcher.Invoke(() => EverythingResults.Clear());
                         _everythingSubscription = EverythingService
                             .Search(s, CancellationTokenSource.Token)
-                            .ForEachAsync(
-                                async result =>
-                                {
-                                    var resultVm = new EverythingResultViewModel(result.FullPath);
-                                    Application.Current.Dispatcher.Invoke(() => { EverythingResults.Add(resultVm); });
+                            .Subscribe(async result =>
+                            {
+                                var resultVm = new EverythingResultViewModel(result.FullPath);
+                                await Application.Current.Dispatcher.InvokeAsync(async () =>
+                                {     
+                                    EverythingResults.Add(resultVm);
                                     await resultVm.LoadIcon();
-                                }, CancellationTokenSource.Token);
+                                });   
+                            });
                     });
             }
         }

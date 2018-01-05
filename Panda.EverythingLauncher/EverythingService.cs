@@ -78,11 +78,10 @@ namespace Panda.EverythingLauncher
                         return;
                     }
                     Log.Debug($"Finished: {process.Id}");
-                    process.Kill();
                     observer.OnCompleted();
                 }, cancellationToken);
             });
-            return obs.Publish().RefCount();
+            return obs;
         }
     }
 }

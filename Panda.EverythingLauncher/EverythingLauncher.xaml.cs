@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Subjects;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Client;
@@ -93,6 +94,11 @@ namespace Panda.EverythingLauncher
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             TextChangedObservable.OnNext(SearchText.Text);
+
+            foreach (var dataGridColumn in ResultsDataGrid.Columns)
+            {
+                dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
+            }
         }
 
         /// <summary>
@@ -109,7 +115,17 @@ namespace Panda.EverythingLauncher
                 TextChangedObs = TextChangedObservable,
                 SelectedItemsChangedObs = SelectedItemsChangedObservable,
                 PreviewMouseRightButtonDownObs = PreviewMouseRightButtonDownObservable,
-                PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject
+                PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
+                RefreshDataGridAction = () =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {  
+                        foreach (var dataGridColumn in ResultsDataGrid.Columns)
+                        {
+                            dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
+                        }
+                    });
+                }
             };
             DataContext = ViewModel;
         }
