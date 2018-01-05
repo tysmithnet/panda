@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Primitives;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Common.Logging;
@@ -31,11 +28,10 @@ namespace Panda.EverythingLauncher
             var menuItem = new MenuItem();
             var arr = items.ToArray();
             menuItem.Header = $"Delete {arr.Length} Items";
-            
+
             menuItem.Click += (sender, args) =>
             {
                 foreach (var fileInfo in arr)
-                {
                     try
                     {
                         File.Delete(fileInfo.FullName);
@@ -45,8 +41,7 @@ namespace Panda.EverythingLauncher
                     {
                         Log.Error($"Could not delete {fileInfo.FullName} - {e.Message}");
                     }
-                }
-            };      
+            };
 
             return new[] {menuItem};
         }

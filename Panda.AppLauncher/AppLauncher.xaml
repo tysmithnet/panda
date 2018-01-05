@@ -12,21 +12,23 @@
                  d:DesignHeight="300" d:DesignWidth="300"
                  Title="App Launcher">
     <DockPanel>
-        <TextBox x:Name="SearchText" 
-                 DockPanel.Dock="Top" 
-                 Text="{Binding SearchText}" 
-                 TextChanged="TextBoxBase_OnTextChanged" 
+        <TextBox x:Name="SearchText"
+                 DockPanel.Dock="Top"
+                 Text="{Binding SearchText}"
+                 TextChanged="TextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
-        
+
         <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended"
                  SelectionChanged="Selector_OnSelectionChanged" HorizontalAlignment="Stretch">
-            
+
             <ListBox.ContextMenu>
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick" ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}" SubHeaderText="{Binding ExecutableLocation}"></commonControls:ImageTextItem>
+                    <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
+                                                  ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}"
+                                                  SubHeaderText="{Binding ExecutableLocation}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

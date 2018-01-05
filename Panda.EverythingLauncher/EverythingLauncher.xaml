@@ -37,26 +37,24 @@
             PreviewMouseRightButtonUp="UIElement_OnPreviewMouseRightButtonDown">
             <DataGrid.Resources>
                 <Style TargetType="DataGridRow">
-                    <EventSetter Event="MouseDoubleClick" Handler="EventSetter_OnHandler"/>
+                    <EventSetter Event="MouseDoubleClick" Handler="EventSetter_OnHandler" />
                 </Style>
             </DataGrid.Resources>
             <DataGrid.ContextMenu>
-                <ContextMenu ItemsSource="{Binding ContextMenuItems}">
-                </ContextMenu>
+                <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding Icon}"></Image>
+                            <Image Source="{Binding Icon}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn
                     Binding="{Binding Name}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
-                    Header="Name" >
-                </DataGridTextColumn>
+                    Header="Name" />
                 <materialDesign:MaterialDataGridTextColumn
                     Binding="{Binding FullName}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"

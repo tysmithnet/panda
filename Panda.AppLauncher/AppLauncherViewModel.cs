@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -28,16 +27,18 @@ namespace Panda.AppLauncher
         private IObservable<KeyEventArgs> _previewKeyUpObs;
 
         private IDisposable _previewKeyUpSubscription;
+        private IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
+
+        private IDisposable _previewMouseUpSubscription;
         private IObservable<string> _searchTextChangedObs;
 
         private IDisposable _textChangedSubscription;
-        private IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
         /// </summary>
         /// <param name="registeredApplicationService">The registered application service.</param>
-        /// <param name="registeredApplicationContextMenuProviders">The registered application context menu providers.</param>        
+        /// <param name="registeredApplicationContextMenuProviders">The registered application context menu providers.</param>
         public AppLauncherViewModel(
             IRegisteredApplicationService registeredApplicationService,
             IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
@@ -76,7 +77,7 @@ namespace Panda.AppLauncher
                     {
                         Log.Trace($"Starting {first.ExecutableLocation}");
                         Process.Start(first.ExecutableLocation);
-                    }                                           
+                    }
                 });
             }
         }
@@ -169,9 +170,8 @@ namespace Panda.AppLauncher
         /// </value>
         public string SearchText { get; set; }
 
-        private ILog Log { get; set; } = LogManager.GetLogger<AppLauncherViewModel>();
+        private ILog Log { get; } = LogManager.GetLogger<AppLauncherViewModel>();
 
-        private IDisposable _previewMouseUpSubscription;
         public IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
             get => _previewMouseDoubleClickObs;

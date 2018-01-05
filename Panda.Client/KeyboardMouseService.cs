@@ -34,6 +34,7 @@ namespace Panda.Client
         public IObservable<KeyEventArgs> KeyDownObservable => KeyDownSubject;
         public IObservable<KeyPressEventArgs> KeyPressObservable => KeyPressSubject;
         public IObservable<KeyEventArgs> KeyUpObservable => KeyUpSubject;
+
         public bool IsKeyDown(Key key)
         {
             return Keyboard.IsKeyDown(key);
@@ -41,9 +42,12 @@ namespace Panda.Client
 
         public Point GetMousePosition()
         {
-            GetCursorPos(out var pointStruct);    
+            GetCursorPos(out var pointStruct);
             return pointStruct;
         }
+
+        [DllImport("user32.dll")]
+        public static extern bool GetCursorPos(out PointStruct lpPoint);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct PointStruct
@@ -56,8 +60,5 @@ namespace Panda.Client
                 return new Point(pointStruct.X, pointStruct.Y);
             }
         }
-
-        [DllImport("user32.dll")]
-        public static extern bool GetCursorPos(out PointStruct lpPoint);
     }
 }

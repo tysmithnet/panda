@@ -18,6 +18,10 @@ namespace Panda.Client
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
+        private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _previewMouseUpObs;
+
+        private IDisposable _previewMouseUpSubscription;
+
         /// <summary>
         ///     The selection changed obs
         /// </summary>
@@ -37,8 +41,6 @@ namespace Panda.Client
         ///     The text changed subscription
         /// </summary>
         private IDisposable _textChangedSubscription;
-
-        private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _previewMouseUpObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
@@ -156,7 +158,6 @@ namespace Panda.Client
             }
         }
 
-        private IDisposable _previewMouseUpSubscription;
         public IObservable<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpObs
         {
             get => _previewMouseUpObs;

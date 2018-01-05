@@ -1,12 +1,11 @@
 ﻿using System;
-using System.ComponentModel;     
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Common.Logging;
 using Panda.Client;
-using Panda.CommonControls.Annotations;
 
 namespace Panda.EverythingLauncher
 {
@@ -16,8 +15,6 @@ namespace Panda.EverythingLauncher
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class EverythingResultViewModel : INotifyPropertyChanged
     {
-        private ILog Log { get; } = LogManager.GetLogger<EverythingResultViewModel>();
-
         /// <summary>
         ///     The icon for this result
         /// </summary>
@@ -28,7 +25,7 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="fullName">The full name.</param>
         public EverythingResultViewModel(string fullName)
-        {                                         
+        {
             FullName = fullName;
             IsDirectory = System.IO.Directory.Exists(FullName);
             Name = Path.GetFileName(FullName);
@@ -49,12 +46,14 @@ namespace Panda.EverythingLauncher
             }
         }
 
+        private ILog Log { get; } = LogManager.GetLogger<EverythingResultViewModel>();
+
         public DateTime? ModifiedTimeUtc { get; set; }
 
         public bool IsDirectory { get; set; }
-        
+
         public DateTime? CreationTimeUtc { get; set; }
-                       
+
         public FileInfo FileInfo { get; set; }
 
         /// <summary>
@@ -72,7 +71,8 @@ namespace Panda.EverythingLauncher
         ///     The directory.
         /// </value>
         public string Directory { get; set; }
-        public long? Size { get; private set; }
+
+        public long? Size { get; }
 
         /// <summary>
         ///     Gets or sets the name.
@@ -109,10 +109,9 @@ namespace Panda.EverythingLauncher
         /// <returns></returns>
         public Task LoadIcon(uint retries = 0)
         {
-            return Task.Run(async() =>
+            return Task.Run(async () =>
             {
-                for (int i = 0; i < retries + 1; i++)
-                {
+                for (var i = 0; i < retries + 1; i++)
                     try
                     {
                         Icon = IconHelper.IconFromFilePath(FullName, IconSize.Small);
@@ -120,14 +119,13 @@ namespace Panda.EverythingLauncher
                     }
                     catch (Exception)
                     {
-                        int timeoutMs = 1000; // todo: make setting
+                        var timeoutMs = 1000; // todo: make setting
                         await Task.Delay(timeoutMs);
                         Icon = IconHelper.GetFallbackIcon(IconSize.Small);
                     }
-                }    
             });
         }
-        
+
 
         /// <summary>
         ///     Called when [property changed].

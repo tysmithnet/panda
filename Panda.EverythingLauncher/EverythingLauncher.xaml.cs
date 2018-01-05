@@ -6,7 +6,6 @@ using System.Reactive.Subjects;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Client;
-using Panda.CommonControls;
 
 namespace Panda.EverythingLauncher
 {
@@ -83,6 +82,9 @@ namespace Panda.EverythingLauncher
         private Subject<MouseButtonEventArgs> PreviewMouseRightButtonDownObservable { get; } =
             new Subject<MouseButtonEventArgs>();
 
+        internal Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; }
+            = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
+
         /// <summary>
         ///     Handles the OnTextChanged event of the TextBoxBase control.
         /// </summary>
@@ -101,7 +103,8 @@ namespace Panda.EverythingLauncher
         private void EverythingLauncher_OnLoaded(object sender, EventArgs e)
         {
             SearchText.Focus();
-            ViewModel = new EverythingLauncherViewModel(EverythingService, KeyboardMouseService, FileSystemContextMenuProviders, EventHub)
+            ViewModel = new EverythingLauncherViewModel(EverythingService, KeyboardMouseService,
+                FileSystemContextMenuProviders, EventHub)
             {
                 TextChangedObs = TextChangedObservable,
                 SelectedItemsChangedObs = SelectedItemsChangedObservable,
@@ -110,9 +113,7 @@ namespace Panda.EverythingLauncher
             };
             DataContext = ViewModel;
         }
-            
-        internal Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; } = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
-                                                               
+
 
         private void DataGrid_OnSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
@@ -128,7 +129,7 @@ namespace Panda.EverythingLauncher
 
         private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
         {
-            if(sender is DataGridRow dataGridRow && dataGridRow.DataContext is EverythingResultViewModel vm)
+            if (sender is DataGridRow dataGridRow && dataGridRow.DataContext is EverythingResultViewModel vm)
                 PreviewMouseDoubleClickSubject.OnNext((vm, e));
         }
     }

@@ -17,7 +17,8 @@
         <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <commonControls:ImageTextItem PreviewMouseUp="ImageTextItem_OnPreviewMouseUp" HeaderText="{Binding Name}"></commonControls:ImageTextItem>
+                    <commonControls:ImageTextItem PreviewMouseUp="ImageTextItem_OnPreviewMouseUp"
+                                                  HeaderText="{Binding Name}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

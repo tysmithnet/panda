@@ -44,9 +44,7 @@ namespace Panda.EverythingLauncher
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
             if (string.IsNullOrWhiteSpace(executablePath))
-            {
                 throw new ConfigurationErrorsException($"es.exe is not set in everything launcher settings");
-            }
             var obs = Observable.Create<EverythingResult>(async (observer, token) =>
             {
                 await Task.Run(async () =>

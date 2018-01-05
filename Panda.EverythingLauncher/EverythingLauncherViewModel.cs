@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -28,6 +27,10 @@ namespace Panda.EverythingLauncher
         ///     The everything subscription
         /// </summary>
         private IDisposable _everythingSubscription;
+
+        private IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
+
+        private IDisposable _previewMouseDoubleClickSubscription;
 
         /// <summary>
         ///     The preview mouse right button down obs
@@ -59,8 +62,6 @@ namespace Panda.EverythingLauncher
         /// </summary>
         private IDisposable _textChangedSubscription;
 
-        private IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
         /// </summary>
@@ -68,7 +69,7 @@ namespace Panda.EverythingLauncher
         /// <param name="keyboardMouseService"></param>
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
         public EverythingLauncherViewModel(
-            EverythingService everythingService, 
+            EverythingService everythingService,
             IKeyboardMouseService keyboardMouseService, // todo: abstract EverythingService
             IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
             IEventHub eventHub)
@@ -81,12 +82,8 @@ namespace Panda.EverythingLauncher
             {
                 var toRemove = EverythingResults.Where(model => model.FullName == @event.FullName);
                 foreach (var everythingResultViewModel in toRemove)
-                {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        EverythingResults.Remove(everythingResultViewModel);
-                    });                                                     
-                }
+                    Application.Current.Dispatcher.Invoke(
+                        () => { EverythingResults.Remove(everythingResultViewModel); });
             });
         }
 
@@ -103,7 +100,7 @@ namespace Panda.EverythingLauncher
             {
                 _previewMouseRightButtonDownSubscription?.Dispose();
                 _previewMouseRightButtonDownObs = value;
-                _previewMouseRightButtonDownSubscription = value  
+                _previewMouseRightButtonDownSubscription = value
                     .Where(args => args != null)
                     .WithLatestFrom(SelectedItemsChangedObs,
                         (args, models) => (args, models))
@@ -123,7 +120,7 @@ namespace Panda.EverythingLauncher
                                 {
                                     Log.Error($"Couldn't get attributes for {info.FullName} - {e.Message}");
                                     return false;
-                                }      
+                                }
                             })
                             .ToList();
                         var directoryInfos = directories.Select(info => info.Directory).ToArray();
@@ -134,7 +131,7 @@ namespace Panda.EverythingLauncher
                         if (!files.Any())
                             shellContextMenu.ShowContextMenu(directoryInfos, pointInfo);
                         else if (!directories.Any())
-                            shellContextMenu.ShowContextMenu(files, pointInfo);                
+                            shellContextMenu.ShowContextMenu(files, pointInfo);
                     });
             }
         }
@@ -152,7 +149,7 @@ namespace Panda.EverythingLauncher
             {
                 _selectedItemsChangedSubscription?.Dispose();
                 _selectedItemsChangedObs = value;
-                _selectedItemsChangedSubscription = value        
+                _selectedItemsChangedSubscription = value
                     .Where(model => model != null)
                     .Subscribe(selectedItems =>
                     {
@@ -188,7 +185,7 @@ namespace Panda.EverythingLauncher
                         CancellationTokenSource?.Cancel();
                         CancellationTokenSource = new CancellationTokenSource();
                         _everythingSubscription?.Dispose();
-                        Application.Current.Dispatcher.Invoke(() => EverythingResults.Clear());                        
+                        Application.Current.Dispatcher.Invoke(() => EverythingResults.Clear());
                         _everythingSubscription = EverythingService
                             .Search(s, CancellationTokenSource.Token)
                             .ForEachAsync(
@@ -211,9 +208,9 @@ namespace Panda.EverythingLauncher
         /// </value>
         internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
-        
+
         public IKeyboardMouseService KeyboardMouseService { get; set; }
-        public IEventHub EventHub { get; private set; }
+        public IEventHub EventHub { get; }
 
         /// <summary>
         ///     Gets or sets the everything service.
@@ -265,6 +262,23 @@ namespace Panda.EverythingLauncher
         /// </value>
         internal List<EverythingResultViewModel> SelectedItems { get; set; }
 
+        private ILog Log { get; } = LogManager.GetLogger<EverythingLauncherViewModel>();
+
+        public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
+        {
+            get => _previewMouseDoubleClickObs;
+            set
+            {
+                _previewMouseDoubleClickSubscription?.Dispose();
+                _previewMouseDoubleClickObs = value;
+                _previewMouseDoubleClickSubscription = value.Subscribe(tuple =>
+                {
+                    Log.Trace($"Starting {tuple.Item1.FullName}");
+                    Process.Start(tuple.Item1.FullName);
+                });
+            }
+        }
+
         /// <summary>
         ///     Occurs when [property changed].
         /// </summary>
@@ -290,25 +304,6 @@ namespace Panda.EverythingLauncher
                 Submit();
         }
 
-        private ILog Log { get; set; } = LogManager.GetLogger<EverythingLauncherViewModel>();
-
-        private IDisposable _previewMouseDoubleClickSubscription;
-
-        public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
-        {
-            get => _previewMouseDoubleClickObs;
-            set
-            {
-                _previewMouseDoubleClickSubscription?.Dispose();
-                _previewMouseDoubleClickObs = value;
-                _previewMouseDoubleClickSubscription = value.Subscribe(tuple =>
-                {
-                    Log.Trace($"Starting {tuple.Item1.FullName}");
-                    Process.Start(tuple.Item1.FullName);
-                });
-            }
-        }
-
         /// <summary>
         ///     Launches the currently selected item using whatever the shell deems appropriate
         /// </summary>
@@ -319,7 +314,6 @@ namespace Panda.EverythingLauncher
                 Log.Trace($"Starting {everythingResultViewModel.FullName}");
                 Process.Start(everythingResultViewModel.FullName);
             }
-                
         }
     }
 }
