@@ -129,6 +129,7 @@
     <Compile Include="IDomainEvent.cs" />
     <Compile Include="IEventHub.cs" />
     <Compile Include="IFileSystemContextMenuProvider.cs" />
+    <Compile Include="IFileSystemSearch.cs" />
     <Compile Include="IKeyboardMouseService.cs" />
     <Compile Include="ILauncherService.cs" />
     <Compile Include="IPluginSettings.cs" />

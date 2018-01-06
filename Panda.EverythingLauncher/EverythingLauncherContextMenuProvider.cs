@@ -45,7 +45,7 @@ namespace Panda.EverythingLauncher
         /// </returns>
         public bool CanHandle(IEnumerable<FileInfo> items)
         {
-            return items.Any();
+            return false;
         }
 
         /// <inheritdoc />

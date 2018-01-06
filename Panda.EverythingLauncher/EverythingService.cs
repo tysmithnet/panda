@@ -2,6 +2,7 @@
 using System.ComponentModel.Composition;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
@@ -15,7 +16,8 @@ namespace Panda.EverythingLauncher
     ///     Service that will manage the interaction with es.exe
     /// </summary>
     [Export(typeof(IEverythingService))]
-    public sealed class EverythingService : IEverythingService
+    [Export(typeof(IFileSystemSearch))]
+    public sealed class EverythingService : IEverythingService, IFileSystemSearch
     {
         /// <summary>
         ///     Gets the log.
@@ -34,18 +36,46 @@ namespace Panda.EverythingLauncher
         [Import]
         internal ISettingsService SettingsService { get; set; }
 
+        /// <inheritdoc />
         /// <summary>
         ///     Searches the specified query.
         /// </summary>
         /// <param name="query">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
+        IObservable<EverythingResult> IEverythingService.Search(string query, CancellationToken cancellationToken)
+        {
+            return Search(query, cancellationToken).Select(line => new EverythingResult
+            {
+                FullPath = line
+            });
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        ///     Searches for files using the specified query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        IObservable<FileInfo> IFileSystemSearch.Search(string query, CancellationToken cancellationToken)
+        {
+            return Search(query, cancellationToken).Select(line => new FileInfo(line));
+        }
+
+        /// <summary>
+        ///     Searches using the specified query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Files and directories that match the query</returns>
+        /// <exception cref="ConfigurationErrorsException"></exception>
+        internal IObservable<string> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
             if (string.IsNullOrWhiteSpace(executablePath))
                 throw new ConfigurationErrorsException($"es.exe is not set in everything launcher settings");
-            var obs = Observable.Create<EverythingResult>(async (observer, token) =>
+            var obs = Observable.Create<string>(async (observer, token) =>
             {
                 await Task.Run(async () =>
                 {
@@ -66,10 +96,7 @@ namespace Panda.EverythingLauncher
                     while ((line = await process.StandardOutput.ReadLineAsync()) != null)
                     {
                         Log.Debug($"Process Line: {process.Id} - {line}");
-                        observer.OnNext(new EverythingResult
-                        {
-                            FullPath = line
-                        });
+                        observer.OnNext(line);
 
                         if (!cancellationToken.IsCancellationRequested && !token.IsCancellationRequested) continue;
                         Log.Debug($"Killing: {process.Id}");
