@@ -122,6 +122,7 @@
     </ApplicationDefinition>
     <Compile Include="EventHub.cs" />
     <Compile Include="FileDeletedEvent.cs" />
+    <Compile Include="FileSizeValueConverter.cs" />
     <Compile Include="IconHelper.cs" />
     <Compile Include="IconSize.cs" />
     <Compile Include="IContextMenuProvider.cs" />

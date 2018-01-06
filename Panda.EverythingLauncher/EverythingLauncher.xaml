@@ -15,6 +15,7 @@
     Title="Everything Launcher">
     <client:Launcher.Resources>
         <ResourceDictionary>
+            <client:FileSizeValueConverter x:Key="FileSizeValueConverter"></client:FileSizeValueConverter>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                     Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
@@ -64,7 +65,7 @@
                     Header="Path" 
                     MinWidth="100"/>
                 <materialDesign:MaterialDataGridTextColumn
-                    Binding="{Binding SizeHumanized}"
+                    Binding="{Binding Size, Converter={StaticResource FileSizeValueConverter}}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
                     Header="Size" 
                     MinWidth="50"/>
