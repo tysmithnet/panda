@@ -10,7 +10,7 @@ namespace Panda.Client
     ///     Converter capable of turning file sizes into human readable formats
     /// </summary>
     /// <seealso cref="System.Windows.Data.IValueConverter" />
-    public class FileSizeValueConverter : IValueConverter
+    public sealed class FileSizeValueConverter : IValueConverter
     {
         /// <summary>
         ///     Converts the specified value.

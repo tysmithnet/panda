@@ -77,9 +77,21 @@ namespace Panda.AppLauncher
         /// </value>
         internal AppLauncherViewModel ViewModel { get; set; }
 
-        public Subject<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedSubject { get; set; } =
+        /// <summary>
+        ///     Gets or sets the selected items changed subject.
+        /// </summary>
+        /// <value>
+        ///     The selected items changed subject.
+        /// </value>
+        internal Subject<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedSubject { get; set; } =
             new Subject<IEnumerable<RegisteredApplicationViewModel>>();
 
+        /// <summary>
+        ///     Gets or sets the preview mouse double click subject.
+        /// </summary>
+        /// <value>
+        ///     The preview mouse double click subject.
+        /// </value>
         internal Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>
             PreviewMouseDoubleClickSubject { get; set; } =
             new Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>();
@@ -136,6 +148,11 @@ namespace Panda.AppLauncher
             PreviewKeyUpSubject.OnNext(e);
         }
 
+        /// <summary>
+        ///     Handles the OnPreviewMouseDoubleClick event of the UIElement control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
         private void UIElement_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var item = sender as ImageTextItem;

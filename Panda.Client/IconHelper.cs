@@ -14,9 +14,24 @@ namespace Panda.Client
     /// </summary>
     public static class IconHelper
     {
+        /// <summary>
+        ///     The large icon cache
+        /// </summary>
         internal static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(IconHelper).FullName + "_large");
+
+        /// <summary>
+        ///     The small icon cache
+        /// </summary>
         internal static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(IconHelper).FullName + "_small");
+
+        /// <summary>
+        ///     The unknown file large
+        /// </summary>
         internal static readonly ImageSource UnknownFileLarge;
+
+        /// <summary>
+        ///     The unknown file small
+        /// </summary>
         internal static readonly ImageSource UnknownFileSmall;
 
         /// <summary>

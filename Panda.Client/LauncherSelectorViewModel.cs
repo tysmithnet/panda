@@ -18,12 +18,24 @@ namespace Panda.Client
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// The preview mouse up obs
+        /// </summary>
         private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _previewMouseUpObs;
 
+        /// <summary>
+        /// The preview mouse up subscription
+        /// </summary>
         private IDisposable _previewMouseUpSubscription;
 
+        /// <summary>
+        /// The search text box preview key up obs
+        /// </summary>
         private IObservable<(string, KeyEventArgs)> _searchTextBoxPreviewKeyUpObs;
 
+        /// <summary>
+        /// The search text box preview key up subscription
+        /// </summary>
         private IDisposable _searchTextBoxPreviewKeyUpSubscription;
 
         /// <summary>
@@ -162,6 +174,12 @@ namespace Panda.Client
             }
         }
 
+        /// <summary>
+        /// Gets or sets the preview mouse up obs.
+        /// </summary>
+        /// <value>
+        /// The preview mouse up obs.
+        /// </value>
         public IObservable<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpObs
         {
             get => _previewMouseUpObs;
@@ -178,6 +196,12 @@ namespace Panda.Client
             }
         }
 
+        /// <summary>
+        /// Gets or sets the search text box preview key up obs.
+        /// </summary>
+        /// <value>
+        /// The search text box preview key up obs.
+        /// </value>
         public IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
         {
             get => _searchTextBoxPreviewKeyUpObs;

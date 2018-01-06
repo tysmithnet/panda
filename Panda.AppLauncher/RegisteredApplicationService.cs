@@ -111,6 +111,7 @@ namespace Panda.AppLauncher
             ApplicationUnregisteredSubject.OnNext(registeredApplication);
         }
 
+        /// <inheritdoc />
         /// <summary>
         ///     Saves the current state of registered applications
         /// </summary>
