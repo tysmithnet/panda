@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Common.Logging;
+using Humanizer;
 using Panda.Client;
 
 namespace Panda.EverythingLauncher
@@ -73,6 +74,16 @@ namespace Panda.EverythingLauncher
         public string Directory { get; set; }
 
         public long? Size { get; }
+
+        public string SizeHumanized
+        {
+            get
+            {
+                if (!Size.HasValue)
+                    return "";
+                return Humanizer.Bytes.ByteSize.FromBytes(Size.Value).Humanize("#.#");
+            }
+        }       
 
         /// <summary>
         ///     Gets or sets the name.

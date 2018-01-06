@@ -64,7 +64,7 @@
                     Header="Path" 
                     MinWidth="100"/>
                 <materialDesign:MaterialDataGridTextColumn
-                    Binding="{Binding Size}"
+                    Binding="{Binding SizeHumanized}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnPopupEditingStyle}"
                     Header="Size" 
                     MinWidth="50"/>
