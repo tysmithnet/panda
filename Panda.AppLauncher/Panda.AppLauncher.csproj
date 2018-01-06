@@ -81,6 +81,9 @@
     <Compile Include="AppLauncherContextMenuProvider.cs" />
     <Compile Include="ApplicationFinderService.cs" />
     <Compile Include="IRegisteredApplicationService.cs" />
+    <Compile Include="RegisteredApplicationControl.xaml.cs">
+      <DependentUpon>RegisteredApplicationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RegisteredApplicationService.cs" />
     <Compile Include="AppLauncherSettings.cs" />
     <Compile Include="AppLauncherViewModel.cs" />
@@ -101,6 +104,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="AppLauncher.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RegisteredApplicationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Globalization;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -11,7 +13,7 @@ namespace Panda.CommonControls
     ///     Interaction logic for UserControl1.xaml
     /// </summary>
     public partial class ImageTextItem : UserControl
-    {
+    {        
         /// <summary>
         ///     The header text property
         /// </summary>
@@ -30,13 +32,17 @@ namespace Panda.CommonControls
         public static readonly DependencyProperty ImageSourceProperty =
             DependencyProperty.Register("ImageSource", typeof(ImageSource), typeof(ImageTextItem));
 
+        public static readonly DependencyProperty IsEditableProperty =
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(ImageTextItem));
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ImageTextItem" /> class.
         /// </summary>
         public ImageTextItem()
-        {
+        {   
             InitializeComponent();
             LayoutRoot.DataContext = this;
+            IsEditable = true;
         }
 
         /// <summary>
@@ -116,6 +122,12 @@ namespace Panda.CommonControls
             set => SetValue(ImageSourceProperty, value);
         }
 
+        public bool IsEditable
+        {
+            get => (bool)GetValue(IsEditableProperty);
+            set => SetValue(IsEditableProperty, value);
+        }
+
         /// <summary>
         ///     Handles the OnPreviewMouseUp event of the ImageTextItem control.
         /// </summary>
@@ -124,6 +136,24 @@ namespace Panda.CommonControls
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             // todo: needed?
+        }
+
+        
+    }
+
+    public class VisibilityValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var isVisible = System.Convert.ToBoolean(value ?? false);
+            var invertResult = System.Convert.ToBoolean(parameter ?? false);
+            isVisible = invertResult ? !isVisible : isVisible;
+            return isVisible ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

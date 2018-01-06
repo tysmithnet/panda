@@ -18,8 +18,11 @@
                  TextChanged="TextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
 
-        <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended"
-                 SelectionChanged="Selector_OnSelectionChanged" HorizontalAlignment="Stretch">
+        <ListBox x:Name="RegisteredApplications" 
+                 ItemsSource="{Binding AppViewModels}" 
+                 SelectionMode="Extended"
+                 SelectionChanged="Selector_OnSelectionChanged" 
+                 HorizontalAlignment="Stretch">
 
             <ListBox.ContextMenu>
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
@@ -27,8 +30,10 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
-                                                  ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}"
+                                                  ImageSource="{Binding ImageSource}" 
+                                                  HeaderText="{Binding AppName}"
                                                   SubHeaderText="{Binding ExecutableLocation}" />
+                    
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
