@@ -47,14 +47,44 @@ namespace Panda.EverythingLauncher
             }
         }
 
+        /// <summary>
+        /// Gets the log.
+        /// </summary>
+        /// <value>
+        /// The log.
+        /// </value>
         private ILog Log { get; } = LogManager.GetLogger<EverythingResultViewModel>();
 
+        /// <summary>
+        /// Gets or sets the modified time UTC.
+        /// </summary>
+        /// <value>
+        /// The modified time UTC.
+        /// </value>
         public DateTime? ModifiedTimeUtc { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is directory.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is directory; otherwise, <c>false</c>.
+        /// </value>
         public bool IsDirectory { get; set; }
 
+        /// <summary>
+        /// Gets or sets the creation time UTC.
+        /// </summary>
+        /// <value>
+        /// The creation time UTC.
+        /// </value>
         public DateTime? CreationTimeUtc { get; set; }
 
+        /// <summary>
+        /// Gets or sets the file information.
+        /// </summary>
+        /// <value>
+        /// The file information.
+        /// </value>
         public FileInfo FileInfo { get; set; }
 
         /// <summary>
@@ -73,18 +103,14 @@ namespace Panda.EverythingLauncher
         /// </value>
         public string Directory { get; set; }
 
+        /// <summary>
+        /// Gets the size.
+        /// </summary>
+        /// <value>
+        /// The size.
+        /// </value>
         public long? Size { get; }
-
-        public string SizeHumanized
-        {
-            get
-            {
-                if (!Size.HasValue)
-                    return "";
-                return Humanizer.Bytes.ByteSize.FromBytes(Size.Value).Humanize("#.#");
-            }
-        }       
-
+  
         /// <summary>
         ///     Gets or sets the name.
         /// </summary>

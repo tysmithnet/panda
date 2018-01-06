@@ -67,7 +67,7 @@ namespace Panda.Client
                 Log.Fatal($"One or more system  services failed during startup. Check the logs for more information.");
                 Application.Current.Shutdown(-1);
             }                       
-
+            // todo: break up method
             var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
             var setupTasks = requiresSetup.Select(x => x.Setup(CancellationToken.None).ContinueWith(t =>
             {

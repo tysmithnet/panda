@@ -21,18 +21,49 @@ namespace Panda.AppLauncher
     /// <seealso cref="System.IDisposable" />
     public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
+        /// <summary>
+        /// The preview double click observable
+        /// </summary>
         private IObservable<RegisteredApplicationViewModel> _previewDoubleClickObs;
 
+        /// <summary>
+        /// The preview double click subscription
+        /// </summary>
         private IDisposable _previewDoubleClickSubscription;
+
+        /// <summary>
+        /// The preview key up observable
+        /// </summary>
         private IObservable<KeyEventArgs> _previewKeyUpObs;
 
+        /// <summary>
+        /// The preview key up subscription
+        /// </summary>
         private IDisposable _previewKeyUpSubscription;
+
+        /// <summary>
+        /// The preview mouse double click observable
+        /// </summary>
         private IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
 
+        /// <summary>
+        /// The preview mouse up subscription
+        /// </summary>
         private IDisposable _previewMouseUpSubscription;
+
+        /// <summary>
+        /// The search text changed observable
+        /// </summary>
         private IObservable<string> _searchTextChangedObs;
 
+        /// <summary>
+        /// The text changed subscription
+        /// </summary>
         private IDisposable _textChangedSubscription;
+
+        /// <summary>
+        /// The selected items changed observable
+        /// </summary>
         private IObservable<IEnumerable<RegisteredApplicationViewModel>> _selectedItemsChangedObs;
 
         /// <summary>
@@ -48,6 +79,12 @@ namespace Panda.AppLauncher
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
         }
 
+        /// <summary>
+        /// Gets or sets the preview double click observable
+        /// </summary>
+        /// <value>
+        /// The preview double click observable.
+        /// </value>
         public IObservable<RegisteredApplicationViewModel> PreviewDoubleClickObs
         {
             get => _previewDoubleClickObs;
@@ -63,6 +100,12 @@ namespace Panda.AppLauncher
             }
         }
 
+        /// <summary>
+        /// Gets or sets the preview key up observable.
+        /// </summary>
+        /// <value>
+        /// The preview key up observable.
+        /// </value>
         public IObservable<KeyEventArgs> PreviewKeyUpObs
         {
             get => _previewKeyUpObs;
@@ -83,6 +126,13 @@ namespace Panda.AppLauncher
             }
         }
 
+        /// <summary>
+        /// Gets or sets the search text changed observable.
+        /// </summary>
+        /// <value>
+        /// The search text changed observable.
+        /// </value>
+        /// <exception cref="ArgumentNullException">value</exception>
         public IObservable<string> SearchTextChangedObs
         {
             get => _searchTextChangedObs;
@@ -171,8 +221,20 @@ namespace Panda.AppLauncher
         /// </value>
         public string SearchText { get; set; }
 
+        /// <summary>
+        /// Gets the log.
+        /// </summary>
+        /// <value>
+        /// The log.
+        /// </value>
         private ILog Log { get; } = LogManager.GetLogger<AppLauncherViewModel>();
 
+        /// <summary>
+        /// Gets or sets the preview mouse double click observable.
+        /// </summary>
+        /// <value>
+        /// The preview mouse double click observable.
+        /// </value>
         public IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
             get => _previewMouseDoubleClickObs;
@@ -188,8 +250,17 @@ namespace Panda.AppLauncher
             }
         }
 
-
+        /// <summary>
+        /// The selected items changed subscription
+        /// </summary>
         private IDisposable _selectedItemsChangedSubscription;
+
+        /// <summary>
+        /// Gets or sets the selected items changed observable.
+        /// </summary>
+        /// <value>
+        /// The selected items changed observable.
+        /// </value>
         public IObservable<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedObs
         {
             get => _selectedItemsChangedObs;
@@ -231,7 +302,10 @@ namespace Panda.AppLauncher
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Setup()
+        /// <summary>
+        /// Setups this instance's primary subscriptions
+        /// </summary>
+        public void SetupSubscriptions()
         {
             RegisteredApplicationService.Get().Subscribe(async application =>
             {

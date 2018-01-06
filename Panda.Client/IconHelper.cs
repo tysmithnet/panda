@@ -19,6 +19,9 @@ namespace Panda.Client
         internal static readonly ImageSource UnknownFileLarge;
         internal static readonly ImageSource UnknownFileSmall;
 
+        /// <summary>
+        /// Initializes the <see cref="IconHelper"/> class.
+        /// </summary>
         static IconHelper()
         {
             var shinfo = new ShFileInfo();
@@ -41,11 +44,22 @@ namespace Panda.Client
             UnknownFileSmall = img;
         }
 
+        /// <summary>
+        /// To the icon flag.
+        /// </summary>
+        /// <param name="size">The size.</param>
+        /// <returns></returns>
         internal static uint ToIconFlag(this IconSize size)
         {
             return (uint) size;
         }
 
+        /// <summary>
+        /// Gets the fallback icon.
+        /// </summary>
+        /// <param name="size">The size.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">size</exception>
         public static ImageSource GetFallbackIcon(IconSize size)
         {
             switch (size)

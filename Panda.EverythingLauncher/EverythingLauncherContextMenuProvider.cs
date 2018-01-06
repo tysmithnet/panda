@@ -10,19 +10,50 @@ using Panda.Client;
 
 namespace Panda.EverythingLauncher
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// Contexte menu provider for everything launcher
+    /// </summary>
+    /// <seealso cref="T:Panda.Client.IFileSystemContextMenuProvider" />
     [Export(typeof(IFileSystemContextMenuProvider))]
     public sealed class EverythingLauncherContextMenuProvider : IFileSystemContextMenuProvider
     {
+        /// <summary>
+        /// Gets or sets the event hub.
+        /// </summary>
+        /// <value>
+        /// The event hub.
+        /// </value>
         [Import]
         internal IEventHub EventHub { get; set; }
 
+        /// <summary>
+        /// Gets the log.
+        /// </summary>
+        /// <value>
+        /// The log.
+        /// </value>
         private ILog Log { get; } = LogManager.GetLogger<EverythingLauncherContextMenuProvider>();
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Determines whether this instance can handle the specified items.
+        /// </summary>
+        /// <param name="items">The items.</param>
+        /// <returns>
+        ///   <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
+        /// </returns>
         public bool CanHandle(IEnumerable<FileInfo> items)
         {
             return items.Any();
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Gets the context menu items.
+        /// </summary>
+        /// <param name="items">The items.</param>
+        /// <returns></returns>
         public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<FileInfo> items)
         {
             var menuItem = new MenuItem();

@@ -17,8 +17,9 @@ namespace Panda.EverythingLauncher
     [Export(typeof(Launcher))]
     public sealed partial class EverythingLauncher : Launcher
     {
+        /// <inheritdoc />
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EverythingLauncher" /> class.
+        ///     Initializes a new instance of the <see cref="T:Panda.EverythingLauncher.EverythingLauncher" /> class.
         /// </summary>
         public EverythingLauncher()
         {
@@ -51,9 +52,21 @@ namespace Panda.EverythingLauncher
         [ImportMany]
         public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
+        /// <summary>
+        /// Gets or sets the keyboard mouse service.
+        /// </summary>
+        /// <value>
+        /// The keyboard mouse service.
+        /// </value>
         [Import]
         public IKeyboardMouseService KeyboardMouseService { get; set; }
 
+        /// <summary>
+        /// Gets or sets the event hub.
+        /// </summary>
+        /// <value>
+        /// The event hub.
+        /// </value>
         [Import]
         public IEventHub EventHub { get; set; }
 
@@ -130,7 +143,11 @@ namespace Panda.EverythingLauncher
             DataContext = ViewModel;
         }
 
-
+        /// <summary>
+        /// Handles the OnSelectedCellsChanged event of the DataGrid control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="SelectedCellsChangedEventArgs"/> instance containing the event data.</param>
         private void DataGrid_OnSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
             var dataGrid = sender as DataGrid;
@@ -138,11 +155,21 @@ namespace Panda.EverythingLauncher
             SelectedItemsChangedObservable.OnNext(selectedVms);
         }
 
+        /// <summary>
+        /// Handles the OnPreviewMouseRightButtonDown event of the UIElement control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
         private void UIElement_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             PreviewMouseRightButtonDownObservable.OnNext(e);
         }
 
+        /// <summary>
+        /// Handles the OnHandler event of the EventSetter control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
         private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
         {
             if (sender is DataGridRow dataGridRow && dataGridRow.DataContext is EverythingResultViewModel vm)

@@ -111,6 +111,9 @@ namespace Panda.AppLauncher
             ApplicationUnregisteredSubject.OnNext(registeredApplication);
         }
 
+        /// <summary>
+        /// Saves the current state of registered applications
+        /// </summary>
         public void Save()
         {
             SettingsService.Save();

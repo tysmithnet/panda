@@ -93,7 +93,7 @@ namespace Panda.AppLauncher
                 PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
                 SelectedItemsChangedObs = SelectedItemsChangedSubject
             };
-            ViewModel.Setup();
+            ViewModel.SetupSubscriptions();
             DataContext = ViewModel;
             SearchText.Focus();
         }

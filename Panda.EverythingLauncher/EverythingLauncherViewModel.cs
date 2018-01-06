@@ -28,8 +28,14 @@ namespace Panda.EverythingLauncher
         /// </summary>
         private IDisposable _everythingSubscription;
 
+        /// <summary>
+        /// The preview mouse double click obs
+        /// </summary>
         private IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
 
+        /// <summary>
+        /// The preview mouse double click subscription
+        /// </summary>
         private IDisposable _previewMouseDoubleClickSubscription;
 
         /// <summary>
@@ -88,6 +94,12 @@ namespace Panda.EverythingLauncher
             });
         }
 
+        /// <summary>
+        /// Gets or sets the refresh data grid action.
+        /// </summary>
+        /// <value>
+        /// The refresh data grid action.
+        /// </value>
         public Action RefreshDataGridAction { get; set; }
 
         /// <summary>
@@ -219,8 +231,20 @@ namespace Panda.EverythingLauncher
         /// </value>
         internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the keyboard mouse service.
+        /// </summary>
+        /// <value>
+        /// The keyboard mouse service.
+        /// </value>
         public IKeyboardMouseService KeyboardMouseService { get; set; }
+
+        /// <summary>
+        /// Gets the event hub.
+        /// </summary>
+        /// <value>
+        /// The event hub.
+        /// </value>
         public IEventHub EventHub { get; }
 
         /// <summary>
@@ -273,8 +297,20 @@ namespace Panda.EverythingLauncher
         /// </value>
         internal List<EverythingResultViewModel> SelectedItems { get; set; }
 
+        /// <summary>
+        /// Gets the log.
+        /// </summary>
+        /// <value>
+        /// The log.
+        /// </value>
         private ILog Log { get; } = LogManager.GetLogger<EverythingLauncherViewModel>();
 
+        /// <summary>
+        /// Gets or sets the preview mouse double click obs.
+        /// </summary>
+        /// <value>
+        /// The preview mouse double click obs.
+        /// </value>
         public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
             get => _previewMouseDoubleClickObs;
