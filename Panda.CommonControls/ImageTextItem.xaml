@@ -8,7 +8,8 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
-             PreviewMouseUp="ImageTextItem_OnPreviewMouseUp">
+             PreviewMouseUp="ImageTextItem_OnPreviewMouseUp"
+             >
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -22,8 +23,53 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel x:Name="LayoutRoot" d:DataContext="{d:DesignInstance local:ImageTextItem}">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+    <DockPanel x:Name="LayoutRoot" Width="Auto" HorizontalAlignment="Stretch" d:DataContext="{d:DesignInstance local:ImageTextItem}">
+        <materialDesign:PopupBox
+            DockPanel.Dock="Right"
+            PlacementMode="BottomAndAlignRightEdges"
+            StaysOpen="False">
+            <StackPanel >
+                <Button Content="Hello World" />
+                <Button Content="Nice Popup" />
+                <Button Content="Can't Touch This" IsEnabled="False" />
+                <Separator />
+                <Button Content="Goodbye" />
+            </StackPanel>
+        </materialDesign:PopupBox>
+        <Image DockPanel.Dock="Left" MaxWidth="32" MaxHeight="32" Source="{Binding ImageSource}"></Image> 
+        <StackPanel>
+            <Label Content="{Binding HeaderText}"></Label>
+            <Label Content="{Binding SubHeaderText}"></Label>
+        </StackPanel>                                  
+    </DockPanel>
+    <!--<Grid x:Name="LayoutRoot" d:DataContext="{d:DesignInstance local:ImageTextItem}">
+          <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"></ColumnDefinition>
+              <ColumnDefinition Width="1*"></ColumnDefinition>
+              <ColumnDefinition Width="Auto"></ColumnDefinition>
+          </Grid.ColumnDefinitions>
+          <Image Grid.Column="0" Source="{Binding ImageSource}"></Image>
+        <DockPanel Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+            <Label DockPanel.Dock="Bottom" Content="{Binding SubHeaderText}"></Label>
+            <Label Content="{Binding HeaderText}"></Label>
+        </DockPanel>
+  
+        <materialDesign:PopupBox
+            Grid.Column="2"
+            PlacementMode="BottomAndAlignRightEdges"
+            StaysOpen="False">
+            <StackPanel >
+                <Button Content="Hello World" />
+                <Button Content="Nice Popup" />
+                <Button Content="Can't Touch This" IsEnabled="False" />
+                <Separator />
+                <Button Content="Goodbye" />
+            </StackPanel>
+        </materialDesign:PopupBox>
+
+    </Grid>-->
+    <!--<DockPanel x:Name="LayoutRoot" d:DataContext="{d:DesignInstance local:ImageTextItem}" HorizontalAlignment="Stretch">
+        <StackPanel Orientation="Horizontal">
             <StackPanel.Visibility>
                 <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
                     <Binding.ConverterParameter>
@@ -53,16 +99,15 @@
         </StackPanel>
         <materialDesign:PopupBox
             DockPanel.Dock="Right"
-            PlacementMode="BottomAndAlignCentres"
-            Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
-            ToolTip="PopupBox, Style MaterialDesignMultiFloatingActionPopupBox"
-            ToolTipService.Placement="Right"
-            UnfurlOrientation="Horizontal">
-            <StackPanel>
-                <Button Opacity="0.5" ToolTip="One with custom opacity">1</Button>
-                <Button ToolTip="Two">2</Button>
-                <Button ToolTip="Three">3</Button>
+            PlacementMode="BottomAndAlignRightEdges"
+            StaysOpen="False">
+            <StackPanel >
+                <Button Content="Hello World" />
+                <Button Content="Nice Popup" />
+                <Button Content="Can't Touch This" IsEnabled="False" />
+                <Separator />
+                <Button Content="Goodbye" />
             </StackPanel>
         </materialDesign:PopupBox>
-    </DockPanel>
+    </DockPanel>-->
 </UserControl>

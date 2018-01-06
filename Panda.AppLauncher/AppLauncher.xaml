@@ -22,7 +22,8 @@
                  ItemsSource="{Binding AppViewModels}" 
                  SelectionMode="Extended"
                  SelectionChanged="Selector_OnSelectionChanged" 
-                 HorizontalAlignment="Stretch">
+                 HorizontalAlignment="Stretch"
+                 HorizontalContentAlignment="Stretch">
 
             <ListBox.ContextMenu>
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
