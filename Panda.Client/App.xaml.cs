@@ -53,8 +53,8 @@ namespace Panda.Client
                 {
                     if (task.IsFaulted)
                         Log.Error($"Service failed to setup: {service.GetType().FullName}");
-                    
-                    if(task.IsCanceled)
+
+                    if (task.IsCanceled)
                         Log.Warn($"Service was cancelled during setup: {service.GetType().FullName}");
                 })); // todo: use real CT
 
@@ -65,9 +65,9 @@ namespace Panda.Client
             catch (Exception)
             {
                 Log.Fatal($"One or more system  services failed during startup. Check the logs for more information.");
-                Application.Current.Shutdown(-1);
-            }                       
-
+                Current.Shutdown(-1);
+            }
+            // todo: break up method
             var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
             var setupTasks = requiresSetup.Select(x => x.Setup(CancellationToken.None).ContinueWith(t =>
             {

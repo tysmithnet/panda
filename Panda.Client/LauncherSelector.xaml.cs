@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Panda.CommonControls;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.Client
@@ -42,7 +43,7 @@ namespace Panda.Client
         ///     The keyboard mouse hook service.
         /// </value>
         [Import]
-        internal IKeyboardMouseHookService KeyboardMouseHookService { get; set; }
+        internal IKeyboardMouseService KeyboardMouseService { get; set; }
 
         /// <summary>
         ///     Gets or sets the view model.
@@ -58,7 +59,22 @@ namespace Panda.Client
         /// <value>
         ///     The text changed observable.
         /// </value>
-        private Subject<string> TextChangedObservable { get; } = new Subject<string>();
+        private Subject<string> TextChangedSubject { get; } = new Subject<string>();
+
+        /// <summary>
+        ///     Gets or sets the selection changed observable.
+        /// </summary>
+        /// <value>
+        ///     The selection changed observable.
+        /// </value>
+        private Subject<SelectionChangedEventArgs> SelectionChangedSubject { get; } =
+            new Subject<SelectionChangedEventArgs>();
+
+        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpSubject { get; set; } =
+            new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
+
+        public Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
+            new Subject<(string, KeyEventArgs)>();
 
         /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
@@ -75,10 +91,11 @@ namespace Panda.Client
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        private void LauncherSelector_OnActivated(object sender, EventArgs e)
+        private void LauncherSelector_OnLoaded(object sender, EventArgs e)
         {
+            // todo: move to VM
             SearchText.Focus();
-            KeyboardMouseHookService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
+            KeyboardMouseService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(args =>
                 {
@@ -93,8 +110,13 @@ namespace Panda.Client
                         args.Handled = true;
                     }
                 });
-            ViewModel = new LauncherSelectorViewModel(LauncherService,
-                TextChangedObservable);
+            ViewModel = new LauncherSelectorViewModel(LauncherService)
+            {
+                TextChangedObs = TextChangedSubject,
+                SelectionChangedObs = SelectionChangedSubject,
+                PreviewMouseUpObs = PreviewMouseUpSubject,
+                SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject
+            };
             DataContext = ViewModel;
         }
 
@@ -105,7 +127,7 @@ namespace Panda.Client
         /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
         internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ViewModel.HandleSelectionChanged(e); // todo: rename
+            SelectionChangedSubject.OnNext(e);
         }
 
         /// <summary>
@@ -115,21 +137,19 @@ namespace Panda.Client
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         internal void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            TextChangedObservable.OnNext(SearchText.Text);
+            TextChangedSubject.OnNext(SearchText.Text);
         }
 
-        /// <summary>
-        ///     Handles the OnPreviewKeyUp event of the LauncherSelector control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.KeyEventArgs" /> instance containing the event data.</param>
-        internal void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.Key == Key.Escape)
-                Hide();
+            var launcher = sender as ImageTextItem;
+            var vm = launcher?.DataContext as LauncherViewModel;
+            PreviewMouseUpSubject.OnNext((vm, e));
+        }
 
-            if (e.Key == Key.Enter || e.Key == Key.Return)
-                ViewModel.Submit();
+        private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            SearchTextBoxPreviewKeyUpSubject.OnNext((SearchText.Text, e));
         }
     }
 }

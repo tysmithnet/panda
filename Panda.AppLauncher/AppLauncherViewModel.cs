@@ -5,11 +5,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using Common.Logging;
+using Panda.Client;
 
 namespace Panda.AppLauncher
 {
@@ -21,81 +22,150 @@ namespace Panda.AppLauncher
     public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
         /// <summary>
+        ///     The preview double click observable
+        /// </summary>
+        private IObservable<RegisteredApplicationViewModel> _previewDoubleClickObs;
+
+        /// <summary>
+        ///     The preview double click subscription
+        /// </summary>
+        private IDisposable _previewDoubleClickSubscription;
+
+        /// <summary>
+        ///     The preview key up observable
+        /// </summary>
+        private IObservable<KeyEventArgs> _previewKeyUpObs;
+
+        /// <summary>
+        ///     The preview key up subscription
+        /// </summary>
+        private IDisposable _previewKeyUpSubscription;
+
+        /// <summary>
+        ///     The preview mouse double click observable
+        /// </summary>
+        private IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
+
+        /// <summary>
+        ///     The preview mouse up subscription
+        /// </summary>
+        private IDisposable _previewMouseUpSubscription;
+
+        /// <summary>
+        ///     The search text changed observable
+        /// </summary>
+        private IObservable<string> _searchTextChangedObs;
+
+        /// <summary>
+        ///     The selected items changed observable
+        /// </summary>
+        private IObservable<IEnumerable<RegisteredApplicationViewModel>> _selectedItemsChangedObs;
+
+        /// <summary>
+        ///     The selected items changed subscription
+        /// </summary>
+        private IDisposable _selectedItemsChangedSubscription;
+
+        /// <summary>
+        ///     The text changed subscription
+        /// </summary>
+        private IDisposable _textChangedSubscription;
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
         /// </summary>
         /// <param name="registeredApplicationService">The registered application service.</param>
         /// <param name="registeredApplicationContextMenuProviders">The registered application context menu providers.</param>
-        /// <param name="textChangedObservable"></param>
-        /// <param name="previewKeyUpSubject"></param>
-        public AppLauncherViewModel(IRegisteredApplicationService registeredApplicationService, IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders, IObservable<string> textChangedObservable, Subject<KeyEventArgs> previewKeyUpSubject)
+        public AppLauncherViewModel(
+            IRegisteredApplicationService registeredApplicationService,
+            IRegisteredApplicationContextMenuProvider[] registeredApplicationContextMenuProviders)
         {
             RegisteredApplicationService = registeredApplicationService;
             RegisteredApplicationContextMenuProviders = registeredApplicationContextMenuProviders;
-            registeredApplicationService.Get().Subscribe(async application =>
-            {
-                var item = new RegisteredApplicationViewModel
-                {
-                    AppName = application.DisplayName,
-                    ExecutableLocation = application.FullPath,
-                    RegisteredApplication = application
-                };
-                AppViewModels.Add(item);
-                await item.LoadIcon();
-            });
+        }
 
-            ApplicationRegisteredSubscription =
-                registeredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
+        /// <summary>
+        ///     Gets or sets the preview double click observable
+        /// </summary>
+        /// <value>
+        ///     The preview double click observable.
+        /// </value>
+        public IObservable<RegisteredApplicationViewModel> PreviewDoubleClickObs
+        {
+            get => _previewDoubleClickObs;
+            set
+            {
+                _previewDoubleClickSubscription?.Dispose();
+                _previewDoubleClickObs = value;
+                _previewDoubleClickSubscription = value.Subscribe(model =>
                 {
-                    var item = new RegisteredApplicationViewModel
-                    {
-                        AppName = application.DisplayName,
-                        ExecutableLocation = application.FullPath,
-                        RegisteredApplication = application
-                    };
-                    AppViewModels.Add(item);
-                    await item.LoadIcon();
+                    Log.Trace($"Starting {model.ExecutableLocation}");
+                    Process.Start(model.ExecutableLocation);
                 });
+            }
+        }
 
-            ApplicationUnregisteredSubscription =
-                registeredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
-                {
-                    var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
-                    foreach (var appViewModel in toRemove)
-                        AppViewModels.Remove(appViewModel);
-                });
-
-            textChangedObservable
-                .Where(s => s != null)
-                .Subscribe(async s =>
+        /// <summary>
+        ///     Gets or sets the preview key up observable.
+        /// </summary>
+        /// <value>
+        ///     The preview key up observable.
+        /// </value>
+        public IObservable<KeyEventArgs> PreviewKeyUpObs
+        {
+            get => _previewKeyUpObs;
+            set
             {
-                AppViewModels.Clear();
-                var filteredApps = RegisteredApplicationService.Get().Where(application =>
-                    Regex.IsMatch(application.DisplayName, s, RegexOptions.IgnoreCase) ||
-                    Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
-                foreach (var registeredApplication in filteredApps)
+                _previewKeyUpSubscription?.Dispose();
+                _previewKeyUpObs = value;
+                _previewKeyUpSubscription = value.Subscribe(args =>
                 {
-                    var item = new RegisteredApplicationViewModel
-                    {
-                        AppName = registeredApplication.DisplayName,
-                        ExecutableLocation = registeredApplication.FullPath,
-                        RegisteredApplication = registeredApplication
-                    };
-                    AppViewModels.Add(item);
-                    await item.LoadIcon();
-                }
-            });
-
-            previewKeyUpSubject.Subscribe(args =>
-            {
-                if (args.Key == Key.Enter || args.Key == Key.Return)
-                {
+                    if (args.Key != Key.Enter && args.Key != Key.Return) return;
                     var first = AppViewModels.FirstOrDefault();
                     if (first != null)
                     {
+                        Log.Trace($"Starting {first.ExecutableLocation}");
                         Process.Start(first.ExecutableLocation);
                     }
-                }
-            });
+                });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the search text changed observable.
+        /// </summary>
+        /// <value>
+        ///     The search text changed observable.
+        /// </value>
+        /// <exception cref="ArgumentNullException">value</exception>
+        public IObservable<string> SearchTextChangedObs
+        {
+            get => _searchTextChangedObs;
+            set
+            {
+                value = value ?? throw new ArgumentNullException(nameof(value));
+                _textChangedSubscription?.Dispose();
+                _searchTextChangedObs = value;
+                _textChangedSubscription = value.Where(s => s != null)
+                    .Subscribe(async s =>
+                    {
+                        AppViewModels.Clear();
+                        var filteredApps = RegisteredApplicationService.Get().Where(application =>
+                            Regex.IsMatch(application.DisplayName, s, RegexOptions.IgnoreCase) ||
+                            Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
+                        foreach (var registeredApplication in filteredApps)
+                        {
+                            var item = new RegisteredApplicationViewModel
+                            {
+                                AppName = registeredApplication.DisplayName,
+                                ExecutableLocation = registeredApplication.FullPath,
+                                RegisteredApplication = registeredApplication
+                            };
+                            AppViewModels.Add(item);
+                            await item.LoadIcon(IconSize.Large);
+                        }
+                    });
+            }
         }
 
         /// <summary>
@@ -149,13 +219,75 @@ namespace Panda.AppLauncher
             new ObservableCollection<FrameworkElement>();
 
         /// <summary>
-        /// Gets or sets the search text.
+        ///     Gets or sets the search text.
         /// </summary>
         /// <value>
-        /// The search text.
+        ///     The search text.
         /// </value>
         public string SearchText { get; set; }
-                                                      
+
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>
+        ///     The log.
+        /// </value>
+        private ILog Log { get; } = LogManager.GetLogger<AppLauncherViewModel>();
+
+        /// <summary>
+        ///     Gets or sets the preview mouse double click observable.
+        /// </summary>
+        /// <value>
+        ///     The preview mouse double click observable.
+        /// </value>
+        public IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
+        {
+            get => _previewMouseDoubleClickObs;
+            set
+            {
+                _previewMouseUpSubscription?.Dispose();
+                _previewMouseDoubleClickObs = value;
+                _previewMouseUpSubscription = value.Subscribe(tuple =>
+                {
+                    Log.Trace($"Starting {tuple.Item1.ExecutableLocation}");
+                    Process.Start(tuple.Item1.ExecutableLocation);
+                });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the selected items changed observable.
+        /// </summary>
+        /// <value>
+        ///     The selected items changed observable.
+        /// </value>
+        public IObservable<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedObs
+        {
+            get => _selectedItemsChangedObs;
+            set
+            {
+                _selectedItemsChangedSubscription?.Dispose();
+                _selectedItemsChangedObs = value;
+                _selectedItemsChangedSubscription = value.Subscribe(models =>
+                {
+                    ContextMenuItems.Clear();
+                    var list = models.ToList();
+                    foreach (var registeredApplicationContextMenuProvider in RegisteredApplicationContextMenuProviders)
+                    {
+                        var canHandle =
+                            registeredApplicationContextMenuProvider.CanHandle(
+                                list.Select(model => model.RegisteredApplication));
+
+                        if (!canHandle) continue;
+
+                        foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
+                            list.Select(model => model.RegisteredApplication)))
+                            ContextMenuItems.Add(item);
+                    }
+                });
+            }
+        }
+
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.
         /// </summary>
@@ -171,35 +303,51 @@ namespace Panda.AppLauncher
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
+        ///     Setups this instance's primary subscriptions
+        /// </summary>
+        public void SetupSubscriptions()
+        {
+            RegisteredApplicationService.Get().Subscribe(async application =>
+            {
+                var item = new RegisteredApplicationViewModel
+                {
+                    AppName = application.DisplayName,
+                    ExecutableLocation = application.FullPath,
+                    RegisteredApplication = application
+                };
+                AppViewModels.Add(item);
+                await item.LoadIcon(IconSize.Large);
+            });
+
+            ApplicationRegisteredSubscription =
+                RegisteredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
+                {
+                    var item = new RegisteredApplicationViewModel
+                    {
+                        AppName = application.DisplayName,
+                        ExecutableLocation = application.FullPath,
+                        RegisteredApplication = application
+                    };
+                    AppViewModels.Add(item);
+                    await item.LoadIcon(IconSize.Large);
+                });
+
+            ApplicationUnregisteredSubscription =
+                RegisteredApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
+                {
+                    var toRemove = AppViewModels.Where(vm => vm.RegisteredApplication.Equals(application)).ToList();
+                    foreach (var appViewModel in toRemove)
+                        AppViewModels.Remove(appViewModel);
+                });
+        }
+
+        /// <summary>
         ///     Called when [property changed].
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        ///     Handles the selected items changed event
-        /// </summary>
-        /// <param name="selectedItems">The currently selected items.</param>
-        internal void HandleSelectedItemsChanged(IEnumerable<RegisteredApplicationViewModel> selectedItems) // todo: replace with subscription
-        {
-            ContextMenuItems.Clear();
-            var list = selectedItems.ToList();
-            foreach (var registeredApplicationContextMenuProvider in RegisteredApplicationContextMenuProviders)
-            {
-                var canHandle =
-                    registeredApplicationContextMenuProvider.CanHandle(
-                        list.Select(model => model.RegisteredApplication));
-
-                if (!canHandle) continue;
-
-                foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
-                    list.Select(model => model.RegisteredApplication)))
-                        ContextMenuItems.Add(item);
-                
-            }
         }
     }
 }

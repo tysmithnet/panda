@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using Common.Logging;
 using Panda.Client;
 using Panda.EverythingLauncher.Interop;
 using Point = System.Drawing.Point;
@@ -23,54 +24,201 @@ namespace Panda.EverythingLauncher
     public sealed class EverythingLauncherViewModel : INotifyPropertyChanged
     {
         /// <summary>
+        ///     The everything subscription
+        /// </summary>
+        private IDisposable _everythingSubscription;
+
+        /// <summary>
+        ///     The preview mouse double click obs
+        /// </summary>
+        private IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
+
+        /// <summary>
+        ///     The preview mouse double click subscription
+        /// </summary>
+        private IDisposable _previewMouseDoubleClickSubscription;
+
+        /// <summary>
+        ///     The preview mouse right button down obs
+        /// </summary>
+        private IObservable<MouseButtonEventArgs> _previewMouseRightButtonDownObs;
+
+        /// <summary>
+        ///     The preview mouse right button down subscription
+        /// </summary>
+        private IDisposable _previewMouseRightButtonDownSubscription;
+
+        /// <summary>
+        ///     The selected items changed obs
+        /// </summary>
+        private IObservable<IEnumerable<EverythingResultViewModel>> _selectedItemsChangedObs;
+
+        /// <summary>
+        ///     The selected items changed subscription
+        /// </summary>
+        private IDisposable _selectedItemsChangedSubscription;
+
+        /// <summary>
+        ///     The text changed obs
+        /// </summary>
+        private IObservable<string> _textChangedObs;
+
+        /// <summary>
+        ///     The text changed subscription
+        /// </summary>
+        private IDisposable _textChangedSubscription;
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
         /// </summary>
         /// <param name="everythingService">The everything service.</param>
+        /// <param name="keyboardMouseService"></param>
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
-        /// <param name="textChangedObservable">The text changed observable.</param>
-        /// <param name="selectedItemsChangedObservable">The selected items changed observable.</param>
-        /// <param name="previewMouseRightButtonDownObservable">The preview mouse right button down observable.</param>
-        public EverythingLauncherViewModel(EverythingService everythingService,
-            IFileSystemContextMenuProvider[] fileSystemContextMenuProviders, IObservable<string> textChangedObservable,
-            IObservable<IEnumerable<EverythingResultViewModel>> selectedItemsChangedObservable,
-            IObservable<MouseButtonEventArgs> previewMouseRightButtonDownObservable)
+        /// <param name="eventHub"></param>
+        public EverythingLauncherViewModel(
+            IEverythingService everythingService,
+            IKeyboardMouseService keyboardMouseService,
+            IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
+            IEventHub eventHub)
         {
             EverythingService = everythingService;
             FileSystemContextMenuProviders = fileSystemContextMenuProviders;
-
-            TextChangedSubscription = textChangedObservable
-                .ObserveOn(SynchronizationContext.Current)
-                .Where(s => s != null && s.Length > 1)
-                .Subscribe(HandleSearchTextChanged);
-
-            SelectedItemsChangedSubscription = selectedItemsChangedObservable
-                .ObserveOn(SynchronizationContext.Current)
-                .Where(model => model != null)
-                .Subscribe(HandleSelectedResultsChanged);
-
-            previewMouseRightButtonDownObservable
-                .ObserveOn(SynchronizationContext.Current)
-                .Where(args => args != null)
-                .WithLatestFrom(selectedItemsChangedObservable,
-                    (args, models) => (args, models))
-                .Subscribe(tuple => HandlePreviewMouseRightButtonDown(tuple.Item1, tuple.Item2));
+            KeyboardMouseService = keyboardMouseService;
+            EventHub = eventHub;
+            EventHub.Get<FileDeletedEvent>().Subscribe(@event =>
+            {
+                var toRemove = EverythingResults.Where(model => model.FullName == @event.FullName);
+                foreach (var everythingResultViewModel in toRemove)
+                    Application.Current.Dispatcher.Invoke(
+                        () => { EverythingResults.Remove(everythingResultViewModel); });
+            });
         }
 
         /// <summary>
-        ///     Gets or sets the selected items changed subscription.
+        ///     Gets or sets the refresh data grid action.
         /// </summary>
         /// <value>
-        ///     The selected items changed subscription.
+        ///     The refresh data grid action.
         /// </value>
-        internal IDisposable SelectedItemsChangedSubscription { get; set; }
+        public Action RefreshDataGridAction { get; set; }
 
         /// <summary>
-        ///     Gets or sets the text changed subscription.
+        ///     Gets or sets the preview mouse right button down obs.
         /// </summary>
         /// <value>
-        ///     The text changed subscription.
+        ///     The preview mouse right button down obs.
         /// </value>
-        internal IDisposable TextChangedSubscription { get; set; }
+        public IObservable<MouseButtonEventArgs> PreviewMouseRightButtonDownObs
+        {
+            get => _previewMouseRightButtonDownObs;
+            set
+            {
+                _previewMouseRightButtonDownSubscription?.Dispose();
+                _previewMouseRightButtonDownObs = value;
+                _previewMouseRightButtonDownSubscription = value
+                    .Where(args => args != null)
+                    .WithLatestFrom(SelectedItemsChangedObs,
+                        (args, models) => (args, models))
+                    .Subscribe(tuple =>
+                    {
+                        if (!Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt)) return;
+                        var shellContextMenu = new ShellContextMenu();
+                        var point = Mouse.GetPosition(null);
+                        var fileInfos = tuple.Item2.Select(vm => new FileInfo(vm.FullName)).ToList();
+                        var directories = fileInfos.Where(info =>
+                            {
+                                try
+                                {
+                                    return info.Attributes.HasFlag(FileAttributes.Directory);
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.Error($"Couldn't get attributes for {info.FullName} - {e.Message}");
+                                    return false;
+                                }
+                            })
+                            .ToList();
+                        var directoryInfos = directories.Select(info => info.Directory).ToArray();
+                        var files = fileInfos.Except(directories).ToArray();
+                        var pointInfo = new Point((int) point.X, (int) point.Y);
+                        if (!files.Any() && !directories.Any())
+                            return;
+                        if (!files.Any())
+                            shellContextMenu.ShowContextMenu(directoryInfos, pointInfo);
+                        else if (!directories.Any())
+                            shellContextMenu.ShowContextMenu(files, pointInfo);
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the selected items changed obs.
+        /// </summary>
+        /// <value>
+        ///     The selected items changed obs.
+        /// </value>
+        public IObservable<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObs
+        {
+            get => _selectedItemsChangedObs;
+            set
+            {
+                _selectedItemsChangedSubscription?.Dispose();
+                _selectedItemsChangedObs = value;
+                _selectedItemsChangedSubscription = value
+                    .Where(model => model != null)
+                    .Subscribe(selectedItems =>
+                    {
+                        ContextMenuItems.Clear();
+                        SelectedItems = selectedItems.ToList();
+                        var fileInfos = SelectedItems.Select(s => new FileInfo(s.FullName));
+                        var providers = FileSystemContextMenuProviders.Where(f => f.CanHandle(fileInfos));
+                        var menuItems = providers.SelectMany(p => p.GetContextMenuItems(fileInfos));
+                        foreach (var frameworkElement in menuItems)
+                            ContextMenuItems.Add(frameworkElement);
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the text changed obs.
+        /// </summary>
+        /// <value>
+        ///     The text changed obs.
+        /// </value>
+        public IObservable<string> TextChangedObs
+        {
+            get => _textChangedObs;
+            set
+            {
+                _textChangedSubscription?.Dispose();
+                _textChangedObs = value;
+                _textChangedSubscription = value
+                    .Where(s => s != null && s.Length > 1)
+                    .Throttle(TimeSpan.FromMilliseconds(333))
+                    .Subscribe(s =>
+                    {
+                        CancellationTokenSource?.Cancel();
+                        CancellationTokenSource = new CancellationTokenSource();
+                        _everythingSubscription?.Dispose();
+                        Application.Current.Dispatcher.Invoke(() => EverythingResults.Clear());
+                        _everythingSubscription = EverythingService
+                            .Search(s, CancellationTokenSource.Token)
+                            .Subscribe(async result =>
+                            {
+                                var resultVm = new EverythingResultViewModel(result.FullPath);
+                                await Application.Current.Dispatcher.InvokeAsync(async () =>
+                                {
+                                    EverythingResults.Add(resultVm);
+                                    await resultVm.LoadIcon();
+                                });
+                            }, exception =>
+                            {
+                                // todo: log
+                            }, () => { RefreshDataGridAction?.Invoke(); });
+                    });
+            }
+        }
+
 
         /// <summary>
         ///     Gets or sets the file system context menu providers.
@@ -81,12 +229,28 @@ namespace Panda.EverythingLauncher
         internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
         /// <summary>
+        ///     Gets or sets the keyboard mouse service.
+        /// </summary>
+        /// <value>
+        ///     The keyboard mouse service.
+        /// </value>
+        public IKeyboardMouseService KeyboardMouseService { get; set; }
+
+        /// <summary>
+        ///     Gets the event hub.
+        /// </summary>
+        /// <value>
+        ///     The event hub.
+        /// </value>
+        public IEventHub EventHub { get; }
+
+        /// <summary>
         ///     Gets or sets the everything service.
         /// </summary>
         /// <value>
         ///     The everything service.
         /// </value>
-        internal EverythingService EverythingService { get; set; }
+        internal IEverythingService EverythingService { get; set; }
 
         /// <summary>
         ///     Gets or sets the search text.
@@ -123,20 +287,41 @@ namespace Panda.EverythingLauncher
         internal CancellationTokenSource CancellationTokenSource { get; private set; }
 
         /// <summary>
-        ///     Gets or sets the subscription.
-        /// </summary>
-        /// <value>
-        ///     The subscription.
-        /// </value>
-        internal IDisposable Subscription { get; set; }
-
-        /// <summary>
         ///     Gets or sets the selected items.
         /// </summary>
         /// <value>
         ///     The selected items.
         /// </value>
         internal List<EverythingResultViewModel> SelectedItems { get; set; }
+
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>
+        ///     The log.
+        /// </value>
+        private ILog Log { get; } = LogManager.GetLogger<EverythingLauncherViewModel>();
+
+        /// <summary>
+        ///     Gets or sets the preview mouse double click obs.
+        /// </summary>
+        /// <value>
+        ///     The preview mouse double click obs.
+        /// </value>
+        public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
+        {
+            get => _previewMouseDoubleClickObs;
+            set
+            {
+                _previewMouseDoubleClickSubscription?.Dispose();
+                _previewMouseDoubleClickObs = value;
+                _previewMouseDoubleClickSubscription = value.Subscribe(tuple =>
+                {
+                    Log.Trace($"Starting {tuple.Item1.FullName}");
+                    Process.Start(tuple.Item1.FullName);
+                });
+            }
+        }
 
         /// <summary>
         ///     Occurs when [property changed].
@@ -153,86 +338,15 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        ///     Handles the selected results changed.
-        /// </summary>
-        /// <param name="selectedItems">The selected items.</param>
-        internal void HandleSelectedResultsChanged(IEnumerable<EverythingResultViewModel> selectedItems)
-        {
-            ContextMenuItems = new ObservableCollection<FrameworkElement>();
-            SelectedItems = selectedItems.ToList();
-            var fileInfos = SelectedItems.Select(s => new FileInfo(s.FullName));
-            var providers = FileSystemContextMenuProviders.Where(f => f.CanHandle(fileInfos));
-            var menuItems = providers.SelectMany(p => p.GetContextMenuItems(fileInfos));
-            foreach (var frameworkElement in menuItems)
-                ContextMenuItems.Add(frameworkElement);
-        }
-
-        /// <summary>
-        ///     Handles the search text changed.
-        /// </summary>
-        /// <param name="newText">The new text.</param>
-        internal void HandleSearchTextChanged(string newText)
-        {
-            CancellationTokenSource?.Cancel();
-            CancellationTokenSource = new CancellationTokenSource();
-            Subscription?.Dispose();
-            EverythingResults.Clear();
-            Subscription = EverythingService
-                .Search(newText, CancellationTokenSource.Token)
-                .ForEachAsync(
-                    async result =>
-                    {
-                        var resultVm = new EverythingResultViewModel(result.FullPath);
-                        Application.Current.Dispatcher.Invoke(() => { EverythingResults.Add(resultVm); });
-                        await resultVm.LoadIcon();
-                    }, CancellationTokenSource.Token);
-        }
-
-        /// <summary>
-        ///     Handles the preview mouse right button down.
-        /// </summary>
-        /// <param name="mouseButtonEventArgs">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
-        /// <param name="selectedEverythingResultViewModels">The selected everything result view models.</param>
-        internal void HandlePreviewMouseRightButtonDown(MouseButtonEventArgs mouseButtonEventArgs,
-            IEnumerable<EverythingResultViewModel> selectedEverythingResultViewModels)
-        {
-            if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
-            {
-                var shellContextMenu = new ShellContextMenu();
-                var point = Mouse.GetPosition(null);
-                var fileInfos = selectedEverythingResultViewModels.Select(vm => new FileInfo(vm.FullName)).ToList();
-                var directories = fileInfos.Where(info => info.Attributes.HasFlag(FileAttributes.Directory)).ToList();
-                var directoryInfos = directories.Select(info => info.Directory).ToArray();
-                var files = fileInfos.Except(directories).ToArray();
-                var pointInfo = new Point((int) point.X, (int) point.Y);
-                if (!files.Any() && !directories.Any())
-                    return;
-                if (!files.Any())
-                    shellContextMenu.ShowContextMenu(directoryInfos, pointInfo);
-                else if (!directories.Any())
-                    shellContextMenu.ShowContextMenu(files, pointInfo);
-                else
-                    shellContextMenu.ShowContextMenu(files, directoryInfos, pointInfo);
-            }
-        }
-
-        /// <summary>
-        ///     Handles the preview key up.
-        /// </summary>
-        /// <param name="keyEventArgs">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-        internal void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
-        {
-            if (keyEventArgs.Key == Key.Enter || keyEventArgs.Key == Key.Return)
-                Submit();
-        }
-
-        /// <summary>
         ///     Launches the currently selected item using whatever the shell deems appropriate
         /// </summary>
         internal void Submit()
         {
             foreach (var everythingResultViewModel in SelectedItems)
+            {
+                Log.Trace($"Starting {everythingResultViewModel.FullName}");
                 Process.Start(everythingResultViewModel.FullName);
+            }
         }
     }
 }

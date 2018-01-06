@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Common.Logging;
 using Panda.Client;
 
 namespace Panda.EverythingLauncher
@@ -26,9 +27,64 @@ namespace Panda.EverythingLauncher
         public EverythingResultViewModel(string fullName)
         {
             FullName = fullName;
-            Name = Path.GetFileName(fullName);
-            Directory = Path.GetDirectoryName(fullName);
+            IsDirectory = System.IO.Directory.Exists(FullName);
+            Name = Path.GetFileName(FullName);
+            Directory = Path.GetDirectoryName(FullName);
+            IsDirectory = System.IO.Directory.Exists(FullName);
+            if (IsDirectory)
+                return;
+            try
+            {
+                FileInfo = new FileInfo(FullName);
+                Size = FileInfo.Length;
+                CreationTimeUtc = FileInfo.CreationTimeUtc;
+                ModifiedTimeUtc = FileInfo.LastWriteTimeUtc;
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Problem loading file info for {fullName} - {e.Message}");
+            }
         }
+
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>
+        ///     The log.
+        /// </value>
+        private ILog Log { get; } = LogManager.GetLogger<EverythingResultViewModel>();
+
+        /// <summary>
+        ///     Gets or sets the modified time UTC.
+        /// </summary>
+        /// <value>
+        ///     The modified time UTC.
+        /// </value>
+        public DateTime? ModifiedTimeUtc { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether this instance is directory.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if this instance is directory; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDirectory { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the creation time UTC.
+        /// </summary>
+        /// <value>
+        ///     The creation time UTC.
+        /// </value>
+        public DateTime? CreationTimeUtc { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the file information.
+        /// </summary>
+        /// <value>
+        ///     The file information.
+        /// </value>
+        public FileInfo FileInfo { get; set; }
 
         /// <summary>
         ///     Gets or sets the full name.
@@ -45,6 +101,14 @@ namespace Panda.EverythingLauncher
         ///     The directory.
         /// </value>
         public string Directory { get; set; }
+
+        /// <summary>
+        ///     Gets the size.
+        /// </summary>
+        /// <value>
+        ///     The size.
+        /// </value>
+        public long? Size { get; }
 
         /// <summary>
         ///     Gets or sets the name.
@@ -79,20 +143,25 @@ namespace Panda.EverythingLauncher
         ///     Loads the icon.
         /// </summary>
         /// <returns></returns>
-        public Task LoadIcon()
+        public Task LoadIcon(uint retries = 0)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                try
-                {
-                    Icon = IconHelper.IconFromFilePath(FullName);
-                }
-                catch (Exception)
-                {
-                    // todo: fallback icon
-                }
+                for (var i = 0; i < retries + 1; i++)
+                    try
+                    {
+                        Icon = IconHelper.IconFromFilePath(FullName, IconSize.Small);
+                        return;
+                    }
+                    catch (Exception)
+                    {
+                        var timeoutMs = 1000; // todo: make setting
+                        await Task.Delay(timeoutMs);
+                        Icon = IconHelper.GetFallbackIcon(IconSize.Small);
+                    }
             });
         }
+
 
         /// <summary>
         ///     Called when [property changed].

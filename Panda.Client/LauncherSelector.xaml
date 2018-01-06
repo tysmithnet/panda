@@ -4,19 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Panda.Client"
+        xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
         d:DataContext="{d:DesignInstance local:LauncherSelectorViewModel}"
         mc:Ignorable="d"
         Title="LauncherSelector" Height="350" Width="525"
-        Activated="LauncherSelector_OnActivated"
-        PreviewKeyUp="LauncherSelector_OnPreviewKeyUp"
+        Loaded="LauncherSelector_OnLoaded"
         WindowStartupLocation="CenterScreen">
     <DockPanel>
         <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}"
-                 TextChanged="TextBoxBase_OnTextChanged" />
+                 TextChanged="TextBoxBase_OnTextChanged"
+                 PreviewKeyUp="SearchText_OnPreviewKeyUp" />
         <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding Name}" />
+                    <commonControls:ImageTextItem PreviewMouseUp="ImageTextItem_OnPreviewMouseUp"
+                                                  HeaderText="{Binding Name}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

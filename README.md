@@ -30,6 +30,7 @@ you can make into a launcher.
 
 Recommendations:
 1. Favor the MVVM design pattern
+1. Have your VM depend on Observables for events
 1. Use the provided launchers as exemplars
 
 

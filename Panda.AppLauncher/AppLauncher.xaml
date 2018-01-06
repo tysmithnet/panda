@@ -5,30 +5,30 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:local="clr-namespace:Panda.AppLauncher"
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
+                 xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
                  mc:Ignorable="d"
                  d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
-                 Activated="AppLauncher_OnActivated"
+                 Loaded="AppLauncher_OnLoaded"
                  d:DesignHeight="300" d:DesignWidth="300"
                  Title="App Launcher">
     <DockPanel>
-        <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}" TextChanged="TextBoxBase_OnTextChanged" PreviewKeyUp="SearchText_OnPreviewKeyUp" />
-        
+        <TextBox x:Name="SearchText"
+                 DockPanel.Dock="Top"
+                 Text="{Binding SearchText}"
+                 TextChanged="TextBoxBase_OnTextChanged"
+                 PreviewKeyUp="SearchText_OnPreviewKeyUp" />
+
         <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended"
                  SelectionChanged="Selector_OnSelectionChanged" HorizontalAlignment="Stretch">
-            
+
             <ListBox.ContextMenu>
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Source="{Binding ImageSource}"></Image>
-                        <Label Grid.Column="1" Content="{Binding AppName}" PreviewMouseDoubleClick="Control_OnPreviewMouseDoubleClick"></Label>
-                    </Grid>
+                    <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
+                                                  ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}"
+                                                  SubHeaderText="{Binding ExecutableLocation}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

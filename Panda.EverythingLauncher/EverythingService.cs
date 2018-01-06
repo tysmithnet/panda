@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
@@ -13,8 +14,8 @@ namespace Panda.EverythingLauncher
     /// <summary>
     ///     Service that will manage the interaction with es.exe
     /// </summary>
-    [Export]
-    public sealed class EverythingService
+    [Export(typeof(IEverythingService))]
+    public sealed class EverythingService : IEverythingService
     {
         /// <summary>
         ///     Gets the log.
@@ -42,6 +43,8 @@ namespace Panda.EverythingLauncher
         public IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
+            if (string.IsNullOrWhiteSpace(executablePath))
+                throw new ConfigurationErrorsException($"es.exe is not set in everything launcher settings");
             var obs = Observable.Create<EverythingResult>(async (observer, token) =>
             {
                 await Task.Run(async () =>
@@ -75,11 +78,10 @@ namespace Panda.EverythingLauncher
                         return;
                     }
                     Log.Debug($"Finished: {process.Id}");
-                    process.Kill();
                     observer.OnCompleted();
                 }, cancellationToken);
             });
-            return obs.Publish().RefCount();
+            return obs;
         }
     }
 }

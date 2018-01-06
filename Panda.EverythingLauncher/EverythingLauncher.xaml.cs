@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Subjects;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Client;
@@ -16,8 +17,9 @@ namespace Panda.EverythingLauncher
     [Export(typeof(Launcher))]
     public sealed partial class EverythingLauncher : Launcher
     {
+        /// <inheritdoc />
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EverythingLauncher" /> class.
+        ///     Initializes a new instance of the <see cref="T:Panda.EverythingLauncher.EverythingLauncher" /> class.
         /// </summary>
         public EverythingLauncher()
         {
@@ -39,7 +41,7 @@ namespace Panda.EverythingLauncher
         ///     The everything service.
         /// </value>
         [Import]
-        public EverythingService EverythingService { get; set; }
+        public IEverythingService EverythingService { get; set; }
 
         /// <summary>
         ///     Gets or sets the file system context menu providers.
@@ -51,12 +53,30 @@ namespace Panda.EverythingLauncher
         public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
         /// <summary>
+        ///     Gets or sets the keyboard mouse service.
+        /// </summary>
+        /// <value>
+        ///     The keyboard mouse service.
+        /// </value>
+        [Import]
+        public IKeyboardMouseService KeyboardMouseService { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the event hub.
+        /// </summary>
+        /// <value>
+        ///     The event hub.
+        /// </value>
+        [Import]
+        public IEventHub EventHub { get; set; }
+
+        /// <summary>
         ///     Gets the text changed observable.
         /// </summary>
         /// <value>
         ///     The text changed observable.
         /// </value>
-        private BehaviorSubject<string> TextChangedObservable { get; } = new BehaviorSubject<string>("");
+        private Subject<string> TextChangedObservable { get; } = new Subject<string>();
 
         /// <summary>
         ///     Gets the selected items changed observable.
@@ -64,8 +84,8 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The selected items changed observable.
         /// </value>
-        private BehaviorSubject<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObservable { get; } =
-            new BehaviorSubject<IEnumerable<EverythingResultViewModel>>(null);
+        private Subject<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObservable { get; } =
+            new Subject<IEnumerable<EverythingResultViewModel>>();
 
         /// <summary>
         ///     Gets the preview mouse right button down observable.
@@ -73,8 +93,11 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The preview mouse right button down observable.
         /// </value>
-        private BehaviorSubject<MouseButtonEventArgs> PreviewMouseRightButtonDownObservable { get; } =
-            new BehaviorSubject<MouseButtonEventArgs>(null);
+        private Subject<MouseButtonEventArgs> PreviewMouseRightButtonDownObservable { get; } =
+            new Subject<MouseButtonEventArgs>();
+
+        internal Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; }
+            = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
         ///     Handles the OnTextChanged event of the TextBoxBase control.
@@ -84,6 +107,9 @@ namespace Panda.EverythingLauncher
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             TextChangedObservable.OnNext(SearchText.Text);
+
+            foreach (var dataGridColumn in ResultsDataGrid.Columns)
+                dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
         }
 
         /// <summary>
@@ -91,43 +117,59 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-        private void EverythingLauncher_OnActivated(object sender, EventArgs e)
+        private void EverythingLauncher_OnLoaded(object sender, EventArgs e)
         {
             SearchText.Focus();
-            ViewModel = new EverythingLauncherViewModel(EverythingService, FileSystemContextMenuProviders,
-                TextChangedObservable, SelectedItemsChangedObservable, PreviewMouseRightButtonDownObservable);
+            ViewModel = new EverythingLauncherViewModel(EverythingService, KeyboardMouseService,
+                FileSystemContextMenuProviders, EventHub)
+            {
+                TextChangedObs = TextChangedObservable,
+                SelectedItemsChangedObs = SelectedItemsChangedObservable,
+                PreviewMouseRightButtonDownObs = PreviewMouseRightButtonDownObservable,
+                PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
+                RefreshDataGridAction = () =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        foreach (var dataGridColumn in ResultsDataGrid.Columns)
+                            dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.SizeToCells);
+                    });
+                }
+            };
             DataContext = ViewModel;
         }
 
         /// <summary>
-        ///     Handles the OnSelectionChanged event of the Selector control.
+        ///     Handles the OnSelectedCellsChanged event of the DataGrid control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
-        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <param name="e">The <see cref="SelectedCellsChangedEventArgs" /> instance containing the event data.</param>
+        private void DataGrid_OnSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            var results = ResultsListBox.SelectedItems.Cast<EverythingResultViewModel>().ToList();
-            SelectedItemsChangedObservable.OnNext(results);
+            var dataGrid = sender as DataGrid;
+            var selectedVms = dataGrid?.SelectedCells.Select(info => info.Item as EverythingResultViewModel).Distinct();
+            SelectedItemsChangedObservable.OnNext(selectedVms);
         }
 
         /// <summary>
-        ///     Handles the OnPreviewMouseRightButtonDown event of the ResultsListBox control.
+        ///     Handles the OnPreviewMouseRightButtonDown event of the UIElement control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
-        private void ResultsListBox_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void UIElement_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             PreviewMouseRightButtonDownObservable.OnNext(e);
         }
 
         /// <summary>
-        ///     Handles the OnPreviewKeyUp event of the ResultsListBox control.
+        ///     Handles the OnHandler event of the EventSetter control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-        private void ResultsListBox_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
+        private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
         {
-            ViewModel.HandlePreviewKeyUp(e);
+            if (sender is DataGridRow dataGridRow && dataGridRow.DataContext is EverythingResultViewModel vm)
+                PreviewMouseDoubleClickSubject.OnNext((vm, e));
         }
     }
 }
