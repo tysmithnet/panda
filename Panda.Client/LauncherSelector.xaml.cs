@@ -108,7 +108,8 @@ namespace Panda.Client
             {
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
-                PreviewMouseUpObs = PreviewMouseUpSubject
+                PreviewMouseUpObs = PreviewMouseUpSubject,
+                SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject
             };
             DataContext = ViewModel;
         }
@@ -134,24 +135,18 @@ namespace Panda.Client
         {
             TextChangedSubject.OnNext(SearchText.Text);
         }
-
-        /// <summary>
-        ///     Handles the OnPreviewKeyUp event of the LauncherSelector control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.KeyEventArgs" /> instance containing the event data.</param>
-        internal void LauncherSelector_OnPreviewKeyUp(object sender, KeyEventArgs e)
-        {         
-            // todo: to observable pattern
-            if (e.Key == Key.Enter || e.Key == Key.Return)
-                ViewModel.StartFirst();
-        }
-
+                               
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             var launcher = sender as ImageTextItem;
             var vm = launcher?.DataContext as LauncherViewModel;
             PreviewMouseUpSubject.OnNext((vm, e));
+        }
+
+        public Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } = new Subject<(string, KeyEventArgs)>();
+        private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            SearchTextBoxPreviewKeyUpSubject.OnNext((SearchText.Text, e));
         }
     }
 }

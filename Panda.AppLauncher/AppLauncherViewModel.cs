@@ -33,6 +33,7 @@ namespace Panda.AppLauncher
         private IObservable<string> _searchTextChangedObs;
 
         private IDisposable _textChangedSubscription;
+        private IObservable<IEnumerable<RegisteredApplicationViewModel>> _selectedItemsChangedObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
@@ -187,6 +188,35 @@ namespace Panda.AppLauncher
             }
         }
 
+
+        private IDisposable _selectedItemsChangedSubscription;
+        public IObservable<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedObs
+        {
+            get => _selectedItemsChangedObs;
+            set
+            {
+                _selectedItemsChangedSubscription?.Dispose();
+                _selectedItemsChangedObs = value;
+                _selectedItemsChangedSubscription = value.Subscribe(models =>
+                {
+                    ContextMenuItems.Clear();
+                    var list = models.ToList();
+                    foreach (var registeredApplicationContextMenuProvider in RegisteredApplicationContextMenuProviders)
+                    {
+                        var canHandle =
+                            registeredApplicationContextMenuProvider.CanHandle(
+                                list.Select(model => model.RegisteredApplication));
+
+                        if (!canHandle) continue;
+
+                        foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
+                            list.Select(model => model.RegisteredApplication)))
+                            ContextMenuItems.Add(item);
+                    }
+                });
+            }
+        }
+
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.
         /// </summary>
@@ -244,30 +274,6 @@ namespace Panda.AppLauncher
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        ///     Handles the selected items changed event
-        /// </summary>
-        /// <param name="selectedItems">The currently selected items.</param>
-        internal void
-            HandleSelectedItemsChanged(
-                IEnumerable<RegisteredApplicationViewModel> selectedItems) // todo: replace with subscription
-        {
-            ContextMenuItems.Clear();
-            var list = selectedItems.ToList();
-            foreach (var registeredApplicationContextMenuProvider in RegisteredApplicationContextMenuProviders)
-            {
-                var canHandle =
-                    registeredApplicationContextMenuProvider.CanHandle(
-                        list.Select(model => model.RegisteredApplication));
-
-                if (!canHandle) continue;
-
-                foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
-                    list.Select(model => model.RegisteredApplication)))
-                    ContextMenuItems.Add(item);
-            }
         }
     }
 }

@@ -71,7 +71,7 @@ namespace Panda.EverythingLauncher
         /// <param name="eventHub"></param>
         public EverythingLauncherViewModel(
             IEverythingService everythingService,
-            IKeyboardMouseService keyboardMouseService, // todo: abstract EverythingService
+            IKeyboardMouseService keyboardMouseService,
             IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
             IEventHub eventHub)
         {

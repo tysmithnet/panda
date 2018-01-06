@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Subjects;
@@ -89,12 +90,15 @@ namespace Panda.AppLauncher
                 SearchTextChangedObs = SearchTextChangedSubject,
                 PreviewDoubleClickObs = PreviewDoubleClickSubject,
                 PreviewKeyUpObs = PreviewKeyUpSubject,
-                PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject
+                PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
+                SelectedItemsChangedObs = SelectedItemsChangedSubject
             };
             ViewModel.Setup();
             DataContext = ViewModel;
             SearchText.Focus();
         }
+
+        public Subject<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedSubject { get; set; } = new Subject<IEnumerable<RegisteredApplicationViewModel>>();
 
         /// <summary>
         ///     Handles the OnSelectionChanged event of the Selector control.
@@ -104,7 +108,7 @@ namespace Panda.AppLauncher
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedItems = RegisteredApplications.SelectedItems.Cast<RegisteredApplicationViewModel>();
-            ViewModel.HandleSelectedItemsChanged(selectedItems);
+            SelectedItemsChangedSubject.OnNext(selectedItems);  
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
@@ -42,6 +43,8 @@ namespace Panda.Client
         /// </summary>
         private IDisposable _textChangedSubscription;
 
+        private IObservable<(string, KeyEventArgs)> _searchTextBoxPreviewKeyUpObs;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
@@ -73,7 +76,7 @@ namespace Panda.Client
                 _textChangedSubscription = value
                     .ObserveOn(SynchronizationContext.Current)
                     .Subscribe(filter =>
-                    {
+                    {    
                         LauncherViewModels.Clear();
 
                         if (string.IsNullOrEmpty(filter))
@@ -170,6 +173,27 @@ namespace Panda.Client
                     Active?.Hide();
                     Active = tuple.Item1.Instance;
                     Active.Show();
+                });
+            }
+        }
+
+        private IDisposable _searchTextBoxPreviewKeyUpSubscription;
+        public IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
+        {
+            get => _searchTextBoxPreviewKeyUpObs;
+            set
+            {
+                _searchTextBoxPreviewKeyUpSubscription?.Dispose();
+                _searchTextBoxPreviewKeyUpObs = value;
+                _searchTextBoxPreviewKeyUpSubscription = value.Subscribe(tuple =>
+                {
+                    string currentText = tuple.Item1;
+                    KeyEventArgs args = tuple.Item2;
+
+                    if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
+                    {
+                        StartFirst();
+                    }
                 });
             }
         }

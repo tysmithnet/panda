@@ -113,7 +113,7 @@ namespace Panda.AppLauncher
 
         public void Save()
         {
-            SettingsService.Save(); // todo: fix
+            SettingsService.Save();
         }
 
         /// <inheritdoc />
