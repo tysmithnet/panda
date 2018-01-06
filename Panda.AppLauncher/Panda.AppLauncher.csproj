@@ -79,6 +79,7 @@
       <DependentUpon>AppLauncher.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppLauncherContextMenuProvider.cs" />
+    <Compile Include="ApplicationFinderService.cs" />
     <Compile Include="IRegisteredApplicationService.cs" />
     <Compile Include="RegisteredApplicationService.cs" />
     <Compile Include="AppLauncherSettings.cs" />
