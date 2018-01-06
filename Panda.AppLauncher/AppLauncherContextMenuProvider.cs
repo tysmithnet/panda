@@ -88,11 +88,13 @@ namespace Panda.AppLauncher
         /// <returns>The context menu items for the provided registered applications</returns>
         public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<RegisteredApplication> items)
         {
-            var menuItem = new MenuItem {Header = "Remove from Applications"};
+            items = items.ToList();
+            var removeMenuItem = new MenuItem {Header = "Remove from Applications"};
             foreach (var registeredApplication in items)
-                menuItem.Click += (sender, args) => RegisteredApplicationService.Remove(registeredApplication);
-            menuItem.Click += (sender, args) => RegisteredApplicationService.Save();
-            return new[] {menuItem};
+                removeMenuItem.Click += (sender, args) => RegisteredApplicationService.Remove(registeredApplication);
+            removeMenuItem.Click += (sender, args) => RegisteredApplicationService.Save();
+                       
+            return new[] { removeMenuItem };
         }
     }
 }

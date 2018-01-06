@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Panda.CommonControls"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              PreviewMouseUp="ImageTextItem_OnPreviewMouseUp">
@@ -13,6 +14,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                     Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.PopupBox.xaml" />
                 <ResourceDictionary>
                     <local:VisibilityValueConverter x:Key="BooleanToVisibilityConverter" />
                 </ResourceDictionary>
@@ -20,7 +23,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel x:Name="LayoutRoot" d:DataContext="{d:DesignInstance local:ImageTextItem}">
-        <StackPanel Orientation="Horizontal">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <StackPanel.Visibility>
                 <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
                     <Binding.ConverterParameter>
@@ -48,5 +51,18 @@
                 <TextBox x:Name="SubHeaderTextBox" Text="{Binding SubHeaderText}" />
             </StackPanel>
         </StackPanel>
+        <materialDesign:PopupBox
+            DockPanel.Dock="Right"
+            PlacementMode="BottomAndAlignCentres"
+            Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
+            ToolTip="PopupBox, Style MaterialDesignMultiFloatingActionPopupBox"
+            ToolTipService.Placement="Right"
+            UnfurlOrientation="Horizontal">
+            <StackPanel>
+                <Button Opacity="0.5" ToolTip="One with custom opacity">1</Button>
+                <Button ToolTip="Two">2</Button>
+                <Button ToolTip="Three">3</Button>
+            </StackPanel>
+        </materialDesign:PopupBox>
     </DockPanel>
 </UserControl>
