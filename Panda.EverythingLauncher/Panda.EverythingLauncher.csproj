@@ -88,6 +88,7 @@
     <Compile Include="EverythingResultViewModel.cs" />
     <Compile Include="EverythingService.cs" />
     <Compile Include="EverythingSettings.cs" />
+    <Compile Include="IEverythingService.cs" />
     <Compile Include="Interop\HookEventArgs.cs" />
     <Compile Include="Interop\HookType.cs" />
     <Compile Include="Interop\LocalWindowsHook.cs" />

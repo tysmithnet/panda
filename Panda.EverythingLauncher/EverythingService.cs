@@ -14,8 +14,8 @@ namespace Panda.EverythingLauncher
     /// <summary>
     ///     Service that will manage the interaction with es.exe
     /// </summary>
-    [Export]
-    public sealed class EverythingService
+    [Export(typeof(IEverythingService))]
+    public sealed class EverythingService : IEverythingService
     {
         /// <summary>
         ///     Gets the log.

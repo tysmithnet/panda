@@ -40,7 +40,7 @@ namespace Panda.EverythingLauncher
         ///     The everything service.
         /// </value>
         [Import]
-        public EverythingService EverythingService { get; set; }
+        public IEverythingService EverythingService { get; set; }
 
         /// <summary>
         ///     Gets or sets the file system context menu providers.

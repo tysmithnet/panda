@@ -70,7 +70,7 @@ namespace Panda.EverythingLauncher
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
         /// <param name="eventHub"></param>
         public EverythingLauncherViewModel(
-            EverythingService everythingService,
+            IEverythingService everythingService,
             IKeyboardMouseService keyboardMouseService, // todo: abstract EverythingService
             IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
             IEventHub eventHub)
@@ -229,7 +229,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The everything service.
         /// </value>
-        internal EverythingService EverythingService { get; set; }
+        internal IEverythingService EverythingService { get; set; }
 
         /// <summary>
         ///     Gets or sets the search text.
@@ -302,17 +302,6 @@ namespace Panda.EverythingLauncher
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        ///     Handles the preview key up.
-        /// </summary>
-        /// <param name="keyEventArgs">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-        internal void HandlePreviewKeyUp(KeyEventArgs keyEventArgs)
-        {
-            // todo: use new style
-            if (keyEventArgs.Key == Key.Enter || keyEventArgs.Key == Key.Return)
-                Submit();
         }
 
         /// <summary>
