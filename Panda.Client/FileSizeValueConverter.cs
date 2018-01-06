@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using Humanizer;
+using Humanizer.Bytes;
 
 namespace Panda.Client
 {
     /// <summary>
-    /// Converter capable of turning file sizes into human readable formats
+    ///     Converter capable of turning file sizes into human readable formats
     /// </summary>
     /// <seealso cref="System.Windows.Data.IValueConverter" />
     public class FileSizeValueConverter : IValueConverter
     {
-
         /// <summary>
-        /// Converts the specified value.
+        ///     Converts the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="targetType">Type of the target.</param>
@@ -29,11 +25,11 @@ namespace Panda.Client
             if (value == null)
                 return null;
             var converted = System.Convert.ToUInt64(value);
-            return Humanizer.Bytes.ByteSize.FromBytes(converted).Humanize("#.#"); // todo: make setting
+            return ByteSize.FromBytes(converted).Humanize("#.#"); // todo: make setting
         }
 
         /// <summary>
-        /// Converts the value back to it's original form
+        ///     Converts the value back to it's original form
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="targetType">Type of the target.</param>

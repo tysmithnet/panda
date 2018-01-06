@@ -29,12 +29,12 @@ namespace Panda.EverythingLauncher
         private IDisposable _everythingSubscription;
 
         /// <summary>
-        /// The preview mouse double click obs
+        ///     The preview mouse double click obs
         /// </summary>
         private IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
 
         /// <summary>
-        /// The preview mouse double click subscription
+        ///     The preview mouse double click subscription
         /// </summary>
         private IDisposable _previewMouseDoubleClickSubscription;
 
@@ -95,10 +95,10 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        /// Gets or sets the refresh data grid action.
+        ///     Gets or sets the refresh data grid action.
         /// </summary>
         /// <value>
-        /// The refresh data grid action.
+        ///     The refresh data grid action.
         /// </value>
         public Action RefreshDataGridAction { get; set; }
 
@@ -207,17 +207,14 @@ namespace Panda.EverythingLauncher
                             {
                                 var resultVm = new EverythingResultViewModel(result.FullPath);
                                 await Application.Current.Dispatcher.InvokeAsync(async () =>
-                                {     
+                                {
                                     EverythingResults.Add(resultVm);
                                     await resultVm.LoadIcon();
-                                });   
+                                });
                             }, exception =>
                             {
                                 // todo: log
-                            }, () =>
-                            {
-                                RefreshDataGridAction?.Invoke();
-                            });
+                            }, () => { RefreshDataGridAction?.Invoke(); });
                     });
             }
         }
@@ -232,18 +229,18 @@ namespace Panda.EverythingLauncher
         internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
         /// <summary>
-        /// Gets or sets the keyboard mouse service.
+        ///     Gets or sets the keyboard mouse service.
         /// </summary>
         /// <value>
-        /// The keyboard mouse service.
+        ///     The keyboard mouse service.
         /// </value>
         public IKeyboardMouseService KeyboardMouseService { get; set; }
 
         /// <summary>
-        /// Gets the event hub.
+        ///     Gets the event hub.
         /// </summary>
         /// <value>
-        /// The event hub.
+        ///     The event hub.
         /// </value>
         public IEventHub EventHub { get; }
 
@@ -298,18 +295,18 @@ namespace Panda.EverythingLauncher
         internal List<EverythingResultViewModel> SelectedItems { get; set; }
 
         /// <summary>
-        /// Gets the log.
+        ///     Gets the log.
         /// </summary>
         /// <value>
-        /// The log.
+        ///     The log.
         /// </value>
         private ILog Log { get; } = LogManager.GetLogger<EverythingLauncherViewModel>();
 
         /// <summary>
-        /// Gets or sets the preview mouse double click obs.
+        ///     Gets or sets the preview mouse double click obs.
         /// </summary>
         /// <value>
-        /// The preview mouse double click obs.
+        ///     The preview mouse double click obs.
         /// </value>
         public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {

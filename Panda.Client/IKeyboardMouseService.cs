@@ -36,16 +36,16 @@ namespace Panda.Client
         IObservable<KeyEventArgs> KeyUpObservable { get; }
 
         /// <summary>
-        /// Determines whether the specified key is currently down
+        ///     Determines whether the specified key is currently down
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>
-        ///   <c>true</c> if the specified key is down, otherwise, <c>false</c>.
+        ///     <c>true</c> if the specified key is down, otherwise, <c>false</c>.
         /// </returns>
         bool IsKeyDown(Key key);
 
         /// <summary>
-        /// Gets the current mouse position
+        ///     Gets the current mouse position
         /// </summary>
         /// <returns>The current mouse position</returns>
         Point GetMousePosition();

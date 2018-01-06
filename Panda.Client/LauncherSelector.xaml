@@ -12,8 +12,8 @@
         WindowStartupLocation="CenterScreen">
     <DockPanel>
         <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}"
-                 TextChanged="TextBoxBase_OnTextChanged" 
-                 PreviewKeyUp="SearchText_OnPreviewKeyUp"/>
+                 TextChanged="TextBoxBase_OnTextChanged"
+                 PreviewKeyUp="SearchText_OnPreviewKeyUp" />
         <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>

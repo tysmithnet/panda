@@ -7,23 +7,23 @@ namespace Panda.Client
 {
     /// <inheritdoc />
     /// <summary>
-    /// Default implementation of IEventHub
+    ///     Default implementation of IEventHub
     /// </summary>
     /// <seealso cref="T:Panda.Client.IEventHub" />
     [Export(typeof(IEventHub))]
     public sealed class EventHub : IEventHub
     {
         /// <summary>
-        /// Gets or sets the domain event subject.
+        ///     Gets or sets the domain event subject.
         /// </summary>
         /// <value>
-        /// The domain event subject.
+        ///     The domain event subject.
         /// </value>
         internal ISubject<IDomainEvent> DomainEventSubject { get; set; } = new Subject<IDomainEvent>();
 
         /// <inheritdoc />
         /// <summary>
-        /// Broadcasts the specified event to all interested listeners
+        ///     Broadcasts the specified event to all interested listeners
         /// </summary>
         /// <param name="event">The event.</param>
         public void Broadcast(IDomainEvent @event)
@@ -33,7 +33,7 @@ namespace Panda.Client
 
         /// <inheritdoc />
         /// <summary>
-        /// Gets all domain events of a certain type
+        ///     Gets all domain events of a certain type
         /// </summary>
         /// <typeparam name="TEvent">The type of the event to listen for.</typeparam>
         /// <returns></returns>

@@ -22,49 +22,54 @@ namespace Panda.AppLauncher
     public sealed class AppLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
         /// <summary>
-        /// The preview double click observable
+        ///     The preview double click observable
         /// </summary>
         private IObservable<RegisteredApplicationViewModel> _previewDoubleClickObs;
 
         /// <summary>
-        /// The preview double click subscription
+        ///     The preview double click subscription
         /// </summary>
         private IDisposable _previewDoubleClickSubscription;
 
         /// <summary>
-        /// The preview key up observable
+        ///     The preview key up observable
         /// </summary>
         private IObservable<KeyEventArgs> _previewKeyUpObs;
 
         /// <summary>
-        /// The preview key up subscription
+        ///     The preview key up subscription
         /// </summary>
         private IDisposable _previewKeyUpSubscription;
 
         /// <summary>
-        /// The preview mouse double click observable
+        ///     The preview mouse double click observable
         /// </summary>
         private IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> _previewMouseDoubleClickObs;
 
         /// <summary>
-        /// The preview mouse up subscription
+        ///     The preview mouse up subscription
         /// </summary>
         private IDisposable _previewMouseUpSubscription;
 
         /// <summary>
-        /// The search text changed observable
+        ///     The search text changed observable
         /// </summary>
         private IObservable<string> _searchTextChangedObs;
 
         /// <summary>
-        /// The text changed subscription
-        /// </summary>
-        private IDisposable _textChangedSubscription;
-
-        /// <summary>
-        /// The selected items changed observable
+        ///     The selected items changed observable
         /// </summary>
         private IObservable<IEnumerable<RegisteredApplicationViewModel>> _selectedItemsChangedObs;
+
+        /// <summary>
+        ///     The selected items changed subscription
+        /// </summary>
+        private IDisposable _selectedItemsChangedSubscription;
+
+        /// <summary>
+        ///     The text changed subscription
+        /// </summary>
+        private IDisposable _textChangedSubscription;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AppLauncherViewModel" /> class.
@@ -80,10 +85,10 @@ namespace Panda.AppLauncher
         }
 
         /// <summary>
-        /// Gets or sets the preview double click observable
+        ///     Gets or sets the preview double click observable
         /// </summary>
         /// <value>
-        /// The preview double click observable.
+        ///     The preview double click observable.
         /// </value>
         public IObservable<RegisteredApplicationViewModel> PreviewDoubleClickObs
         {
@@ -101,10 +106,10 @@ namespace Panda.AppLauncher
         }
 
         /// <summary>
-        /// Gets or sets the preview key up observable.
+        ///     Gets or sets the preview key up observable.
         /// </summary>
         /// <value>
-        /// The preview key up observable.
+        ///     The preview key up observable.
         /// </value>
         public IObservable<KeyEventArgs> PreviewKeyUpObs
         {
@@ -127,10 +132,10 @@ namespace Panda.AppLauncher
         }
 
         /// <summary>
-        /// Gets or sets the search text changed observable.
+        ///     Gets or sets the search text changed observable.
         /// </summary>
         /// <value>
-        /// The search text changed observable.
+        ///     The search text changed observable.
         /// </value>
         /// <exception cref="ArgumentNullException">value</exception>
         public IObservable<string> SearchTextChangedObs
@@ -222,18 +227,18 @@ namespace Panda.AppLauncher
         public string SearchText { get; set; }
 
         /// <summary>
-        /// Gets the log.
+        ///     Gets the log.
         /// </summary>
         /// <value>
-        /// The log.
+        ///     The log.
         /// </value>
         private ILog Log { get; } = LogManager.GetLogger<AppLauncherViewModel>();
 
         /// <summary>
-        /// Gets or sets the preview mouse double click observable.
+        ///     Gets or sets the preview mouse double click observable.
         /// </summary>
         /// <value>
-        /// The preview mouse double click observable.
+        ///     The preview mouse double click observable.
         /// </value>
         public IObservable<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
@@ -251,15 +256,10 @@ namespace Panda.AppLauncher
         }
 
         /// <summary>
-        /// The selected items changed subscription
-        /// </summary>
-        private IDisposable _selectedItemsChangedSubscription;
-
-        /// <summary>
-        /// Gets or sets the selected items changed observable.
+        ///     Gets or sets the selected items changed observable.
         /// </summary>
         /// <value>
-        /// The selected items changed observable.
+        ///     The selected items changed observable.
         /// </value>
         public IObservable<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedObs
         {
@@ -303,7 +303,7 @@ namespace Panda.AppLauncher
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// Setups this instance's primary subscriptions
+        ///     Setups this instance's primary subscriptions
         /// </summary>
         public void SetupSubscriptions()
         {

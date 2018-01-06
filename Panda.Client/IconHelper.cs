@@ -20,7 +20,7 @@ namespace Panda.Client
         internal static readonly ImageSource UnknownFileSmall;
 
         /// <summary>
-        /// Initializes the <see cref="IconHelper"/> class.
+        ///     Initializes the <see cref="IconHelper" /> class.
         /// </summary>
         static IconHelper()
         {
@@ -45,7 +45,7 @@ namespace Panda.Client
         }
 
         /// <summary>
-        /// To the icon flag.
+        ///     To the icon flag.
         /// </summary>
         /// <param name="size">The size.</param>
         /// <returns></returns>
@@ -55,7 +55,7 @@ namespace Panda.Client
         }
 
         /// <summary>
-        /// Gets the fallback icon.
+        ///     Gets the fallback icon.
         /// </summary>
         /// <param name="size">The size.</param>
         /// <returns></returns>

@@ -112,7 +112,7 @@ namespace Panda.AppLauncher
         }
 
         /// <summary>
-        /// Saves the current state of registered applications
+        ///     Saves the current state of registered applications
         /// </summary>
         public void Save()
         {

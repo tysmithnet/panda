@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Common.Logging;
-using Humanizer;
 using Panda.Client;
 
 namespace Panda.EverythingLauncher
@@ -48,42 +47,42 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        /// Gets the log.
+        ///     Gets the log.
         /// </summary>
         /// <value>
-        /// The log.
+        ///     The log.
         /// </value>
         private ILog Log { get; } = LogManager.GetLogger<EverythingResultViewModel>();
 
         /// <summary>
-        /// Gets or sets the modified time UTC.
+        ///     Gets or sets the modified time UTC.
         /// </summary>
         /// <value>
-        /// The modified time UTC.
+        ///     The modified time UTC.
         /// </value>
         public DateTime? ModifiedTimeUtc { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance is directory.
+        ///     Gets or sets a value indicating whether this instance is directory.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is directory; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance is directory; otherwise, <c>false</c>.
         /// </value>
         public bool IsDirectory { get; set; }
 
         /// <summary>
-        /// Gets or sets the creation time UTC.
+        ///     Gets or sets the creation time UTC.
         /// </summary>
         /// <value>
-        /// The creation time UTC.
+        ///     The creation time UTC.
         /// </value>
         public DateTime? CreationTimeUtc { get; set; }
 
         /// <summary>
-        /// Gets or sets the file information.
+        ///     Gets or sets the file information.
         /// </summary>
         /// <value>
-        /// The file information.
+        ///     The file information.
         /// </value>
         public FileInfo FileInfo { get; set; }
 
@@ -104,13 +103,13 @@ namespace Panda.EverythingLauncher
         public string Directory { get; set; }
 
         /// <summary>
-        /// Gets the size.
+        ///     Gets the size.
         /// </summary>
         /// <value>
-        /// The size.
+        ///     The size.
         /// </value>
         public long? Size { get; }
-  
+
         /// <summary>
         ///     Gets or sets the name.
         /// </summary>

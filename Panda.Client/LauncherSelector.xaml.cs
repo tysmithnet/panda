@@ -70,6 +70,12 @@ namespace Panda.Client
         private Subject<SelectionChangedEventArgs> SelectionChangedSubject { get; } =
             new Subject<SelectionChangedEventArgs>();
 
+        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpSubject { get; set; } =
+            new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
+
+        public Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
+            new Subject<(string, KeyEventArgs)>();
+
         /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
         /// </summary>
@@ -77,7 +83,7 @@ namespace Panda.Client
         protected override void OnClosing(CancelEventArgs e)
         {
             Hide();
-            e.Cancel = true;      
+            e.Cancel = true;
         }
 
         /// <summary>
@@ -114,8 +120,6 @@ namespace Panda.Client
             DataContext = ViewModel;
         }
 
-        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpSubject { get; set; } = new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
-
         /// <summary>
         ///     Handles the OnSelectionChanged event of the Selector control.
         /// </summary>
@@ -135,7 +139,7 @@ namespace Panda.Client
         {
             TextChangedSubject.OnNext(SearchText.Text);
         }
-                               
+
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             var launcher = sender as ImageTextItem;
@@ -143,7 +147,6 @@ namespace Panda.Client
             PreviewMouseUpSubject.OnNext((vm, e));
         }
 
-        public Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } = new Subject<(string, KeyEventArgs)>();
         private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             SearchTextBoxPreviewKeyUpSubject.OnNext((SearchText.Text, e));

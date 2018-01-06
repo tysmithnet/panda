@@ -77,6 +77,13 @@ namespace Panda.AppLauncher
         /// </value>
         internal AppLauncherViewModel ViewModel { get; set; }
 
+        public Subject<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedSubject { get; set; } =
+            new Subject<IEnumerable<RegisteredApplicationViewModel>>();
+
+        internal Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>
+            PreviewMouseDoubleClickSubject { get; set; } =
+            new Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>();
+
         /// <summary>
         ///     Handles the OnActivated event of the AppLauncher control.
         /// </summary>
@@ -98,8 +105,6 @@ namespace Panda.AppLauncher
             SearchText.Focus();
         }
 
-        public Subject<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedSubject { get; set; } = new Subject<IEnumerable<RegisteredApplicationViewModel>>();
-
         /// <summary>
         ///     Handles the OnSelectionChanged event of the Selector control.
         /// </summary>
@@ -108,7 +113,7 @@ namespace Panda.AppLauncher
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedItems = RegisteredApplications.SelectedItems.Cast<RegisteredApplicationViewModel>();
-            SelectedItemsChangedSubject.OnNext(selectedItems);  
+            SelectedItemsChangedSubject.OnNext(selectedItems);
         }
 
         /// <summary>
@@ -118,7 +123,7 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            SearchTextChangedSubject.OnNext(SearchText.Text);  
+            SearchTextChangedSubject.OnNext(SearchText.Text);
         }
 
         /// <summary>
@@ -130,8 +135,6 @@ namespace Panda.AppLauncher
         {
             PreviewKeyUpSubject.OnNext(e);
         }
-
-        internal Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; } = new Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>();
 
         private void UIElement_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {

@@ -13,25 +13,25 @@ namespace Panda.CommonControls
     public partial class ImageTextItem : UserControl
     {
         /// <summary>
-        /// The header text property
+        ///     The header text property
         /// </summary>
         public static readonly DependencyProperty HeaderTextProperty =
             DependencyProperty.Register("HeaderText", typeof(string), typeof(ImageTextItem));
 
         /// <summary>
-        /// The sub header text property
+        ///     The sub header text property
         /// </summary>
         public static readonly DependencyProperty SubHeaderTextProperty =
             DependencyProperty.Register("SubHeaderText", typeof(string), typeof(ImageTextItem));
 
         /// <summary>
-        /// The image source property
+        ///     The image source property
         /// </summary>
         public static readonly DependencyProperty ImageSourceProperty =
             DependencyProperty.Register("ImageSource", typeof(ImageSource), typeof(ImageTextItem));
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImageTextItem"/> class.
+        ///     Initializes a new instance of the <see cref="ImageTextItem" /> class.
         /// </summary>
         public ImageTextItem()
         {
@@ -40,51 +40,51 @@ namespace Panda.CommonControls
         }
 
         /// <summary>
-        /// Gets or sets the header text changed subject.
+        ///     Gets or sets the header text changed subject.
         /// </summary>
         /// <value>
-        /// The header text changed subject.
+        ///     The header text changed subject.
         /// </value>
         protected internal Subject<string> HeaderTextChangedSubject { get; set; } = new Subject<string>();
 
         /// <summary>
-        /// Gets or sets the sub header changed subject.
+        ///     Gets or sets the sub header changed subject.
         /// </summary>
         /// <value>
-        /// The sub header changed subject.
+        ///     The sub header changed subject.
         /// </value>
         protected internal Subject<string> SubHeaderChangedSubject { get; set; } = new Subject<string>();
 
         /// <summary>
-        /// Gets or sets the image source changed subject.
+        ///     Gets or sets the image source changed subject.
         /// </summary>
         /// <value>
-        /// The image source changed subject.
+        ///     The image source changed subject.
         /// </value>
         protected internal Subject<ImageSource> ImageSourceChangedSubject { get; set; } = new Subject<ImageSource>();
 
         /// <summary>
-        /// Gets or sets the preview mouse button up subject.
+        ///     Gets or sets the preview mouse button up subject.
         /// </summary>
         /// <value>
-        /// The preview mouse button up subject.
+        ///     The preview mouse button up subject.
         /// </value>
         protected internal Subject<MouseButtonEventArgs> PreviewMouseButtonUpSubject { get; set; } =
             new Subject<MouseButtonEventArgs>();
 
         /// <summary>
-        /// Gets the preview mouse button up obs.
+        ///     Gets the preview mouse button up obs.
         /// </summary>
         /// <value>
-        /// The preview mouse button up obs.
+        ///     The preview mouse button up obs.
         /// </value>
         public IObservable<MouseButtonEventArgs> PreviewMouseButtonUpObs => PreviewMouseButtonUpSubject;
 
         /// <summary>
-        /// Gets or sets the header text.
+        ///     Gets or sets the header text.
         /// </summary>
         /// <value>
-        /// The header text.
+        ///     The header text.
         /// </value>
         public string HeaderText
         {
@@ -93,10 +93,10 @@ namespace Panda.CommonControls
         }
 
         /// <summary>
-        /// Gets or sets the sub header text.
+        ///     Gets or sets the sub header text.
         /// </summary>
         /// <value>
-        /// The sub header text.
+        ///     The sub header text.
         /// </value>
         public string SubHeaderText
         {
@@ -105,10 +105,10 @@ namespace Panda.CommonControls
         }
 
         /// <summary>
-        /// Gets or sets the image source.
+        ///     Gets or sets the image source.
         /// </summary>
         /// <value>
-        /// The image source.
+        ///     The image source.
         /// </value>
         public ImageSource ImageSource
         {
@@ -117,10 +117,10 @@ namespace Panda.CommonControls
         }
 
         /// <summary>
-        /// Handles the OnPreviewMouseUp event of the ImageTextItem control.
+        ///     Handles the OnPreviewMouseUp event of the ImageTextItem control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             // todo: needed?

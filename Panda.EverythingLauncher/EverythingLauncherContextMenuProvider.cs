@@ -12,36 +12,36 @@ namespace Panda.EverythingLauncher
 {
     /// <inheritdoc />
     /// <summary>
-    /// Contexte menu provider for everything launcher
+    ///     Contexte menu provider for everything launcher
     /// </summary>
     /// <seealso cref="T:Panda.Client.IFileSystemContextMenuProvider" />
     [Export(typeof(IFileSystemContextMenuProvider))]
     public sealed class EverythingLauncherContextMenuProvider : IFileSystemContextMenuProvider
     {
         /// <summary>
-        /// Gets or sets the event hub.
+        ///     Gets or sets the event hub.
         /// </summary>
         /// <value>
-        /// The event hub.
+        ///     The event hub.
         /// </value>
         [Import]
         internal IEventHub EventHub { get; set; }
 
         /// <summary>
-        /// Gets the log.
+        ///     Gets the log.
         /// </summary>
         /// <value>
-        /// The log.
+        ///     The log.
         /// </value>
         private ILog Log { get; } = LogManager.GetLogger<EverythingLauncherContextMenuProvider>();
 
         /// <inheritdoc />
         /// <summary>
-        /// Determines whether this instance can handle the specified items.
+        ///     Determines whether this instance can handle the specified items.
         /// </summary>
         /// <param name="items">The items.</param>
         /// <returns>
-        ///   <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
         /// </returns>
         public bool CanHandle(IEnumerable<FileInfo> items)
         {
@@ -50,7 +50,7 @@ namespace Panda.EverythingLauncher
 
         /// <inheritdoc />
         /// <summary>
-        /// Gets the context menu items.
+        ///     Gets the context menu items.
         /// </summary>
         /// <param name="items">The items.</param>
         /// <returns></returns>

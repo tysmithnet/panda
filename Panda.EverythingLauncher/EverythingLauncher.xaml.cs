@@ -53,19 +53,19 @@ namespace Panda.EverythingLauncher
         public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
         /// <summary>
-        /// Gets or sets the keyboard mouse service.
+        ///     Gets or sets the keyboard mouse service.
         /// </summary>
         /// <value>
-        /// The keyboard mouse service.
+        ///     The keyboard mouse service.
         /// </value>
         [Import]
         public IKeyboardMouseService KeyboardMouseService { get; set; }
 
         /// <summary>
-        /// Gets or sets the event hub.
+        ///     Gets or sets the event hub.
         /// </summary>
         /// <value>
-        /// The event hub.
+        ///     The event hub.
         /// </value>
         [Import]
         public IEventHub EventHub { get; set; }
@@ -109,9 +109,7 @@ namespace Panda.EverythingLauncher
             TextChangedObservable.OnNext(SearchText.Text);
 
             foreach (var dataGridColumn in ResultsDataGrid.Columns)
-            {
                 dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
-            }
         }
 
         /// <summary>
@@ -132,11 +130,9 @@ namespace Panda.EverythingLauncher
                 RefreshDataGridAction = () =>
                 {
                     Application.Current.Dispatcher.Invoke(() =>
-                    {  
+                    {
                         foreach (var dataGridColumn in ResultsDataGrid.Columns)
-                        {
                             dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.SizeToCells);
-                        }
                     });
                 }
             };
@@ -144,10 +140,10 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        /// Handles the OnSelectedCellsChanged event of the DataGrid control.
+        ///     Handles the OnSelectedCellsChanged event of the DataGrid control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="SelectedCellsChangedEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="SelectedCellsChangedEventArgs" /> instance containing the event data.</param>
         private void DataGrid_OnSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
             var dataGrid = sender as DataGrid;
@@ -156,20 +152,20 @@ namespace Panda.EverythingLauncher
         }
 
         /// <summary>
-        /// Handles the OnPreviewMouseRightButtonDown event of the UIElement control.
+        ///     Handles the OnPreviewMouseRightButtonDown event of the UIElement control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
         private void UIElement_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             PreviewMouseRightButtonDownObservable.OnNext(e);
         }
 
         /// <summary>
-        /// Handles the OnHandler event of the EventSetter control.
+        ///     Handles the OnHandler event of the EventSetter control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
         private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
         {
             if (sender is DataGridRow dataGridRow && dataGridRow.DataContext is EverythingResultViewModel vm)

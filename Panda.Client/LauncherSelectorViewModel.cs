@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
@@ -23,6 +22,10 @@ namespace Panda.Client
 
         private IDisposable _previewMouseUpSubscription;
 
+        private IObservable<(string, KeyEventArgs)> _searchTextBoxPreviewKeyUpObs;
+
+        private IDisposable _searchTextBoxPreviewKeyUpSubscription;
+
         /// <summary>
         ///     The selection changed obs
         /// </summary>
@@ -42,8 +45,6 @@ namespace Panda.Client
         ///     The text changed subscription
         /// </summary>
         private IDisposable _textChangedSubscription;
-
-        private IObservable<(string, KeyEventArgs)> _searchTextBoxPreviewKeyUpObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
@@ -76,7 +77,7 @@ namespace Panda.Client
                 _textChangedSubscription = value
                     .ObserveOn(SynchronizationContext.Current)
                     .Subscribe(filter =>
-                    {    
+                    {
                         LauncherViewModels.Clear();
 
                         if (string.IsNullOrEmpty(filter))
@@ -177,7 +178,6 @@ namespace Panda.Client
             }
         }
 
-        private IDisposable _searchTextBoxPreviewKeyUpSubscription;
         public IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
         {
             get => _searchTextBoxPreviewKeyUpObs;
@@ -187,13 +187,11 @@ namespace Panda.Client
                 _searchTextBoxPreviewKeyUpObs = value;
                 _searchTextBoxPreviewKeyUpSubscription = value.Subscribe(tuple =>
                 {
-                    string currentText = tuple.Item1;
-                    KeyEventArgs args = tuple.Item2;
+                    var currentText = tuple.Item1;
+                    var args = tuple.Item2;
 
                     if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
-                    {
                         StartFirst();
-                    }
                 });
             }
         }
