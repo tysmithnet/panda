@@ -42,7 +42,6 @@ namespace Panda.CommonControls
         {   
             InitializeComponent();
             LayoutRoot.DataContext = this;
-            IsEditable = true;
         }
 
         /// <summary>
@@ -136,9 +135,7 @@ namespace Panda.CommonControls
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             // todo: needed?
-        }
-
-        
+        }        
     }
 
     public class VisibilityValueConverter : IValueConverter
