@@ -70,7 +70,7 @@ namespace Panda.Client
         private Subject<SelectionChangedEventArgs> SelectionChangedSubject { get; } =
             new Subject<SelectionChangedEventArgs>();
 
-        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpSubject { get; set; } =
+        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; set; } =
             new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
 
         public Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
@@ -114,7 +114,7 @@ namespace Panda.Client
             {
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
-                PreviewMouseUpObs = PreviewMouseUpSubject,
+                MouseUpObs = MouseUpSubject,
                 SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject
             };
             DataContext = ViewModel;
@@ -140,11 +140,11 @@ namespace Panda.Client
             TextChangedSubject.OnNext(SearchText.Text);
         }
 
-        private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
+        private void ImageTextItem_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             var launcher = sender as ImageTextItem;
             var vm = launcher?.DataContext as LauncherViewModel;
-            PreviewMouseUpSubject.OnNext((vm, e));
+            MouseUpSubject.OnNext((vm, e));
         }
 
         private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)

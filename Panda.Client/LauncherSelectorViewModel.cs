@@ -21,7 +21,7 @@ namespace Panda.Client
         /// <summary>
         /// The preview mouse up obs
         /// </summary>
-        private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _previewMouseUpObs;
+        private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _mouseUpObs;
 
         /// <summary>
         /// The preview mouse up subscription
@@ -180,13 +180,13 @@ namespace Panda.Client
         /// <value>
         /// The preview mouse up obs.
         /// </value>
-        public IObservable<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpObs
+        public IObservable<(LauncherViewModel, MouseButtonEventArgs)> MouseUpObs
         {
-            get => _previewMouseUpObs;
+            get => _mouseUpObs;
             set
             {
                 _previewMouseUpSubscription?.Dispose();
-                _previewMouseUpObs = value;
+                _mouseUpObs = value;
                 _previewMouseUpSubscription = value.Subscribe(tuple =>
                 {
                     Active?.Hide();

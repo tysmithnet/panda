@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -34,6 +34,7 @@ namespace Panda.CommonControls
 
         public static readonly DependencyProperty IsEditableProperty =
             DependencyProperty.Register("IsEditable", typeof(bool), typeof(ImageTextItem));
+                                                                                                 
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ImageTextItem" /> class.
@@ -76,6 +77,7 @@ namespace Panda.CommonControls
         /// </value>
         protected internal Subject<MouseButtonEventArgs> PreviewMouseButtonUpSubject { get; set; } =
             new Subject<MouseButtonEventArgs>();
+
 
         /// <summary>
         ///     Gets the preview mouse button up obs.
@@ -127,6 +129,7 @@ namespace Panda.CommonControls
             set => SetValue(IsEditableProperty, value);
         }
 
+         
         /// <summary>
         ///     Handles the OnPreviewMouseUp event of the ImageTextItem control.
         /// </summary>
@@ -135,22 +138,21 @@ namespace Panda.CommonControls
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             // todo: needed?
-        }        
-    }
-
-    public class VisibilityValueConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var isVisible = System.Convert.ToBoolean(value ?? false);
-            var invertResult = System.Convert.ToBoolean(parameter ?? false);
-            isVisible = invertResult ? !isVisible : isVisible;
-            return isVisible ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public void AddMenuItem(FrameworkElement menuItem)
         {
-            throw new NotImplementedException();
+            lock(MenuItemHost.Children)
+                MenuItemHost.Children.Add(menuItem);
+        }
+
+        public void RemoveMenuItem(FrameworkElement menuItem)
+        {
+            lock (MenuItemHost.Children)
+            {
+                if (MenuItemHost.Children.Contains(menuItem))
+                    MenuItemHost.Children.Remove(menuItem);
+            }                                              
         }
     }
 }

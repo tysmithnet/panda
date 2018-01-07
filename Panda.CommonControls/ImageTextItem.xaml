@@ -28,12 +28,7 @@
             DockPanel.Dock="Right"
             PlacementMode="BottomAndAlignRightEdges"
             StaysOpen="False">
-            <StackPanel >
-                <Button Content="Hello World" />
-                <Button Content="Nice Popup" />
-                <Button Content="Can't Touch This" IsEnabled="False" />
-                <Separator />
-                <Button Content="Goodbye" />
+            <StackPanel x:Name="MenuItemHost">
             </StackPanel>
         </materialDesign:PopupBox>
         <Image DockPanel.Dock="Left" MaxWidth="32" MaxHeight="32" Source="{Binding ImageSource}"></Image> 
