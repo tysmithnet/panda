@@ -19,7 +19,8 @@
                 <DataTemplate>
                     <commonControls:ImageTextItem MouseUp="ImageTextItem_OnMouseUp"
                                                   HeaderText="{Binding Name}"
-                                                  MenuItems="{Binding MenuItems}"/>
+                                                  MenuItems="{Binding MenuItems}"
+                                                  IsEditable="{Binding IsEditable}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

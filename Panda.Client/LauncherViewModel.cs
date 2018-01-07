@@ -12,6 +12,8 @@ namespace Panda.Client
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LauncherViewModel : INotifyPropertyChanged
     {
+        private bool _isEditable;
+
         /// <summary>
         ///     Gets or sets the name.
         /// </summary>
@@ -41,7 +43,28 @@ namespace Panda.Client
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-                                                                                                                             
+
+        public LauncherViewModel()
+        {
+            var menuItem = new MenuItem {Header = "Edit"};
+            menuItem.Click += (sender, args) =>
+            {
+                IsEditable = true;
+            };
+            MenuItems.Add(menuItem);
+        }
         public ObservableCollection<FrameworkElement> MenuItems { get; set; } = new ObservableCollection<FrameworkElement>();
+
+        public bool IsEditable
+        {
+            get => _isEditable;
+            set
+            {
+                if (value == _isEditable) return;
+                _isEditable = value; 
+                OnPropertyChanged();
+                
+            }
+        }
     }
 }
