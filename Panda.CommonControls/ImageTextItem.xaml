@@ -25,85 +25,35 @@
     </UserControl.Resources>
     <DockPanel x:Name="LayoutRoot" Width="Auto" HorizontalAlignment="Stretch" d:DataContext="{d:DesignInstance local:ImageTextItem}">
         <materialDesign:PopupBox
-            DockPanel.Dock="Right"
-            PlacementMode="BottomAndAlignRightEdges"
-            StaysOpen="False">
+                DockPanel.Dock="Right"
+                PlacementMode="BottomAndAlignRightEdges"
+                StaysOpen="False">
             <Menu ItemsSource="{Binding MenuItems}">
-                
+
             </Menu>
         </materialDesign:PopupBox>
-        <Image DockPanel.Dock="Left" MaxWidth="32" MaxHeight="32" Source="{Binding ImageSource}"></Image> 
+        <Image DockPanel.Dock="Left" MaxWidth="32" MaxHeight="32" Source="{Binding ImageSource}"></Image>
         <StackPanel>
-            <Label Content="{Binding HeaderText}"></Label>
-            <Label Content="{Binding SubHeaderText}"></Label>
-        </StackPanel>                                  
+            <Label Content="{Binding HeaderText}">
+                <Label.Visibility>
+                    <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
+                        <Binding.ConverterParameter>
+                            <system:Boolean>True</system:Boolean>
+                        </Binding.ConverterParameter>
+                    </Binding>
+                </Label.Visibility>
+            </Label>
+            <TextBox Text="{Binding HeaderText}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
+            <Label Content="{Binding SubHeaderText}">
+                <Label.Visibility>
+                    <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
+                        <Binding.ConverterParameter>
+                            <system:Boolean>True</system:Boolean>
+                        </Binding.ConverterParameter>
+                    </Binding>
+                </Label.Visibility>
+            </Label>
+            <TextBox Text="{Binding SubHeaderText}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
+        </StackPanel>
     </DockPanel>
-    <!--<Grid x:Name="LayoutRoot" d:DataContext="{d:DesignInstance local:ImageTextItem}">
-          <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"></ColumnDefinition>
-              <ColumnDefinition Width="1*"></ColumnDefinition>
-              <ColumnDefinition Width="Auto"></ColumnDefinition>
-          </Grid.ColumnDefinitions>
-          <Image Grid.Column="0" Source="{Binding ImageSource}"></Image>
-        <DockPanel Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
-            <Label DockPanel.Dock="Bottom" Content="{Binding SubHeaderText}"></Label>
-            <Label Content="{Binding HeaderText}"></Label>
-        </DockPanel>
-  
-        <materialDesign:PopupBox
-            Grid.Column="2"
-            PlacementMode="BottomAndAlignRightEdges"
-            StaysOpen="False">
-            <StackPanel >
-                <Button Content="Hello World" />
-                <Button Content="Nice Popup" />
-                <Button Content="Can't Touch This" IsEnabled="False" />
-                <Separator />
-                <Button Content="Goodbye" />
-            </StackPanel>
-        </materialDesign:PopupBox>
-
-    </Grid>-->
-    <!--<DockPanel x:Name="LayoutRoot" d:DataContext="{d:DesignInstance local:ImageTextItem}" HorizontalAlignment="Stretch">
-        <StackPanel Orientation="Horizontal">
-            <StackPanel.Visibility>
-                <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
-                    <Binding.ConverterParameter>
-                        <system:Boolean>True</system:Boolean>
-                    </Binding.ConverterParameter>
-                </Binding>
-            </StackPanel.Visibility>
-            <Image Source="{Binding ImageSource}" />
-            <StackPanel>
-                <Label x:Name="HeaderLabel" Content="{Binding HeaderText}" />
-                <Label x:Name="SubHeaderLabel" Content="{Binding SubHeaderText}" />
-            </StackPanel>
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
-            <StackPanel.Visibility>
-                <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
-                    <Binding.ConverterParameter>
-                        <system:Boolean>False</system:Boolean>
-                    </Binding.ConverterParameter>
-                </Binding>
-            </StackPanel.Visibility>
-            <Image Source="{Binding ImageSource}" />
-            <StackPanel>
-                <TextBox x:Name="HeaderTextBoxEditor" Text="{Binding HeaderText}" />
-                <TextBox x:Name="SubHeaderTextBox" Text="{Binding SubHeaderText}" />
-            </StackPanel>
-        </StackPanel>
-        <materialDesign:PopupBox
-            DockPanel.Dock="Right"
-            PlacementMode="BottomAndAlignRightEdges"
-            StaysOpen="False">
-            <StackPanel >
-                <Button Content="Hello World" />
-                <Button Content="Nice Popup" />
-                <Button Content="Can't Touch This" IsEnabled="False" />
-                <Separator />
-                <Button Content="Goodbye" />
-            </StackPanel>
-        </materialDesign:PopupBox>
-    </DockPanel>-->
 </UserControl>

@@ -45,26 +45,7 @@ namespace Panda.Client
         }
 
         public LauncherViewModel()
-        {
-            var menuItem = new MenuItem {Header = "Edit"};
-            menuItem.Click += (sender, args) =>
-            {
-                IsEditable = true;
-            };
-            MenuItems.Add(menuItem);
-        }
-        public ObservableCollection<FrameworkElement> MenuItems { get; set; } = new ObservableCollection<FrameworkElement>();
-
-        public bool IsEditable
-        {
-            get => _isEditable;
-            set
-            {
-                if (value == _isEditable) return;
-                _isEditable = value; 
-                OnPropertyChanged();
-                
-            }
+        {                       
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Common.Logging;
 using Panda.Client;
@@ -287,7 +288,7 @@ namespace Panda.AppLauncher
                 });
             }
         }
-
+              
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.
         /// </summary>
