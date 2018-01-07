@@ -28,8 +28,9 @@
             DockPanel.Dock="Right"
             PlacementMode="BottomAndAlignRightEdges"
             StaysOpen="False">
-            <StackPanel x:Name="MenuItemHost">
-            </StackPanel>
+            <Menu ItemsSource="{Binding MenuItems}">
+                
+            </Menu>
         </materialDesign:PopupBox>
         <Image DockPanel.Dock="Left" MaxWidth="32" MaxHeight="32" Source="{Binding ImageSource}"></Image> 
         <StackPanel>

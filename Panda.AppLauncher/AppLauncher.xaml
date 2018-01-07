@@ -33,7 +33,8 @@
                     <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
                                                   ImageSource="{Binding ImageSource}" 
                                                   HeaderText="{Binding AppName}"
-                                                  SubHeaderText="{Binding ExecutableLocation}" />
+                                                  SubHeaderText="{Binding ExecutableLocation}">
+                        </commonControls:ImageTextItem>
                     
                 </DataTemplate>
             </ListBox.ItemTemplate>

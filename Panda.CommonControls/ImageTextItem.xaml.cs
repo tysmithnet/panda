@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive.Subjects;
@@ -129,7 +130,15 @@ namespace Panda.CommonControls
             set => SetValue(IsEditableProperty, value);
         }
 
-         
+        public static readonly DependencyProperty MenuItemsProperty =
+            DependencyProperty.Register("MenuItems", typeof(IEnumerable), typeof(ImageTextItem));
+
+        public IEnumerable MenuItems
+        {
+            get => GetValue(MenuItemsProperty) as IEnumerable;
+            set => SetValue(MenuItemsProperty, value);
+        }       
+
         /// <summary>
         ///     Handles the OnPreviewMouseUp event of the ImageTextItem control.
         /// </summary>
@@ -139,20 +148,6 @@ namespace Panda.CommonControls
         {
             // todo: needed?
         }
-
-        public void AddMenuItem(FrameworkElement menuItem)
-        {
-            lock(MenuItemHost.Children)
-                MenuItemHost.Children.Add(menuItem);
-        }
-
-        public void RemoveMenuItem(FrameworkElement menuItem)
-        {
-            lock (MenuItemHost.Children)
-            {
-                if (MenuItemHost.Children.Contains(menuItem))
-                    MenuItemHost.Children.Remove(menuItem);
-            }                                              
-        }
+                
     }
 }

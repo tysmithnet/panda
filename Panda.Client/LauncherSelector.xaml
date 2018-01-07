@@ -18,7 +18,8 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <commonControls:ImageTextItem MouseUp="ImageTextItem_OnMouseUp"
-                                                  HeaderText="{Binding Name}" />
+                                                  HeaderText="{Binding Name}"
+                                                  MenuItems="{Binding MenuItems}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
