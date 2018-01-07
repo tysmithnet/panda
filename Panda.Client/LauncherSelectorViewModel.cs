@@ -191,7 +191,7 @@ namespace Panda.Client
                 {
                     Active?.Hide();
                     Active = tuple.Item1.Instance;
-                    Active.Show();
+                    Active.Show();             
                 });
             }
         }
@@ -215,7 +215,10 @@ namespace Panda.Client
                     var args = tuple.Item2;
 
                     if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
+                    {
                         StartFirst();
+                        args.Handled = true;
+                    }                       
                 });
             }
         }
