@@ -17,7 +17,7 @@ namespace Panda.Client
     /// <seealso cref="Panda.Client.ISystemService" />
     [Export(typeof(ISettingsService))]
     [Export(typeof(ISystemService))]
-    public sealed class SettingsService : ISettingsService, ISystemService
+    internal sealed class SettingsService : ISettingsService, ISystemService
     {
         /// <summary>
         ///     Gets the log.
@@ -34,7 +34,7 @@ namespace Panda.Client
         ///     All plugin settings.
         /// </value>
         [ImportMany]
-        internal IPluginSettings[] AllPluginSettings { get; set; }
+        private IPluginSettings[] AllPluginSettings { get; set; }
 
         /// <inheritdoc />
         /// <summary>

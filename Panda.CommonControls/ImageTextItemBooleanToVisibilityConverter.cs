@@ -10,7 +10,7 @@ namespace Panda.CommonControls
     /// 
     /// </summary>
     /// <seealso cref="System.Windows.Data.IValueConverter" />
-    public class ImageTextItemBooleanToVisibilityConverter : IValueConverter
+    internal class ImageTextItemBooleanToVisibilityConverter : IValueConverter
     {
         /// <summary>
         /// Converts the specified value.
