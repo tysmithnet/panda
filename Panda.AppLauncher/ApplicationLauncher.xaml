@@ -34,7 +34,7 @@
                                                   ImageSource="{Binding ImageSource}" 
                                                   HeaderText="{Binding AppName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                   SubHeaderText="{Binding ExecutableLocation, UpdateSourceTrigger=PropertyChanged}"
-                                                  IsEditable="{Binding IsEditable}"
+                                                  IsEditable="{Binding IsEditable, Mode=TwoWay}"
                                                   MenuItems="{Binding MenuItems}">
                         </commonControls:ImageTextItem>
                     

@@ -32,7 +32,8 @@ namespace Panda.AppLauncher
         public LaunchableApplicationViewModel(ILaunchableApplicationService launcherService)
         {
             LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
-            AddEditMenuItem();
+            SetupMenuItems();  
+            MenuItems.Add(_editMenuItem);
             Observable.FromEvent<PropertyChangedEventHandler, PropertyChangedEventArgs>(handler =>
                 {
                     PropertyChangedEventHandler h = (sender, args) => handler(args);
@@ -122,6 +123,23 @@ namespace Panda.AppLauncher
             set
             {
                 _isEditable = value;
+                if (value)
+                {
+                    if (MenuItems.Contains(_editMenuItem))
+                    {
+                        MenuItems.Remove(_editMenuItem);
+                    }
+                    MenuItems.Add(_saveMenuItem);
+                }
+                else
+                {
+                    if (MenuItems.Contains(_saveMenuItem))
+                    {
+                        MenuItems.Remove(_saveMenuItem);
+                    }
+                    MenuItems.Add(_editMenuItem);
+                }
+                
                 OnPropertyChanged();
             }
         }
@@ -155,28 +173,23 @@ namespace Panda.AppLauncher
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void AddEditMenuItem()
-        {
-            var menuItem = new MenuItem {Header = "Edit"};
-            menuItem.Click += (sender, args) =>
-            {
-                IsEditable = true;
-                MenuItems.Remove(menuItem);
-                AddSaveMenuItem();
-            };
-            MenuItems.Add(menuItem);
-        }
+        private MenuItem _editMenuItem;
+        private MenuItem _saveMenuItem;
 
-        private void AddSaveMenuItem()
+        private void SetupMenuItems()
         {
-            var menuItem = new MenuItem {Header = "Save"};
-            menuItem.Click += (sender, args) =>
+            _editMenuItem = new MenuItem {Header = "Edit"};
+            _editMenuItem.Click += (sender, args) =>
             {
-                IsEditable = false;
-                MenuItems.Remove(menuItem);
-                AddEditMenuItem();
+                IsEditable = true;                
             };
-            MenuItems.Add(menuItem);
+
+            _saveMenuItem = new MenuItem { Header = "Save" };
+            _saveMenuItem.Click += (sender, args) =>
+            {
+                IsEditable = false;                 
+            };                              
         }
+            
     }
 }

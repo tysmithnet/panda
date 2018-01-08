@@ -2,11 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Panda.CommonControls.Annotations;
 
 namespace Panda.CommonControls
 {
@@ -136,8 +139,8 @@ namespace Panda.CommonControls
         public IEnumerable MenuItems
         {
             get => GetValue(MenuItemsProperty) as IEnumerable;
-            set => SetValue(MenuItemsProperty, value);
-        }       
+            set => SetValue(MenuItemsProperty, value); 
+        }
 
         /// <summary>
         ///     Handles the OnPreviewMouseUp event of the ImageTextItem control.
@@ -153,7 +156,7 @@ namespace Panda.CommonControls
 
         private void CommandBinding_OnExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            IsEditable = false;
+            IsEditable = false;                    
         }
     }
 }
