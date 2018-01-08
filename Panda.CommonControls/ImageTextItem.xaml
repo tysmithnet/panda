@@ -33,8 +33,9 @@
         <materialDesign:PopupBox
                 DockPanel.Dock="Right"
                 PlacementMode="BottomAndAlignRightEdges"
-                StaysOpen="False">
-            <Menu ItemsSource="{Binding MenuItems}">
+                StaysOpen="False"
+                Visibility="{Binding ElementName=Menu, Path=HasItems, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Menu x:Name="Menu" ItemsSource="{Binding MenuItems}">
 
             </Menu>
         </materialDesign:PopupBox>

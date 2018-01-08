@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using Panda.CommonControls.Annotations;
@@ -141,6 +144,8 @@ namespace Panda.CommonControls
             get => GetValue(MenuItemsProperty) as IEnumerable;
             set => SetValue(MenuItemsProperty, value); 
         }
+
+        public bool HasMenuItem => true;
 
         /// <summary>
         ///     Handles the OnPreviewMouseUp event of the ImageTextItem control.
