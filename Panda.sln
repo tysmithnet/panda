@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.EverythingLauncher", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.CommonControls", "Panda.CommonControls\Panda.CommonControls.csproj", "{812973BB-0D59-480A-B751-25ABA784BD14}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.ClipboardLauncher", "Panda.ClipboardLauncher\Panda.ClipboardLauncher.csproj", "{BB989E08-2F82-40BB-8F7A-4633F849F483}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{812973BB-0D59-480A-B751-25ABA784BD14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{812973BB-0D59-480A-B751-25ABA784BD14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{812973BB-0D59-480A-B751-25ABA784BD14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB989E08-2F82-40BB-8F7A-4633F849F483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB989E08-2F82-40BB-8F7A-4633F849F483}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB989E08-2F82-40BB-8F7A-4633F849F483}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB989E08-2F82-40BB-8F7A-4633F849F483}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
