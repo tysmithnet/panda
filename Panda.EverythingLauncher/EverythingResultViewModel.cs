@@ -60,7 +60,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The modified time UTC.
         /// </value>
-        public DateTime? ModifiedTimeUtc { get; set; }
+        public DateTime? ModifiedTimeUtc { get; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this instance is directory.
@@ -68,7 +68,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     <c>true</c> if this instance is directory; otherwise, <c>false</c>.
         /// </value>
-        public bool IsDirectory { get; set; }
+        public bool IsDirectory { get; }
 
         /// <summary>
         ///     Gets or sets the creation time UTC.
@@ -76,7 +76,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The creation time UTC.
         /// </value>
-        public DateTime? CreationTimeUtc { get; set; }
+        public DateTime? CreationTimeUtc { get; }
 
         /// <summary>
         ///     Gets or sets the file information.
@@ -84,7 +84,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The file information.
         /// </value>
-        public FileInfo FileInfo { get; set; }
+        public FileInfo FileInfo { get; }
 
         /// <summary>
         ///     Gets or sets the full name.
@@ -92,7 +92,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The full name.
         /// </value>
-        public string FullName { get; set; }
+        public string FullName { get; }
 
         /// <summary>
         ///     Gets or sets the directory.
@@ -100,7 +100,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The directory.
         /// </value>
-        public string Directory { get; set; }
+        public string Directory { get;  }
 
         /// <summary>
         ///     Gets the size.

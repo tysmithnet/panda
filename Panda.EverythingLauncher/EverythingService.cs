@@ -17,7 +17,7 @@ namespace Panda.EverythingLauncher
     /// </summary>
     [Export(typeof(IEverythingService))]
     [Export(typeof(IFileSystemSearch))]
-    public sealed class EverythingService : IEverythingService, IFileSystemSearch
+    internal sealed class EverythingService : IEverythingService, IFileSystemSearch
     {
         /// <summary>
         ///     Gets the log.
@@ -34,7 +34,7 @@ namespace Panda.EverythingLauncher
         ///     The settings service.
         /// </value>
         [Import]
-        internal ISettingsService SettingsService { get; set; }
+        private ISettingsService SettingsService { get; set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -70,7 +70,7 @@ namespace Panda.EverythingLauncher
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Files and directories that match the query</returns>
         /// <exception cref="ConfigurationErrorsException"></exception>
-        internal IObservable<string> Search(string query, CancellationToken cancellationToken)
+        private IObservable<string> Search(string query, CancellationToken cancellationToken)
         {
             var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
             if (string.IsNullOrWhiteSpace(executablePath))

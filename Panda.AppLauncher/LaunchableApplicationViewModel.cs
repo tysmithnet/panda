@@ -18,9 +18,19 @@ namespace Panda.AppLauncher
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LaunchableApplicationViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        ///     The application name
+        /// </summary>
         private string _appName;
 
+        /// <summary>
+        ///     The edit menu item
+        /// </summary>
         private MenuItem _editMenuItem;
+
+        /// <summary>
+        ///     The executable location
+        /// </summary>
         private string _executableLocation;
 
         /// <summary>
@@ -28,10 +38,26 @@ namespace Panda.AppLauncher
         /// </summary>
         private ImageSource _imageSource;
 
+        /// <summary>
+        ///     The is editable
+        /// </summary>
         private bool _isEditable;
+
+        /// <summary>
+        ///     The launchable application
+        /// </summary>
         private LaunchableApplication _launchableApplication;
+
+        /// <summary>
+        ///     The save menu item
+        /// </summary>
         private MenuItem _saveMenuItem;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="LaunchableApplicationViewModel" /> class.
+        /// </summary>
+        /// <param name="launcherService">The launcher service.</param>
+        /// <exception cref="ArgumentNullException">launcherService</exception>
         public LaunchableApplicationViewModel(ILaunchableApplicationService launcherService)
         {
             LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
@@ -117,6 +143,12 @@ namespace Panda.AppLauncher
             }
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether this instance is editable.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if this instance is editable; otherwise, <c>false</c>.
+        /// </value>
         public bool IsEditable
         {
             get => _isEditable;
@@ -140,10 +172,22 @@ namespace Panda.AppLauncher
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the menu items.
+        /// </summary>
+        /// <value>
+        ///     The menu items.
+        /// </value>
         public ObservableCollection<FrameworkElement> MenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
 
-        public ILaunchableApplicationService LaunchableApplicationService { get; set; }
+        /// <summary>
+        ///     Gets or sets the launchable application service.
+        /// </summary>
+        /// <value>
+        ///     The launchable application service.
+        /// </value>
+        internal ILaunchableApplicationService LaunchableApplicationService { get; set; }
 
         /// <summary>
         ///     Occurs when [property changed].
@@ -169,6 +213,9 @@ namespace Panda.AppLauncher
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /// <summary>
+        ///     Setups the menu items.
+        /// </summary>
         private void SetupMenuItems()
         {
             _editMenuItem = new MenuItem {Header = "Edit"};

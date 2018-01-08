@@ -32,7 +32,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The view model.
         /// </value>
-        public EverythingLauncherViewModel ViewModel { get; set; }
+        private EverythingLauncherViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     Gets or sets the everything service.
@@ -41,7 +41,7 @@ namespace Panda.EverythingLauncher
         ///     The everything service.
         /// </value>
         [Import]
-        public IEverythingService EverythingService { get; set; }
+        private IEverythingService EverythingService { get; set; }
 
         /// <summary>
         ///     Gets or sets the file system context menu providers.
@@ -50,7 +50,7 @@ namespace Panda.EverythingLauncher
         ///     The file system context menu providers.
         /// </value>
         [ImportMany]
-        public IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
+        private IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
 
         /// <summary>
         ///     Gets or sets the keyboard mouse service.
@@ -59,7 +59,7 @@ namespace Panda.EverythingLauncher
         ///     The keyboard mouse service.
         /// </value>
         [Import]
-        public IKeyboardMouseService KeyboardMouseService { get; set; }
+        private IKeyboardMouseService KeyboardMouseService { get; set; }
 
         /// <summary>
         ///     Gets or sets the event hub.
@@ -68,7 +68,7 @@ namespace Panda.EverythingLauncher
         ///     The event hub.
         /// </value>
         [Import]
-        public IEventHub EventHub { get; set; }
+        private IEventHub EventHub { get; set; }
 
         /// <summary>
         ///     Gets the text changed observable.
@@ -76,7 +76,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The text changed observable.
         /// </value>
-        private Subject<string> TextChangedObservable { get; } = new Subject<string>();
+        private Subject<string> TextChangedSubject { get; } = new Subject<string>();
 
         /// <summary>
         ///     Gets the selected items changed observable.
@@ -102,7 +102,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The preview mouse double click subject.
         /// </value>
-        internal Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; }
+        private Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; }
             = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Panda.EverythingLauncher
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            TextChangedObservable.OnNext(SearchText.Text);
+            TextChangedSubject.OnNext(ViewModel.SearchText);
 
             foreach (var dataGridColumn in ResultsDataGrid.Columns)
                 dataGridColumn.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
@@ -129,7 +129,7 @@ namespace Panda.EverythingLauncher
             ViewModel = new EverythingLauncherViewModel(EverythingService, KeyboardMouseService,
                 FileSystemContextMenuProviders, EventHub)
             {
-                TextChangedObs = TextChangedObservable,
+                TextChangedObs = TextChangedSubject,
                 SelectedItemsChangedObs = SelectedItemsChangedObservable,
                 PreviewMouseRightButtonDownObs = PreviewMouseRightButtonDownObservable,
                 PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
