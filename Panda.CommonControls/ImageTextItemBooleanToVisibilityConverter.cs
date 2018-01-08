@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -7,13 +6,12 @@ using System.Windows.Data;
 namespace Panda.CommonControls
 {
     /// <summary>
-    /// 
     /// </summary>
     /// <seealso cref="System.Windows.Data.IValueConverter" />
     internal class ImageTextItemBooleanToVisibilityConverter : IValueConverter
     {
         /// <summary>
-        /// Converts the specified value.
+        ///     Converts the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="targetType">Type of the target.</param>
@@ -21,7 +19,7 @@ namespace Panda.CommonControls
         /// <param name="culture">The culture.</param>
         /// <returns>Visible if value is true, otherwise Collapsed</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {         
+        {
             var isVisible = System.Convert.ToBoolean(value ?? false);
             var invertResult = System.Convert.ToBoolean(parameter ?? false);
             isVisible = invertResult ? !isVisible : isVisible;
@@ -29,7 +27,7 @@ namespace Panda.CommonControls
         }
 
         /// <summary>
-        /// Converts the back.
+        ///     Converts the back.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="targetType">Type of the target.</param>

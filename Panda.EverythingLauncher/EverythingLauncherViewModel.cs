@@ -226,7 +226,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The file system context menu providers.
         /// </value>
-        private IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
+        private IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; }
 
         /// <summary>
         ///     Gets or sets the keyboard mouse service.
@@ -234,7 +234,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The keyboard mouse service.
         /// </value>
-        private IKeyboardMouseService KeyboardMouseService { get; set; }
+        private IKeyboardMouseService KeyboardMouseService { get; }
 
         /// <summary>
         ///     Gets the event hub.
@@ -250,7 +250,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The everything service.
         /// </value>
-        private IEverythingService EverythingService { get; set; }
+        private IEverythingService EverythingService { get; }
 
         /// <summary>
         ///     Gets or sets the search text.
@@ -335,6 +335,6 @@ namespace Panda.EverythingLauncher
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }               
+        }
     }
 }

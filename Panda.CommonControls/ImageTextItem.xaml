@@ -7,13 +7,12 @@
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
-             >
+             d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.InputBindings>
-        <KeyBinding Modifiers="Control" Key="S" Command="local:ImageTextItem.StopEditingCommand"></KeyBinding>
+        <KeyBinding Modifiers="Control" Key="S" Command="local:ImageTextItem.StopEditingCommand" />
     </UserControl.InputBindings>
     <UserControl.CommandBindings>
-        <CommandBinding Command="local:ImageTextItem.StopEditingCommand" Executed="CommandBinding_OnExecuted"></CommandBinding>
+        <CommandBinding Command="local:ImageTextItem.StopEditingCommand" Executed="CommandBinding_OnExecuted" />
     </UserControl.CommandBindings>
     <UserControl.Resources>
         <ResourceDictionary>
@@ -28,17 +27,16 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel x:Name="LayoutRoot" Width="Auto" HorizontalAlignment="Stretch" d:DataContext="{d:DesignInstance local:ImageTextItem}">
+    <DockPanel x:Name="LayoutRoot" Width="Auto" HorizontalAlignment="Stretch"
+               d:DataContext="{d:DesignInstance local:ImageTextItem}">
         <materialDesign:PopupBox
-                DockPanel.Dock="Right"
-                PlacementMode="BottomAndAlignRightEdges"
-                StaysOpen="False"
-                Visibility="{Binding ElementName=Menu, Path=HasItems, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Menu x:Name="Menu" ItemsSource="{Binding MenuItems}">
-
-            </Menu>
+            DockPanel.Dock="Right"
+            PlacementMode="BottomAndAlignRightEdges"
+            StaysOpen="False"
+            Visibility="{Binding ElementName=Menu, Path=HasItems, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Menu x:Name="Menu" ItemsSource="{Binding MenuItems}" />
         </materialDesign:PopupBox>
-        <Image DockPanel.Dock="Left" MaxWidth="32" MaxHeight="32" Source="{Binding ImageSource}"></Image>
+        <Image DockPanel.Dock="Left" MaxWidth="32" MaxHeight="32" Source="{Binding ImageSource}" />
         <StackPanel>
             <Label Content="{Binding HeaderText}">
                 <Label.Visibility>
@@ -49,7 +47,8 @@
                     </Binding>
                 </Label.Visibility>
             </Label>
-            <TextBox Text="{Binding HeaderText, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
+            <TextBox Text="{Binding HeaderText, UpdateSourceTrigger=PropertyChanged}"
+                     Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" />
             <Label Content="{Binding SubHeaderText}">
                 <Label.Visibility>
                     <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
@@ -59,7 +58,8 @@
                     </Binding>
                 </Label.Visibility>
             </Label>
-            <TextBox Text="{Binding SubHeaderText, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
+            <TextBox Text="{Binding SubHeaderText, UpdateSourceTrigger=PropertyChanged}"
+                     Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}" />
         </StackPanel>
     </DockPanel>
 </UserControl>

@@ -122,7 +122,7 @@ namespace Panda.Client
         /// <value>
         ///     The launcher service.
         /// </value>
-        private ILauncherService LauncherService { get; set; }
+        private ILauncherService LauncherService { get; }
 
         /// <summary>
         ///     Gets or sets the view models.
@@ -130,7 +130,7 @@ namespace Panda.Client
         /// <value>
         ///     The view models.
         /// </value>
-        private IEnumerable<LauncherViewModel> ViewModels { get; set; }
+        private IEnumerable<LauncherViewModel> ViewModels { get; }
 
         /// <summary>
         ///     Gets or sets the active.

@@ -100,7 +100,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The directory.
         /// </value>
-        public string Directory { get;  }
+        public string Directory { get; }
 
         /// <summary>
         ///     Gets the size.

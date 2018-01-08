@@ -31,26 +31,26 @@ namespace Panda.Client
         /// <summary>
         ///     The key up subject
         /// </summary>
-        private Subject<KeyEventArgs> KeyUpSubject = new Subject<KeyEventArgs>();
+        private readonly Subject<KeyEventArgs> KeyUpSubject = new Subject<KeyEventArgs>();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="KeyboardMouseService" /> class.
         /// </summary>
         private KeyboardMouseService()
         {
-            GlobalEvents = Hook.GlobalEvents();     
+            GlobalEvents = Hook.GlobalEvents();
             GlobalEvents.KeyDown += (sender, args) => _keyDownSubject.OnNext(args);
             GlobalEvents.KeyPress += (sender, args) => _keyPressSubject.OnNext(args);
-            GlobalEvents.KeyUp += (sender, args) => KeyUpSubject.OnNext(args);  
+            GlobalEvents.KeyUp += (sender, args) => KeyUpSubject.OnNext(args);
         }
-                       
+
         /// <summary>
         ///     Gets or sets the global event source.
         /// </summary>
         /// <value>
         ///     The global event source.
         /// </value>
-        private IKeyboardMouseEvents GlobalEvents { get; set; }
+        private IKeyboardMouseEvents GlobalEvents { get; }
 
         /// <inheritdoc />
         /// <summary>
@@ -119,8 +119,8 @@ namespace Panda.Client
         [StructLayout(LayoutKind.Sequential)]
         private struct PointStruct
         {
-            int X;
-            int Y;
+            private readonly int X;
+            private readonly int Y;
 
             /// <summary>
             ///     Performs an implicit conversion from <see cref="PointStruct" /> to <see cref="Point" />.

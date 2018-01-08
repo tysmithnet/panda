@@ -152,13 +152,11 @@ namespace Panda.Client
         private struct ShFileInfo
         {
             public readonly IntPtr hIcon;
-            readonly int iIcon;
-            readonly uint dwAttributes;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-            readonly string szDisplayName;
+            private readonly int iIcon;
+            private readonly uint dwAttributes;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] private readonly string szDisplayName;
 
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-            readonly string szTypeName;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)] private readonly string szTypeName;
         }
 
         /// <summary>
