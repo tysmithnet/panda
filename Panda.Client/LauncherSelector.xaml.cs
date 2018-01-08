@@ -34,7 +34,7 @@ namespace Panda.Client
         ///     The launcher service.
         /// </value>
         [Import]
-        internal ILauncherService LauncherService { get; set; }
+        private ILauncherService LauncherService { get; set; }
 
         /// <summary>
         ///     Gets or sets the keyboard mouse hook service.
@@ -43,7 +43,7 @@ namespace Panda.Client
         ///     The keyboard mouse hook service.
         /// </value>
         [Import]
-        internal IKeyboardMouseService KeyboardMouseService { get; set; }
+        private IKeyboardMouseService KeyboardMouseService { get; set; }
 
         /// <summary>
         ///     Gets or sets the view model.
@@ -76,7 +76,7 @@ namespace Panda.Client
         /// <value>
         ///     The mouse up subject.
         /// </value>
-        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; set; } =
+        private Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; set; } =
             new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Panda.Client
         /// <value>
         ///     The search text box preview key up subject.
         /// </value>
-        public Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
+        private Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
             new Subject<(string, KeyEventArgs)>();
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Panda.Client
         /// <value>
         ///     The launcher selected key up subject.
         /// </value>
-        public Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
+        private Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
 
         /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
@@ -147,7 +147,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
-        internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SelectionChangedSubject.OnNext(e);
         }
@@ -157,7 +157,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
-        internal void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+        private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             TextChangedSubject.OnNext(SearchText.Text);
         }

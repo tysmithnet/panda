@@ -152,16 +152,19 @@ namespace Panda.Client
         private struct ShFileInfo
         {
             public readonly IntPtr hIcon;
-            public readonly int iIcon;
-            public readonly uint dwAttributes;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] public readonly string szDisplayName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)] public readonly string szTypeName;
+            readonly int iIcon;
+            readonly uint dwAttributes;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+            readonly string szDisplayName;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+            readonly string szTypeName;
         }
 
         /// <summary>
         ///     Local win32 api wrapper
         /// </summary>
-        private class Win32
+        private static class Win32
         {
             public const uint SHGFI_ICON = 0x100;
             public const uint SHGFI_LARGEICON = 0x0; // 'Large icon

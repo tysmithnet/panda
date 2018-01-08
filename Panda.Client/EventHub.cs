@@ -11,7 +11,7 @@ namespace Panda.Client
     /// </summary>
     /// <seealso cref="T:Panda.Client.IEventHub" />
     [Export(typeof(IEventHub))]
-    public sealed class EventHub : IEventHub
+    internal sealed class EventHub : IEventHub
     {
         /// <summary>
         ///     Gets or sets the domain event subject.

@@ -58,7 +58,7 @@ namespace Panda.Client
             foreach (var settings in AllPluginSettings)
             {
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-                File.WriteAllText($"{settings.GetType().FullName}.config.json", json);
+                File.WriteAllText($"{settings.GetType().FullName}.config.json", json); // todo: error checking
             }
         }
 
