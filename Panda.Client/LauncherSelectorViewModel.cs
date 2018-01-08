@@ -72,7 +72,7 @@ namespace Panda.Client
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
         /// <param name="launcherService">The launcher service.</param>
-        public LauncherSelectorViewModel(ILauncherService launcherService)
+        internal LauncherSelectorViewModel(ILauncherService launcherService)
         {
             LauncherService = launcherService;
             ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
@@ -89,7 +89,7 @@ namespace Panda.Client
         /// <value>
         ///     The text changed obs.
         /// </value>
-        public IObservable<string> TextChangedObs
+        internal IObservable<string> TextChangedObs
         {
             get => _textChangedObs;
             set
@@ -122,7 +122,7 @@ namespace Panda.Client
         /// <value>
         ///     The launcher service.
         /// </value>
-        internal ILauncherService LauncherService { get; set; }
+        private ILauncherService LauncherService { get; set; }
 
         /// <summary>
         ///     Gets or sets the view models.
@@ -130,7 +130,7 @@ namespace Panda.Client
         /// <value>
         ///     The view models.
         /// </value>
-        internal IEnumerable<LauncherViewModel> ViewModels { get; set; }
+        private IEnumerable<LauncherViewModel> ViewModels { get; set; }
 
         /// <summary>
         ///     Gets or sets the active.
@@ -138,7 +138,7 @@ namespace Panda.Client
         /// <value>
         ///     The active.
         /// </value>
-        internal Launcher Active { get; set; }
+        private Launcher Active { get; set; }
 
         /// <summary>
         ///     Gets or sets the launcher view models.
@@ -190,7 +190,7 @@ namespace Panda.Client
         /// <value>
         ///     The preview mouse up obs.
         /// </value>
-        public IObservable<(LauncherViewModel, MouseButtonEventArgs)> MouseUpObs
+        internal IObservable<(LauncherViewModel, MouseButtonEventArgs)> MouseUpObs
         {
             get => _mouseUpObs;
             set
@@ -212,7 +212,7 @@ namespace Panda.Client
         /// <value>
         ///     The search text box preview key up obs.
         /// </value>
-        public IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
+        internal IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
         {
             get => _searchTextBoxPreviewKeyUpObs;
             set
@@ -239,7 +239,7 @@ namespace Panda.Client
         /// <value>
         ///     The hide action.
         /// </value>
-        public Action HideAction { get; set; }
+        internal Action HideAction { get; set; }
 
         /// <summary>
         ///     Gets or sets the launcher selector key up obs.
@@ -247,7 +247,7 @@ namespace Panda.Client
         /// <value>
         ///     The launcher selector key up obs.
         /// </value>
-        public IObservable<KeyEventArgs> LauncherSelectorKeyUpObs
+        internal IObservable<KeyEventArgs> LauncherSelectorKeyUpObs
         {
             get => _launcherSelectorKeyUpObs;
             set
@@ -257,7 +257,10 @@ namespace Panda.Client
                 _launcherSelectorKeyUpSubscription = value.Subscribe(args =>
                 {
                     if (args.Key == Key.Escape)
+                    {
                         HideAction?.Invoke();
+                        args.Handled = true;
+                    }
                 });
             }
         }
@@ -279,7 +282,7 @@ namespace Panda.Client
         /// <summary>
         ///     Submits this instance.
         /// </summary>
-        public void StartFirst()
+        private void StartFirst()
         {
             var first = LauncherViewModels.FirstOrDefault();
             if (first == null) return;

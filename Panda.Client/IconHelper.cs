@@ -17,22 +17,22 @@ namespace Panda.Client
         /// <summary>
         ///     The large icon cache
         /// </summary>
-        internal static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(IconHelper).FullName + "_large");
+        private static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(IconHelper).FullName + "_large");
 
         /// <summary>
         ///     The small icon cache
         /// </summary>
-        internal static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(IconHelper).FullName + "_small");
+        private static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(IconHelper).FullName + "_small");
 
         /// <summary>
         ///     The unknown file large
         /// </summary>
-        internal static readonly ImageSource UnknownFileLarge;
+        private static readonly ImageSource UnknownFileLarge;
 
         /// <summary>
         ///     The unknown file small
         /// </summary>
-        internal static readonly ImageSource UnknownFileSmall;
+        private static readonly ImageSource UnknownFileSmall;
 
         /// <summary>
         ///     Initializes the <see cref="IconHelper" /> class.
@@ -64,7 +64,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="size">The size.</param>
         /// <returns></returns>
-        internal static uint ToIconFlag(this IconSize size)
+        private static uint ToIconFlag(this IconSize size)
         {
             return (uint) size;
         }

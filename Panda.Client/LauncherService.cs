@@ -10,7 +10,7 @@ namespace Panda.Client
     /// </summary>
     /// <seealso cref="T:Panda.Client.ILauncherService" />
     [Export(typeof(ILauncherService))]
-    public sealed class LauncherService : ILauncherService
+    internal sealed class LauncherService : ILauncherService
     {
         /// <summary>
         ///     Gets or sets the launchers.
@@ -19,7 +19,7 @@ namespace Panda.Client
         ///     The launchers.
         /// </value>
         [ImportMany]
-        internal Launcher[] Launchers { get; set; }
+        private Launcher[] Launchers { get; set; }
 
         /// <inheritdoc />
         /// <summary>

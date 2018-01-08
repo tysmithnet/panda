@@ -16,7 +16,7 @@ namespace Panda.Client
     /// </summary>
     /// <seealso cref="T:Panda.Client.IKeyboardMouseService" />
     [Export(typeof(IKeyboardMouseService))]
-    public sealed class KeyboardMouseService : IKeyboardMouseService
+    internal sealed class KeyboardMouseService : IKeyboardMouseService
     {
         /// <summary>
         ///     The key down subject
