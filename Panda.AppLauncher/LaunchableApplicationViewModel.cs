@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -115,6 +117,17 @@ namespace Panda.AppLauncher
         {
             LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
             AddEditMenuItem();
+            Observable.FromEvent<PropertyChangedEventHandler, PropertyChangedEventArgs>(handler =>
+            {
+                PropertyChanged += handler;
+            },
+            handler =>
+            {
+                PropertyChanged -= handler;
+            }).Throttle(TimeSpan.FromSeconds(5)).Subscribe(args =>
+            {
+                LaunchableApplicationService.Save();
+            });
         }
 
         /// <summary>
@@ -160,8 +173,7 @@ namespace Panda.AppLauncher
             {
                 IsEditable = false;
                 MenuItems.Remove(menuItem);
-                AddEditMenuItem();    
-                LaunchableApplicationService.Save();
+                AddEditMenuItem();                  
             };
             MenuItems.Add(menuItem);
         }
