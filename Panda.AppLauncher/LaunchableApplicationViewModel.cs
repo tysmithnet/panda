@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,15 +18,33 @@ namespace Panda.AppLauncher
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LaunchableApplicationViewModel : INotifyPropertyChanged
     {
+        private string _appName;
+        private string _executableLocation;
+
         /// <summary>
         ///     The image source for the icon
         /// </summary>
         private ImageSource _imageSource;
 
         private bool _isEditable;
-        private string _appName;
-        private string _executableLocation;
         private LaunchableApplication _launchableApplication;
+
+        public LaunchableApplicationViewModel(ILaunchableApplicationService launcherService)
+        {
+            LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
+            AddEditMenuItem();
+            Observable.FromEvent<PropertyChangedEventHandler, PropertyChangedEventArgs>(handler =>
+                {
+                    PropertyChangedEventHandler h = (sender, args) => handler(args);
+                    return h;
+                },
+                h => { PropertyChanged += h; },
+                h => { PropertyChanged -= h; })
+            .Throttle(TimeSpan.FromSeconds(5)).Subscribe(args =>
+            {
+                LaunchableApplicationService.Save();
+            });
+        }
 
         /// <summary>
         ///     Gets or sets the name of the application.
@@ -42,7 +59,7 @@ namespace Panda.AppLauncher
             {
                 OnPropertyChanged();
                 _appName = value;
-                if(_launchableApplication != null)
+                if (_launchableApplication != null)
                     _launchableApplication.DisplayName = value;
             }
         }
@@ -60,7 +77,7 @@ namespace Panda.AppLauncher
             {
                 OnPropertyChanged();
                 _executableLocation = value;
-                if(_launchableApplication != null)
+                if (_launchableApplication != null)
                     _launchableApplication.FullPath = value;
             }
         }
@@ -99,6 +116,21 @@ namespace Panda.AppLauncher
             }
         }
 
+        public bool IsEditable
+        {
+            get => _isEditable;
+            set
+            {
+                _isEditable = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<FrameworkElement> MenuItems { get; set; } =
+            new ObservableCollection<FrameworkElement>();
+
+        public ILaunchableApplicationService LaunchableApplicationService { get; set; }
+
         /// <summary>
         ///     Occurs when [property changed].
         /// </summary>
@@ -113,23 +145,6 @@ namespace Panda.AppLauncher
             return Task.Run(() => { ImageSource = IconHelper.IconFromFilePath(ExecutableLocation, iconSize); });
         }
 
-        public LaunchableApplicationViewModel(ILaunchableApplicationService launcherService)
-        {
-            LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
-            AddEditMenuItem();
-            Observable.FromEvent<PropertyChangedEventHandler, PropertyChangedEventArgs>(handler =>
-            {
-                PropertyChanged += handler;
-            },
-            handler =>
-            {
-                PropertyChanged -= handler;
-            }).Throttle(TimeSpan.FromSeconds(5)).Subscribe(args =>
-            {
-                LaunchableApplicationService.Save();
-            });
-        }
-
         /// <summary>
         ///     Called when [property changed].
         /// </summary>
@@ -140,21 +155,9 @@ namespace Panda.AppLauncher
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public bool IsEditable
-        {
-            get => _isEditable;
-            set
-            {
-                _isEditable = value; 
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<FrameworkElement> MenuItems { get; set; } = new ObservableCollection<FrameworkElement>();
-                                
         private void AddEditMenuItem()
         {
-            var menuItem = new MenuItem { Header = "Edit" };
+            var menuItem = new MenuItem {Header = "Edit"};
             menuItem.Click += (sender, args) =>
             {
                 IsEditable = true;
@@ -163,17 +166,15 @@ namespace Panda.AppLauncher
             };
             MenuItems.Add(menuItem);
         }
-      
-        public ILaunchableApplicationService LaunchableApplicationService { get; set; }
 
         private void AddSaveMenuItem()
         {
-            var menuItem = new MenuItem { Header = "Save" };
+            var menuItem = new MenuItem {Header = "Save"};
             menuItem.Click += (sender, args) =>
             {
                 IsEditable = false;
                 MenuItems.Remove(menuItem);
-                AddEditMenuItem();                  
+                AddEditMenuItem();
             };
             MenuItems.Add(menuItem);
         }
