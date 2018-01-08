@@ -147,6 +147,13 @@ namespace Panda.CommonControls
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             // todo: needed?
+        } 
+
+        public static RoutedCommand StopEditingCommand = new RoutedCommand("StopEditing", typeof(ImageTextItem));
+
+        private void CommandBinding_OnExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            IsEditable = false;
         }
     }
 }

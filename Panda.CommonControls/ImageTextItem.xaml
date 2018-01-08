@@ -10,6 +10,12 @@
              d:DesignHeight="300" d:DesignWidth="300"
              PreviewMouseUp="ImageTextItem_OnPreviewMouseUp"
              >
+    <UserControl.InputBindings>
+        <KeyBinding Modifiers="Control" Key="S" Command="local:ImageTextItem.StopEditingCommand"></KeyBinding>
+    </UserControl.InputBindings>
+    <UserControl.CommandBindings>
+        <CommandBinding Command="local:ImageTextItem.StopEditingCommand" Executed="CommandBinding_OnExecuted"></CommandBinding>
+    </UserControl.CommandBindings>
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
