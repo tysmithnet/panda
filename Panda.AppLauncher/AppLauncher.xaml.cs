@@ -158,6 +158,6 @@ namespace Panda.AppLauncher
             var item = sender as ImageTextItem;
             var vm = item?.DataContext as RegisteredApplicationViewModel;
             PreviewMouseDoubleClickSubject.OnNext((vm, e));
-        }
+        }        
     }
 }

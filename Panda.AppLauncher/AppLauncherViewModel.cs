@@ -156,7 +156,7 @@ namespace Panda.AppLauncher
                             Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
                         foreach (var registeredApplication in filteredApps)
                         {
-                            var item = new RegisteredApplicationViewModel
+                            var item = new RegisteredApplicationViewModel(LauncherService)
                             {
                                 AppName = registeredApplication.DisplayName,
                                 ExecutableLocation = registeredApplication.FullPath,
@@ -168,6 +168,8 @@ namespace Panda.AppLauncher
                     });
             }
         }
+
+        internal IRegisteredApplicationService LauncherService { get; set; }
 
         /// <summary>
         ///     Gets or sets the application unregistered subscription.
@@ -310,11 +312,12 @@ namespace Panda.AppLauncher
         {
             RegisteredApplicationService.Get().Subscribe(async application =>
             {
-                var item = new RegisteredApplicationViewModel
+                var item = new RegisteredApplicationViewModel(RegisteredApplicationService)
                 {
                     AppName = application.DisplayName,
                     ExecutableLocation = application.FullPath,
-                    RegisteredApplication = application
+                    RegisteredApplication = application,
+                    RegisteredApplicationService = RegisteredApplicationService
                 };
                 AppViewModels.Add(item);
                 await item.LoadIcon(IconSize.Large);
@@ -323,7 +326,7 @@ namespace Panda.AppLauncher
             ApplicationRegisteredSubscription =
                 RegisteredApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
                 {
-                    var item = new RegisteredApplicationViewModel
+                    var item = new RegisteredApplicationViewModel(RegisteredApplicationService)
                     {
                         AppName = application.DisplayName,
                         ExecutableLocation = application.FullPath,

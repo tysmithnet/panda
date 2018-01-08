@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -22,6 +23,9 @@ namespace Panda.AppLauncher
         private ImageSource _imageSource;
 
         private bool _isEditable;
+        private string _appName;
+        private string _executableLocation;
+        private RegisteredApplication _registeredApplication;
 
         /// <summary>
         ///     Gets or sets the name of the application.
@@ -29,7 +33,17 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The name of the application.
         /// </value>
-        public string AppName { get; set; }
+        public string AppName
+        {
+            get => _appName;
+            set
+            {
+                OnPropertyChanged();
+                _appName = value;
+                if(_registeredApplication != null)
+                    _registeredApplication.DisplayName = value;
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the executable location.
@@ -37,7 +51,17 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The executable location.
         /// </value>
-        public string ExecutableLocation { get; set; }
+        public string ExecutableLocation
+        {
+            get => _executableLocation;
+            set
+            {
+                OnPropertyChanged();
+                _executableLocation = value;
+                if(_registeredApplication != null)
+                    _registeredApplication.FullPath = value;
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the registered application.
@@ -45,7 +69,17 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The registered application.
         /// </value>
-        public RegisteredApplication RegisteredApplication { get; set; }
+        public RegisteredApplication RegisteredApplication
+        {
+            get => _registeredApplication;
+            set
+            {
+                OnPropertyChanged();
+                _registeredApplication = value;
+                AppName = value?.DisplayName;
+                ExecutableLocation = value?.FullPath;
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the image source.
@@ -77,8 +111,9 @@ namespace Panda.AppLauncher
             return Task.Run(() => { ImageSource = IconHelper.IconFromFilePath(ExecutableLocation, iconSize); });
         }
 
-        public RegisteredApplicationViewModel()
+        public RegisteredApplicationViewModel(IRegisteredApplicationService launcherService)
         {
+            RegisteredApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
             AddEditMenuItem();
         }
 
@@ -115,6 +150,8 @@ namespace Panda.AppLauncher
             };
             MenuItems.Add(menuItem);
         }
+      
+        public IRegisteredApplicationService RegisteredApplicationService { get; set; }
 
         private void AddSaveMenuItem()
         {
@@ -123,9 +160,10 @@ namespace Panda.AppLauncher
             {
                 IsEditable = false;
                 MenuItems.Remove(menuItem);
-                AddEditMenuItem();
-
+                AddEditMenuItem();    
+                RegisteredApplicationService.Save();
             };
+            MenuItems.Add(menuItem);
         }
     }
 }

@@ -32,8 +32,8 @@
                 <DataTemplate>
                     <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
                                                   ImageSource="{Binding ImageSource}" 
-                                                  HeaderText="{Binding AppName}"
-                                                  SubHeaderText="{Binding ExecutableLocation}"
+                                                  HeaderText="{Binding AppName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                  SubHeaderText="{Binding ExecutableLocation, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEditable="{Binding IsEditable}"
                                                   MenuItems="{Binding MenuItems}">
                         </commonControls:ImageTextItem>

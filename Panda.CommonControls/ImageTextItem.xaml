@@ -43,7 +43,7 @@
                     </Binding>
                 </Label.Visibility>
             </Label>
-            <TextBox Text="{Binding HeaderText}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
+            <TextBox Text="{Binding HeaderText, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
             <Label Content="{Binding SubHeaderText}">
                 <Label.Visibility>
                     <Binding Path="IsEditable" Converter="{StaticResource BooleanToVisibilityConverter}">
@@ -53,7 +53,7 @@
                     </Binding>
                 </Label.Visibility>
             </Label>
-            <TextBox Text="{Binding SubHeaderText}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
+            <TextBox Text="{Binding SubHeaderText, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding IsEditable, Converter={StaticResource BooleanToVisibilityConverter}}"></TextBox>
         </StackPanel>
     </DockPanel>
 </UserControl>

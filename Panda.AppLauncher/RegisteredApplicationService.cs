@@ -30,15 +30,18 @@ namespace Panda.AppLauncher
         /// </summary>
         internal Subject<RegisteredApplication> ApplicationUnregisteredSubject =
             new Subject<RegisteredApplication>();
-
+                                                           
         /// <summary>
         ///     Gets or sets the registered applications.
         /// </summary>
         /// <value>
         ///     The registered applications.
         /// </value>
-        internal IList<RegisteredApplication> RegisteredApplications { get; set; } =
-            new List<RegisteredApplication>();
+        internal IList<RegisteredApplication> RegisteredApplications
+        {
+            get => Settings.RegisteredApplications;
+            set => Settings.RegisteredApplications = value;
+        }
 
         /// <summary>
         ///     Gets or sets the settings service.
@@ -130,16 +133,7 @@ namespace Panda.AppLauncher
         /// </returns>
         public Task Setup(CancellationToken cancellationToken)
         {
-            Settings = SettingsService.Get<AppLauncherSettings>().Single();
-            foreach (var registeredApplication in Settings.RegisteredApplications)
-            {
-                var revivedApp = new RegisteredApplication
-                {
-                    DisplayName = registeredApplication.DisplayName,
-                    FullPath = registeredApplication.FullPath
-                };
-                RegisteredApplications.Add(revivedApp);
-            }
+            Settings = SettingsService.Get<AppLauncherSettings>().Single();  
             return Task.CompletedTask;
         }
     }
