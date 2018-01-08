@@ -11,6 +11,6 @@
         /// <value>
         ///     The full path.
         /// </value>
-        public string FullPath { get; set; }
+        internal string FullPath { get; set; }
     }
 }

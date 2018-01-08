@@ -28,7 +28,7 @@ namespace Panda.Client
         ///     The settings service.
         /// </value>
         [Import]
-        protected internal ISettingsService SettingsService { get; set; }
+        private ISettingsService SettingsService { get; set; }
 
         /// <summary>
         ///     Raises the <see cref="E:PreviewKeyDown" /> event.

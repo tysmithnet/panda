@@ -15,13 +15,13 @@ namespace Panda.AppLauncher
     ///     Interaction logic for AppLauncher.xaml
     /// </summary>
     [Export(typeof(Launcher))]
-    public sealed partial class AppLauncher : Launcher
+    public sealed partial class ApplicationLauncher : Launcher
     {
         /// <inheritdoc />
         /// <summary>
         ///     Initializes a new instance of the <see cref="T:Panda.AppLauncher.AppLauncher" /> class.
         /// </summary>
-        public AppLauncher()
+        public ApplicationLauncher()
         {
             InitializeComponent();
         }
@@ -48,8 +48,8 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The preview double click subject.
         /// </value>
-        internal Subject<RegisteredApplicationViewModel> PreviewDoubleClickSubject { get; set; } =
-            new Subject<RegisteredApplicationViewModel>();
+        internal Subject<LaunchableApplicationViewModel> PreviewDoubleClickSubject { get; set; } =
+            new Subject<LaunchableApplicationViewModel>();
 
         /// <summary>
         ///     Gets or sets the registered application service.
@@ -58,7 +58,7 @@ namespace Panda.AppLauncher
         ///     The registered application service.
         /// </value>
         [Import]
-        internal IRegisteredApplicationService RegisteredApplicationService { get; set; }
+        internal ILaunchableApplicationService LaunchableApplicationService { get; set; }
 
         /// <summary>
         ///     Gets or sets the registered application context menu providers.
@@ -67,7 +67,7 @@ namespace Panda.AppLauncher
         ///     The registered application context menu providers.
         /// </value>
         [ImportMany]
-        internal IRegisteredApplicationContextMenuProvider[] RegisteredApplicationContextMenuProviders { get; set; }
+        internal ILaunchableApplicationContextMenuProvider[] LaunchableApplicationContextMenuProviders { get; set; }
 
         /// <summary>
         ///     Gets or sets the view model.
@@ -75,7 +75,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The view model.
         /// </value>
-        internal AppLauncherViewModel ViewModel { get; set; }
+        internal ApplicationLauncherViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     Gets or sets the selected items changed subject.
@@ -83,8 +83,8 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The selected items changed subject.
         /// </value>
-        internal Subject<IEnumerable<RegisteredApplicationViewModel>> SelectedItemsChangedSubject { get; set; } =
-            new Subject<IEnumerable<RegisteredApplicationViewModel>>();
+        internal Subject<IEnumerable<LaunchableApplicationViewModel>> SelectedItemsChangedSubject { get; set; } =
+            new Subject<IEnumerable<LaunchableApplicationViewModel>>();
 
         /// <summary>
         ///     Gets or sets the preview mouse double click subject.
@@ -92,9 +92,9 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The preview mouse double click subject.
         /// </value>
-        internal Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>
+        internal Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>
             PreviewMouseDoubleClickSubject { get; set; } =
-            new Subject<(RegisteredApplicationViewModel, MouseButtonEventArgs)>();
+            new Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
         ///     Handles the OnActivated event of the AppLauncher control.
@@ -103,8 +103,8 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void AppLauncher_OnLoaded(object sender, EventArgs e)
         {
-            ViewModel = new AppLauncherViewModel(RegisteredApplicationService,
-                RegisteredApplicationContextMenuProviders)
+            ViewModel = new ApplicationLauncherViewModel(LaunchableApplicationService,
+                LaunchableApplicationContextMenuProviders)
             {
                 SearchTextChangedObs = SearchTextChangedSubject,
                 PreviewDoubleClickObs = PreviewDoubleClickSubject,
@@ -124,7 +124,7 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItems = RegisteredApplications.SelectedItems.Cast<RegisteredApplicationViewModel>();
+            var selectedItems = RegisteredApplications.SelectedItems.Cast<LaunchableApplicationViewModel>();
             SelectedItemsChangedSubject.OnNext(selectedItems);
         }
 
@@ -156,7 +156,7 @@ namespace Panda.AppLauncher
         private void UIElement_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var item = sender as ImageTextItem;
-            var vm = item?.DataContext as RegisteredApplicationViewModel;
+            var vm = item?.DataContext as LaunchableApplicationViewModel;
             PreviewMouseDoubleClickSubject.OnNext((vm, e));
         }
     }

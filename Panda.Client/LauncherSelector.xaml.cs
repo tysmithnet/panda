@@ -34,7 +34,7 @@ namespace Panda.Client
         ///     The launcher service.
         /// </value>
         [Import]
-        internal ILauncherService LauncherService { get; set; }
+        private ILauncherService LauncherService { get; set; }
 
         /// <summary>
         ///     Gets or sets the keyboard mouse hook service.
@@ -43,7 +43,7 @@ namespace Panda.Client
         ///     The keyboard mouse hook service.
         /// </value>
         [Import]
-        internal IKeyboardMouseService KeyboardMouseService { get; set; }
+        private IKeyboardMouseService KeyboardMouseService { get; set; }
 
         /// <summary>
         ///     Gets or sets the view model.
@@ -70,11 +70,31 @@ namespace Panda.Client
         private Subject<SelectionChangedEventArgs> SelectionChangedSubject { get; } =
             new Subject<SelectionChangedEventArgs>();
 
-        internal Subject<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpSubject { get; set; } =
+        /// <summary>
+        ///     Gets or sets the mouse up subject.
+        /// </summary>
+        /// <value>
+        ///     The mouse up subject.
+        /// </value>
+        private Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; set; } =
             new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
 
-        public Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
+        /// <summary>
+        ///     Gets or sets the search text box preview key up subject.
+        /// </summary>
+        /// <value>
+        ///     The search text box preview key up subject.
+        /// </value>
+        private Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
             new Subject<(string, KeyEventArgs)>();
+
+        /// <summary>
+        ///     Gets or sets the launcher selected key up subject.
+        /// </summary>
+        /// <value>
+        ///     The launcher selected key up subject.
+        /// </value>
+        private Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
 
         /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
@@ -114,8 +134,10 @@ namespace Panda.Client
             {
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
-                PreviewMouseUpObs = PreviewMouseUpSubject,
-                SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject
+                MouseUpObs = MouseUpSubject,
+                SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject,
+                LauncherSelectorKeyUpObs = LauncherSelectedKeyUpSubject,
+                HideAction = Hide
             };
             DataContext = ViewModel;
         }
@@ -125,7 +147,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="SelectionChangedEventArgs" /> instance containing the event data.</param>
-        internal void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SelectionChangedSubject.OnNext(e);
         }
@@ -135,21 +157,41 @@ namespace Panda.Client
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
-        internal void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+        private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             TextChangedSubject.OnNext(SearchText.Text);
         }
 
-        private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
+        /// <summary>
+        ///     Handles the OnMouseUp event of the ImageTextItem control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
+        private void ImageTextItem_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             var launcher = sender as ImageTextItem;
             var vm = launcher?.DataContext as LauncherViewModel;
-            PreviewMouseUpSubject.OnNext((vm, e));
+            MouseUpSubject.OnNext((vm, e));
         }
 
+        /// <summary>
+        ///     Handles the OnPreviewKeyUp event of the SearchText control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
         private void SearchText_OnPreviewKeyUp(object sender, KeyEventArgs e)
         {
             SearchTextBoxPreviewKeyUpSubject.OnNext((SearchText.Text, e));
+        }
+
+        /// <summary>
+        ///     Handles the OnKeyUp event of the LauncherSelector control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
+        private void LauncherSelector_OnKeyUp(object sender, KeyEventArgs e)
+        {
+            LauncherSelectedKeyUpSubject.OnNext(e);
         }
     }
 }

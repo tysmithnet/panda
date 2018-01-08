@@ -2,12 +2,13 @@
 
 namespace Panda.Client
 {
+    /// <inheritdoc />
     /// <summary>
     ///     Domain event that is raised when a component deletes a file or detects a deleted file
     ///     Consumers should be wary of duplicate events as it is conveivable multiple separate watchers
     ///     could detect the same file deletion
     /// </summary>
-    /// <seealso cref="Panda.Client.IDomainEvent" />
+    /// <seealso cref="T:Panda.Client.IDomainEvent" />
     public sealed class FileDeletedEvent : IDomainEvent
     {
         /// <summary>

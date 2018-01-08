@@ -100,7 +100,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The refresh data grid action.
         /// </value>
-        public Action RefreshDataGridAction { get; set; }
+        internal Action RefreshDataGridAction { get; set; }
 
         /// <summary>
         ///     Gets or sets the preview mouse right button down obs.
@@ -108,7 +108,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The preview mouse right button down obs.
         /// </value>
-        public IObservable<MouseButtonEventArgs> PreviewMouseRightButtonDownObs
+        internal IObservable<MouseButtonEventArgs> PreviewMouseRightButtonDownObs
         {
             get => _previewMouseRightButtonDownObs;
             set
@@ -157,7 +157,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The selected items changed obs.
         /// </value>
-        public IObservable<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObs
+        internal IObservable<IEnumerable<EverythingResultViewModel>> SelectedItemsChangedObs
         {
             get => _selectedItemsChangedObs;
             set
@@ -185,7 +185,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The text changed obs.
         /// </value>
-        public IObservable<string> TextChangedObs
+        internal IObservable<string> TextChangedObs
         {
             get => _textChangedObs;
             set
@@ -226,7 +226,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The file system context menu providers.
         /// </value>
-        internal IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; set; }
+        private IFileSystemContextMenuProvider[] FileSystemContextMenuProviders { get; }
 
         /// <summary>
         ///     Gets or sets the keyboard mouse service.
@@ -234,7 +234,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The keyboard mouse service.
         /// </value>
-        public IKeyboardMouseService KeyboardMouseService { get; set; }
+        private IKeyboardMouseService KeyboardMouseService { get; }
 
         /// <summary>
         ///     Gets the event hub.
@@ -242,7 +242,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The event hub.
         /// </value>
-        public IEventHub EventHub { get; }
+        private IEventHub EventHub { get; }
 
         /// <summary>
         ///     Gets or sets the everything service.
@@ -250,7 +250,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The everything service.
         /// </value>
-        internal IEverythingService EverythingService { get; set; }
+        private IEverythingService EverythingService { get; }
 
         /// <summary>
         ///     Gets or sets the search text.
@@ -284,7 +284,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The cancellation token source.
         /// </value>
-        internal CancellationTokenSource CancellationTokenSource { get; private set; }
+        private CancellationTokenSource CancellationTokenSource { get; set; }
 
         /// <summary>
         ///     Gets or sets the selected items.
@@ -292,7 +292,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The selected items.
         /// </value>
-        internal List<EverythingResultViewModel> SelectedItems { get; set; }
+        private List<EverythingResultViewModel> SelectedItems { get; set; }
 
         /// <summary>
         ///     Gets the log.
@@ -308,7 +308,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The preview mouse double click obs.
         /// </value>
-        public IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
+        internal IObservable<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
             get => _previewMouseDoubleClickObs;
             set
@@ -335,18 +335,6 @@ namespace Panda.EverythingLauncher
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        ///     Launches the currently selected item using whatever the shell deems appropriate
-        /// </summary>
-        internal void Submit()
-        {
-            foreach (var everythingResultViewModel in SelectedItems)
-            {
-                Log.Trace($"Starting {everythingResultViewModel.FullName}");
-                Process.Start(everythingResultViewModel.FullName);
-            }
         }
     }
 }

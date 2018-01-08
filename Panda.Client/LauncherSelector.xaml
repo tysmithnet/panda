@@ -7,18 +7,22 @@
         xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
         d:DataContext="{d:DesignInstance local:LauncherSelectorViewModel}"
         mc:Ignorable="d"
-        Title="LauncherSelector" Height="350" Width="525"
+        Title="Launcher Selector" Height="350" Width="525"
         Loaded="LauncherSelector_OnLoaded"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        KeyUp="LauncherSelector_OnKeyUp">
     <DockPanel>
         <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}"
                  TextChanged="TextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
-        <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged">
+        <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged"
+                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <commonControls:ImageTextItem PreviewMouseUp="ImageTextItem_OnPreviewMouseUp"
-                                                  HeaderText="{Binding Name}" />
+                    <commonControls:ImageTextItem MouseUp="ImageTextItem_OnMouseUp"
+                                                  HeaderText="{Binding Name}"
+                                                  MenuItems="{Binding MenuItems}"
+                                                  IsEditable="{Binding IsEditable}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

@@ -1,4 +1,4 @@
-﻿<client:Launcher x:Class="Panda.AppLauncher.AppLauncher"
+﻿<client:Launcher x:Class="Panda.AppLauncher.ApplicationLauncher"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,7 +7,7 @@
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
                  xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
                  mc:Ignorable="d"
-                 d:DataContext="{d:DesignInstance local:AppLauncherViewModel}"
+                 d:DataContext="{d:DesignInstance local:ApplicationLauncherViewModel}"
                  Loaded="AppLauncher_OnLoaded"
                  d:DesignHeight="300" d:DesignWidth="300"
                  Title="App Launcher">
@@ -18,8 +18,12 @@
                  TextChanged="TextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
 
-        <ListBox x:Name="RegisteredApplications" ItemsSource="{Binding AppViewModels}" SelectionMode="Extended"
-                 SelectionChanged="Selector_OnSelectionChanged" HorizontalAlignment="Stretch">
+        <ListBox x:Name="RegisteredApplications"
+                 ItemsSource="{Binding AppViewModels}"
+                 SelectionMode="Extended"
+                 SelectionChanged="Selector_OnSelectionChanged"
+                 HorizontalAlignment="Stretch"
+                 HorizontalContentAlignment="Stretch">
 
             <ListBox.ContextMenu>
                 <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
@@ -27,8 +31,12 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
-                                                  ImageSource="{Binding ImageSource}" HeaderText="{Binding AppName}"
-                                                  SubHeaderText="{Binding ExecutableLocation}" />
+                                                  ImageSource="{Binding ImageSource}"
+                                                  HeaderText="{Binding AppName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                  SubHeaderText="{Binding ExecutableLocation, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEditable="{Binding IsEditable, Mode=TwoWay}"
+                                                  MenuItems="{Binding MenuItems}" />
+
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Panda.Client;
 
 namespace Panda.EverythingLauncher
 {

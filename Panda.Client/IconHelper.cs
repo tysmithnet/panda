@@ -17,22 +17,22 @@ namespace Panda.Client
         /// <summary>
         ///     The large icon cache
         /// </summary>
-        internal static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(IconHelper).FullName + "_large");
+        private static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(IconHelper).FullName + "_large");
 
         /// <summary>
         ///     The small icon cache
         /// </summary>
-        internal static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(IconHelper).FullName + "_small");
+        private static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(IconHelper).FullName + "_small");
 
         /// <summary>
         ///     The unknown file large
         /// </summary>
-        internal static readonly ImageSource UnknownFileLarge;
+        private static readonly ImageSource UnknownFileLarge;
 
         /// <summary>
         ///     The unknown file small
         /// </summary>
-        internal static readonly ImageSource UnknownFileSmall;
+        private static readonly ImageSource UnknownFileSmall;
 
         /// <summary>
         ///     Initializes the <see cref="IconHelper" /> class.
@@ -64,7 +64,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="size">The size.</param>
         /// <returns></returns>
-        internal static uint ToIconFlag(this IconSize size)
+        private static uint ToIconFlag(this IconSize size)
         {
             return (uint) size;
         }
@@ -152,16 +152,17 @@ namespace Panda.Client
         private struct ShFileInfo
         {
             public readonly IntPtr hIcon;
-            public readonly int iIcon;
-            public readonly uint dwAttributes;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] public readonly string szDisplayName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)] public readonly string szTypeName;
+            private readonly int iIcon;
+            private readonly uint dwAttributes;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] private readonly string szDisplayName;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)] private readonly string szTypeName;
         }
 
         /// <summary>
         ///     Local win32 api wrapper
         /// </summary>
-        private class Win32
+        private static class Win32
         {
             public const uint SHGFI_ICON = 0x100;
             public const uint SHGFI_LARGEICON = 0x0; // 'Large icon

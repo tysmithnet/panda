@@ -11,25 +11,25 @@ using Panda.Client;
 namespace Panda.AppLauncher
 {
     /// <summary>
-    ///     A service that will manage the registered application domain
+    ///     A service that will manage the launchable application domain
     /// </summary>
     /// <seealso cref="Panda.Client.IRequiresSetup" />
-    /// <seealso cref="Panda.AppLauncher.IRegisteredApplicationService" />
+    /// <seealso cref="ILaunchableApplicationService" />
     [Export(typeof(IRequiresSetup))]
-    [Export(typeof(IRegisteredApplicationService))]
-    public sealed class RegisteredApplicationService : IRequiresSetup, IRegisteredApplicationService
+    [Export(typeof(ILaunchableApplicationService))]
+    public sealed class LaunchableApplicationService : IRequiresSetup, ILaunchableApplicationService
     {
         /// <summary>
         ///     The application registered subject
         /// </summary>
-        internal Subject<RegisteredApplication> ApplicationRegisteredSubject =
-            new Subject<RegisteredApplication>();
+        internal Subject<LaunchableApplication> ApplicationRegisteredSubject =
+            new Subject<LaunchableApplication>();
 
         /// <summary>
         ///     The application unregistered subject
         /// </summary>
-        internal Subject<RegisteredApplication> ApplicationUnregisteredSubject =
-            new Subject<RegisteredApplication>();
+        internal Subject<LaunchableApplication> ApplicationUnregisteredSubject =
+            new Subject<LaunchableApplication>();
 
         /// <summary>
         ///     Gets or sets the registered applications.
@@ -37,8 +37,11 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The registered applications.
         /// </value>
-        internal IList<RegisteredApplication> RegisteredApplications { get; set; } =
-            new List<RegisteredApplication>();
+        internal IList<LaunchableApplication> RegisteredApplications
+        {
+            get => Settings.RegisteredApplications;
+            set => Settings.RegisteredApplications = value;
+        }
 
         /// <summary>
         ///     Gets or sets the settings service.
@@ -55,7 +58,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The settings.
         /// </value>
-        internal AppLauncherSettings Settings { get; set; }
+        internal ApplicationLauncherSettings Settings { get; set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -64,7 +67,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The application registered observable.
         /// </value>
-        public IObservable<RegisteredApplication> ApplicationRegisteredObservable => ApplicationRegisteredSubject;
+        public IObservable<LaunchableApplication> ApplicationRegisteredObservable => ApplicationRegisteredSubject;
 
         /// <inheritdoc />
         /// <summary>
@@ -73,7 +76,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The application unregistered observable.
         /// </value>
-        public IObservable<RegisteredApplication> ApplicationUnregisteredObservable => ApplicationUnregisteredSubject;
+        public IObservable<LaunchableApplication> ApplicationUnregisteredObservable => ApplicationUnregisteredSubject;
 
         /// <inheritdoc />
         /// <summary>
@@ -82,7 +85,7 @@ namespace Panda.AppLauncher
         /// <returns>
         ///     An observable that will deliver all currently registered applications
         /// </returns>
-        public IObservable<RegisteredApplication> Get()
+        public IObservable<LaunchableApplication> Get()
         {
             return RegisteredApplications.ToObservable();
         }
@@ -91,24 +94,23 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Registers a new application
         /// </summary>
-        /// <param name="registeredApplication">The registered application to register.</param>
-        public void Add(RegisteredApplication registeredApplication)
+        /// <param name="launchableApplication">The registered application to register.</param>
+        public void Add(LaunchableApplication launchableApplication)
         {
-            Settings.RegisteredApplications.Add(registeredApplication);
-            RegisteredApplications.Add(registeredApplication);
-            ApplicationRegisteredSubject.OnNext(registeredApplication);
+            RegisteredApplications.Add(launchableApplication);
+            ApplicationRegisteredSubject.OnNext(launchableApplication);
         }
 
         /// <inheritdoc />
         /// <summary>
         ///     Unregisters an application
         /// </summary>
-        /// <param name="registeredApplication">The registered application to remove</param>
-        public void Remove(RegisteredApplication registeredApplication)
+        /// <param name="launchableApplication">The registered application to remove</param>
+        public void Remove(LaunchableApplication launchableApplication)
         {
-            Settings.RegisteredApplications.Remove(registeredApplication); // todo: test
-            RegisteredApplications.Remove(registeredApplication);
-            ApplicationUnregisteredSubject.OnNext(registeredApplication);
+            Settings.RegisteredApplications.Remove(launchableApplication); // todo: test
+            RegisteredApplications.Remove(launchableApplication);
+            ApplicationUnregisteredSubject.OnNext(launchableApplication);
         }
 
         /// <inheritdoc />
@@ -130,16 +132,7 @@ namespace Panda.AppLauncher
         /// </returns>
         public Task Setup(CancellationToken cancellationToken)
         {
-            Settings = SettingsService.Get<AppLauncherSettings>().Single();
-            foreach (var registeredApplication in Settings.RegisteredApplications)
-            {
-                var revivedApp = new RegisteredApplication
-                {
-                    DisplayName = registeredApplication.DisplayName,
-                    FullPath = registeredApplication.FullPath
-                };
-                RegisteredApplications.Add(revivedApp);
-            }
+            Settings = SettingsService.Get<ApplicationLauncherSettings>().Single();
             return Task.CompletedTask;
         }
     }

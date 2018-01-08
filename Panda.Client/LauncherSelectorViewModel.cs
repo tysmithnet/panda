@@ -19,22 +19,32 @@ namespace Panda.Client
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
         /// <summary>
-        /// The preview mouse up obs
+        ///     The launcher selector key up obs
         /// </summary>
-        private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _previewMouseUpObs;
+        private IObservable<KeyEventArgs> _launcherSelectorKeyUpObs;
 
         /// <summary>
-        /// The preview mouse up subscription
+        ///     The launcher selector key up subscription
+        /// </summary>
+        private IDisposable _launcherSelectorKeyUpSubscription;
+
+        /// <summary>
+        ///     The preview mouse up obs
+        /// </summary>
+        private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _mouseUpObs;
+
+        /// <summary>
+        ///     The preview mouse up subscription
         /// </summary>
         private IDisposable _previewMouseUpSubscription;
 
         /// <summary>
-        /// The search text box preview key up obs
+        ///     The search text box preview key up obs
         /// </summary>
         private IObservable<(string, KeyEventArgs)> _searchTextBoxPreviewKeyUpObs;
 
         /// <summary>
-        /// The search text box preview key up subscription
+        ///     The search text box preview key up subscription
         /// </summary>
         private IDisposable _searchTextBoxPreviewKeyUpSubscription;
 
@@ -62,7 +72,7 @@ namespace Panda.Client
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
         /// <param name="launcherService">The launcher service.</param>
-        public LauncherSelectorViewModel(ILauncherService launcherService)
+        internal LauncherSelectorViewModel(ILauncherService launcherService)
         {
             LauncherService = launcherService;
             ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
@@ -79,7 +89,7 @@ namespace Panda.Client
         /// <value>
         ///     The text changed obs.
         /// </value>
-        public IObservable<string> TextChangedObs
+        internal IObservable<string> TextChangedObs
         {
             get => _textChangedObs;
             set
@@ -112,7 +122,7 @@ namespace Panda.Client
         /// <value>
         ///     The launcher service.
         /// </value>
-        internal ILauncherService LauncherService { get; set; }
+        private ILauncherService LauncherService { get; }
 
         /// <summary>
         ///     Gets or sets the view models.
@@ -120,7 +130,7 @@ namespace Panda.Client
         /// <value>
         ///     The view models.
         /// </value>
-        internal IEnumerable<LauncherViewModel> ViewModels { get; set; }
+        private IEnumerable<LauncherViewModel> ViewModels { get; }
 
         /// <summary>
         ///     Gets or sets the active.
@@ -128,7 +138,7 @@ namespace Panda.Client
         /// <value>
         ///     The active.
         /// </value>
-        internal Launcher Active { get; set; }
+        private Launcher Active { get; set; }
 
         /// <summary>
         ///     Gets or sets the launcher view models.
@@ -175,18 +185,18 @@ namespace Panda.Client
         }
 
         /// <summary>
-        /// Gets or sets the preview mouse up obs.
+        ///     Gets or sets the preview mouse up obs.
         /// </summary>
         /// <value>
-        /// The preview mouse up obs.
+        ///     The preview mouse up obs.
         /// </value>
-        public IObservable<(LauncherViewModel, MouseButtonEventArgs)> PreviewMouseUpObs
+        internal IObservable<(LauncherViewModel, MouseButtonEventArgs)> MouseUpObs
         {
-            get => _previewMouseUpObs;
+            get => _mouseUpObs;
             set
             {
                 _previewMouseUpSubscription?.Dispose();
-                _previewMouseUpObs = value;
+                _mouseUpObs = value;
                 _previewMouseUpSubscription = value.Subscribe(tuple =>
                 {
                     Active?.Hide();
@@ -197,12 +207,12 @@ namespace Panda.Client
         }
 
         /// <summary>
-        /// Gets or sets the search text box preview key up obs.
+        ///     Gets or sets the search text box preview key up obs.
         /// </summary>
         /// <value>
-        /// The search text box preview key up obs.
+        ///     The search text box preview key up obs.
         /// </value>
-        public IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
+        internal IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
         {
             get => _searchTextBoxPreviewKeyUpObs;
             set
@@ -215,7 +225,42 @@ namespace Panda.Client
                     var args = tuple.Item2;
 
                     if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
+                    {
                         StartFirst();
+                        args.Handled = true;
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the hide action.
+        /// </summary>
+        /// <value>
+        ///     The hide action.
+        /// </value>
+        internal Action HideAction { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the launcher selector key up obs.
+        /// </summary>
+        /// <value>
+        ///     The launcher selector key up obs.
+        /// </value>
+        internal IObservable<KeyEventArgs> LauncherSelectorKeyUpObs
+        {
+            get => _launcherSelectorKeyUpObs;
+            set
+            {
+                _launcherSelectorKeyUpSubscription?.Dispose();
+                _launcherSelectorKeyUpObs = value;
+                _launcherSelectorKeyUpSubscription = value.Subscribe(args =>
+                {
+                    if (args.Key == Key.Escape)
+                    {
+                        HideAction?.Invoke();
+                        args.Handled = true;
+                    }
                 });
             }
         }
@@ -237,7 +282,7 @@ namespace Panda.Client
         /// <summary>
         ///     Submits this instance.
         /// </summary>
-        public void StartFirst()
+        private void StartFirst()
         {
             var first = LauncherViewModels.FirstOrDefault();
             if (first == null) return;

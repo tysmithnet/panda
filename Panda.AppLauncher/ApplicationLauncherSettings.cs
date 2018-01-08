@@ -10,7 +10,7 @@ namespace Panda.AppLauncher
     /// </summary>
     /// <seealso cref="T:Panda.Client.IPluginSettings" />
     [Export(typeof(IPluginSettings))]
-    public class AppLauncherSettings : IPluginSettings
+    public class ApplicationLauncherSettings : IPluginSettings
     {
         /// <summary>
         ///     Gets or sets the registered applications.
@@ -18,13 +18,6 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The registered applications.
         /// </value>
-        public IList<RegisteredApplication> RegisteredApplications { get; set; } = new List<RegisteredApplication>();
-
-        public uint SearchDepth { get; set; } = 2;
-
-        public IList<string> SearchPaths = new List<string>()
-        {
-            
-        };
+        public IList<LaunchableApplication> RegisteredApplications { get; set; } = new List<LaunchableApplication>();
     }
 }

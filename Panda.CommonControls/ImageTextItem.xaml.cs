@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reactive.Subjects;
+﻿using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -31,6 +30,24 @@ namespace Panda.CommonControls
             DependencyProperty.Register("ImageSource", typeof(ImageSource), typeof(ImageTextItem));
 
         /// <summary>
+        ///     The is editable property
+        /// </summary>
+        public static readonly DependencyProperty IsEditableProperty =
+            DependencyProperty.Register("IsEditable", typeof(bool), typeof(ImageTextItem));
+
+        /// <summary>
+        ///     The menu items property
+        /// </summary>
+        public static readonly DependencyProperty MenuItemsProperty =
+            DependencyProperty.Register("MenuItems", typeof(IEnumerable), typeof(ImageTextItem));
+
+        /// <summary>
+        ///     The stop editing command
+        /// </summary>
+        public static RoutedCommand StopEditingCommand = new RoutedCommand("StopEditing", typeof(ImageTextItem));
+
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="ImageTextItem" /> class.
         /// </summary>
         public ImageTextItem()
@@ -38,47 +55,6 @@ namespace Panda.CommonControls
             InitializeComponent();
             LayoutRoot.DataContext = this;
         }
-
-        /// <summary>
-        ///     Gets or sets the header text changed subject.
-        /// </summary>
-        /// <value>
-        ///     The header text changed subject.
-        /// </value>
-        protected internal Subject<string> HeaderTextChangedSubject { get; set; } = new Subject<string>();
-
-        /// <summary>
-        ///     Gets or sets the sub header changed subject.
-        /// </summary>
-        /// <value>
-        ///     The sub header changed subject.
-        /// </value>
-        protected internal Subject<string> SubHeaderChangedSubject { get; set; } = new Subject<string>();
-
-        /// <summary>
-        ///     Gets or sets the image source changed subject.
-        /// </summary>
-        /// <value>
-        ///     The image source changed subject.
-        /// </value>
-        protected internal Subject<ImageSource> ImageSourceChangedSubject { get; set; } = new Subject<ImageSource>();
-
-        /// <summary>
-        ///     Gets or sets the preview mouse button up subject.
-        /// </summary>
-        /// <value>
-        ///     The preview mouse button up subject.
-        /// </value>
-        protected internal Subject<MouseButtonEventArgs> PreviewMouseButtonUpSubject { get; set; } =
-            new Subject<MouseButtonEventArgs>();
-
-        /// <summary>
-        ///     Gets the preview mouse button up obs.
-        /// </summary>
-        /// <value>
-        ///     The preview mouse button up obs.
-        /// </value>
-        public IObservable<MouseButtonEventArgs> PreviewMouseButtonUpObs => PreviewMouseButtonUpSubject;
 
         /// <summary>
         ///     Gets or sets the header text.
@@ -117,13 +93,37 @@ namespace Panda.CommonControls
         }
 
         /// <summary>
-        ///     Handles the OnPreviewMouseUp event of the ImageTextItem control.
+        ///     Gets or sets a value indicating whether this instance is editable.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if this instance is editable; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEditable
+        {
+            get => (bool) GetValue(IsEditableProperty);
+            set => SetValue(IsEditableProperty, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets the menu items.
+        /// </summary>
+        /// <value>
+        ///     The menu items.
+        /// </value>
+        public IEnumerable MenuItems
+        {
+            get => GetValue(MenuItemsProperty) as IEnumerable;
+            set => SetValue(MenuItemsProperty, value);
+        }
+
+        /// <summary>
+        ///     Handles the OnExecuted event of the CommandBinding control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
-        private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
+        /// <param name="e">The <see cref="ExecutedRoutedEventArgs" /> instance containing the event data.</param>
+        private void CommandBinding_OnExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            // todo: needed?
+            IsEditable = false;
         }
     }
 }

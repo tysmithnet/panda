@@ -29,7 +29,7 @@ namespace Panda.Client
         /// <value>
         ///     The selector.
         /// </value>
-        public LauncherSelector Selector { get; set; }
+        private LauncherSelector Selector { get; set; }
 
         /// <summary>
         ///     Handles the OnStartup event of the App control.

@@ -5,7 +5,7 @@ namespace Panda.AppLauncher
     /// <summary>
     ///     A service that is capable of managing the RegisteredApplication domain
     /// </summary>
-    public interface IRegisteredApplicationService
+    public interface ILaunchableApplicationService
     {
         /// <summary>
         ///     Gets an observable that will deliver newly registered applications
@@ -13,7 +13,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The application registered observable.
         /// </value>
-        IObservable<RegisteredApplication> ApplicationRegisteredObservable { get; }
+        IObservable<LaunchableApplication> ApplicationRegisteredObservable { get; }
 
         /// <summary>
         ///     Gets an observable that will delivery notification of removed applications
@@ -21,25 +21,25 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The application unregistered observable.
         /// </value>
-        IObservable<RegisteredApplication> ApplicationUnregisteredObservable { get; }
+        IObservable<LaunchableApplication> ApplicationUnregisteredObservable { get; }
 
         /// <summary>
         ///     Registers a new application
         /// </summary>
-        /// <param name="registeredApplication">The registered application to register.</param>
-        void Add(RegisteredApplication registeredApplication);
+        /// <param name="launchableApplication">The registered application to register.</param>
+        void Add(LaunchableApplication launchableApplication);
 
         /// <summary>
         ///     Gets an observable that will deliver all registered applications when called
         /// </summary>
         /// <returns>An observable that will deliver all currently registered applications</returns>
-        IObservable<RegisteredApplication> Get();
+        IObservable<LaunchableApplication> Get();
 
         /// <summary>
         ///     Unregisters an application
         /// </summary>
-        /// <param name="registeredApplication">The registered application to remove</param>
-        void Remove(RegisteredApplication registeredApplication);
+        /// <param name="launchableApplication">The registered application to remove</param>
+        void Remove(LaunchableApplication launchableApplication);
 
         /// <summary>
         ///     Saves the current state of registered applications

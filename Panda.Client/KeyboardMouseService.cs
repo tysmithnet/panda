@@ -16,42 +16,33 @@ namespace Panda.Client
     /// </summary>
     /// <seealso cref="T:Panda.Client.IKeyboardMouseService" />
     [Export(typeof(IKeyboardMouseService))]
-    public sealed class KeyboardMouseService : IKeyboardMouseService
+    internal sealed class KeyboardMouseService : IKeyboardMouseService
     {
         /// <summary>
         ///     The key down subject
         /// </summary>
-        internal Subject<KeyEventArgs> KeyDownSubject = new Subject<KeyEventArgs>();
+        private readonly Subject<KeyEventArgs> _keyDownSubject = new Subject<KeyEventArgs>();
 
         /// <summary>
         ///     The key press subject
         /// </summary>
-        internal Subject<KeyPressEventArgs> KeyPressSubject = new Subject<KeyPressEventArgs>();
+        private readonly Subject<KeyPressEventArgs> _keyPressSubject = new Subject<KeyPressEventArgs>();
 
         /// <summary>
         ///     The key up subject
         /// </summary>
-        internal Subject<KeyEventArgs> KeyUpSubject = new Subject<KeyEventArgs>();
+        private readonly Subject<KeyEventArgs> KeyUpSubject = new Subject<KeyEventArgs>();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="KeyboardMouseService" /> class.
         /// </summary>
-        internal KeyboardMouseService()
+        private KeyboardMouseService()
         {
             GlobalEvents = Hook.GlobalEvents();
-            AppEvents = Hook.AppEvents();
-            GlobalEvents.KeyDown += (sender, args) => KeyDownSubject.OnNext(args);
-            GlobalEvents.KeyPress += (sender, args) => KeyPressSubject.OnNext(args);
+            GlobalEvents.KeyDown += (sender, args) => _keyDownSubject.OnNext(args);
+            GlobalEvents.KeyPress += (sender, args) => _keyPressSubject.OnNext(args);
             GlobalEvents.KeyUp += (sender, args) => KeyUpSubject.OnNext(args);
         }
-
-        /// <summary>
-        ///     Gets or sets the application event source.
-        /// </summary>
-        /// <value>
-        ///     The application event source.
-        /// </value>
-        internal IKeyboardMouseEvents AppEvents { get; set; }
 
         /// <summary>
         ///     Gets or sets the global event source.
@@ -59,7 +50,7 @@ namespace Panda.Client
         /// <value>
         ///     The global event source.
         /// </value>
-        internal IKeyboardMouseEvents GlobalEvents { get; set; }
+        private IKeyboardMouseEvents GlobalEvents { get; }
 
         /// <inheritdoc />
         /// <summary>
@@ -68,7 +59,7 @@ namespace Panda.Client
         /// <value>
         ///     The key down observable.
         /// </value>
-        public IObservable<KeyEventArgs> KeyDownObservable => KeyDownSubject;
+        public IObservable<KeyEventArgs> KeyDownObservable => _keyDownSubject;
 
         /// <inheritdoc />
         /// <summary>
@@ -77,7 +68,7 @@ namespace Panda.Client
         /// <value>
         ///     The key press observable.
         /// </value>
-        public IObservable<KeyPressEventArgs> KeyPressObservable => KeyPressSubject;
+        public IObservable<KeyPressEventArgs> KeyPressObservable => _keyPressSubject;
 
         /// <inheritdoc />
         /// <summary>
@@ -120,16 +111,16 @@ namespace Panda.Client
         /// <param name="lpPoint">The lp point.</param>
         /// <returns></returns>
         [DllImport("user32.dll")]
-        public static extern bool GetCursorPos(out PointStruct lpPoint);
+        private static extern bool GetCursorPos(out PointStruct lpPoint);
 
         /// <summary>
         ///     Represents a pair of mouse coordinates
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        public struct PointStruct
+        private struct PointStruct
         {
-            public int X;
-            public int Y;
+            private readonly int X;
+            private readonly int Y;
 
             /// <summary>
             ///     Performs an implicit conversion from <see cref="PointStruct" /> to <see cref="Point" />.

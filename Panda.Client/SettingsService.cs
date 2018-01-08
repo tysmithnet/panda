@@ -17,7 +17,7 @@ namespace Panda.Client
     /// <seealso cref="Panda.Client.ISystemService" />
     [Export(typeof(ISettingsService))]
     [Export(typeof(ISystemService))]
-    public sealed class SettingsService : ISettingsService, ISystemService
+    internal sealed class SettingsService : ISettingsService, ISystemService
     {
         /// <summary>
         ///     Gets the log.
@@ -34,7 +34,7 @@ namespace Panda.Client
         ///     All plugin settings.
         /// </value>
         [ImportMany]
-        internal IPluginSettings[] AllPluginSettings { get; set; }
+        private IPluginSettings[] AllPluginSettings { get; set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -58,7 +58,7 @@ namespace Panda.Client
             foreach (var settings in AllPluginSettings)
             {
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-                File.WriteAllText($"{settings.GetType().FullName}.config.json", json);
+                File.WriteAllText($"{settings.GetType().FullName}.config.json", json); // todo: error checking
             }
         }
 

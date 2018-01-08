@@ -9,6 +9,8 @@ namespace Panda.Client
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LauncherViewModel : INotifyPropertyChanged
     {
+        private bool _isEditable;
+
         /// <summary>
         ///     Gets or sets the name.
         /// </summary>
