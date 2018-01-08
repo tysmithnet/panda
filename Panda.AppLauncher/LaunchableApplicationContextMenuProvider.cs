@@ -75,7 +75,7 @@ namespace Panda.AppLauncher
         /// <returns>
         ///     <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanHandle(IEnumerable<LaunchableApplication> items)
+        public bool CanHandle(IEnumerable<LaunchableApplicationViewModel> items)
         {
             return items.Any();
         }
@@ -86,15 +86,24 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="items">The items.</param>
         /// <returns>The context menu items for the provided registered applications</returns>
-        public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<LaunchableApplication> items)
+        public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<LaunchableApplicationViewModel> items)
         {
             items = items.ToList();
             var removeMenuItem = new MenuItem {Header = "Remove from Applications"};
-            foreach (var registeredApplication in items)
-                removeMenuItem.Click += (sender, args) => LaunchableApplicationService.Remove(registeredApplication);
+            foreach (var launchableApplication in items)
+                removeMenuItem.Click += (sender, args) => LaunchableApplicationService.Remove(launchableApplication.LaunchableApplication);
             removeMenuItem.Click += (sender, args) => LaunchableApplicationService.Save();
-                       
-            return new[] { removeMenuItem };
+             
+            var editMenuItem = new MenuItem {Header = "Edit"};
+            foreach (var launchableApplicationViewModel in items)
+            {
+                editMenuItem.Click += (sender, args) =>
+                {
+                    launchableApplicationViewModel.IsEditable = true;
+                };
+            }
+
+            return new[] { removeMenuItem, editMenuItem };
         }
     }
 }

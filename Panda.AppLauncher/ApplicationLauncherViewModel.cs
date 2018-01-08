@@ -279,12 +279,12 @@ namespace Panda.AppLauncher
                     {
                         var canHandle =
                             registeredApplicationContextMenuProvider.CanHandle(
-                                list.Select(model => model.LaunchableApplication));
+                                list);
 
                         if (!canHandle) continue;
 
                         foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
-                            list.Select(model => model.LaunchableApplication)))
+                            list))
                             ContextMenuItems.Add(item);
                     }
                 });
