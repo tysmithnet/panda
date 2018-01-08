@@ -5,7 +5,7 @@ namespace Panda.AppLauncher
     /// <summary>
     ///     Represents something that has been registered with the application launcher
     /// </summary>
-    public sealed class RegisteredApplication
+    public sealed class LaunchableApplication
     {
         /// <summary>
         ///     Gets or sets the display name.
@@ -32,7 +32,7 @@ namespace Panda.AppLauncher
         /// </returns>
         public override bool Equals(object obj)
         {
-            return obj is RegisteredApplication application &&
+            return obj is LaunchableApplication application &&
                    DisplayName == application.DisplayName &&
                    FullPath == application.FullPath;
         }
