@@ -18,10 +18,10 @@
                  TextChanged="TextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
 
-        <ListBox x:Name="RegisteredApplications" 
-                 ItemsSource="{Binding AppViewModels}" 
+        <ListBox x:Name="RegisteredApplications"
+                 ItemsSource="{Binding AppViewModels}"
                  SelectionMode="Extended"
-                 SelectionChanged="Selector_OnSelectionChanged" 
+                 SelectionChanged="Selector_OnSelectionChanged"
                  HorizontalAlignment="Stretch"
                  HorizontalContentAlignment="Stretch">
 
@@ -31,13 +31,12 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
-                                                  ImageSource="{Binding ImageSource}" 
+                                                  ImageSource="{Binding ImageSource}"
                                                   HeaderText="{Binding AppName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                   SubHeaderText="{Binding ExecutableLocation, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEditable="{Binding IsEditable, Mode=TwoWay}"
-                                                  MenuItems="{Binding MenuItems}">
-                        </commonControls:ImageTextItem>
-                    
+                                                  MenuItems="{Binding MenuItems}" />
+
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

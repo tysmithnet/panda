@@ -11,7 +11,7 @@ using Panda.Client;
 namespace Panda.AppLauncher
 {
     /// <summary>
-    ///     A service that will manage the registered application domain
+    ///     A service that will manage the launchable application domain
     /// </summary>
     /// <seealso cref="Panda.Client.IRequiresSetup" />
     /// <seealso cref="ILaunchableApplicationService" />
@@ -30,7 +30,7 @@ namespace Panda.AppLauncher
         /// </summary>
         internal Subject<LaunchableApplication> ApplicationUnregisteredSubject =
             new Subject<LaunchableApplication>();
-                                                           
+
         /// <summary>
         ///     Gets or sets the registered applications.
         /// </summary>
@@ -96,7 +96,7 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="launchableApplication">The registered application to register.</param>
         public void Add(LaunchableApplication launchableApplication)
-        {                                                                
+        {
             RegisteredApplications.Add(launchableApplication);
             ApplicationRegisteredSubject.OnNext(launchableApplication);
         }
@@ -132,7 +132,7 @@ namespace Panda.AppLauncher
         /// </returns>
         public Task Setup(CancellationToken cancellationToken)
         {
-            Settings = SettingsService.Get<ApplicationLauncherSettings>().Single();  
+            Settings = SettingsService.Get<ApplicationLauncherSettings>().Single();
             return Task.CompletedTask;
         }
     }

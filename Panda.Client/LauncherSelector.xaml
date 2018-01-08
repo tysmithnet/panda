@@ -15,13 +15,14 @@
         <TextBox x:Name="SearchText" DockPanel.Dock="Top" Text="{Binding SearchText}"
                  TextChanged="TextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
-        <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <ListBox ItemsSource="{Binding LauncherViewModels}" SelectionChanged="Selector_OnSelectionChanged"
+                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <commonControls:ImageTextItem MouseUp="ImageTextItem_OnMouseUp"
                                                   HeaderText="{Binding Name}"
                                                   MenuItems="{Binding MenuItems}"
-                                                  IsEditable="{Binding IsEditable}"/>
+                                                  IsEditable="{Binding IsEditable}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

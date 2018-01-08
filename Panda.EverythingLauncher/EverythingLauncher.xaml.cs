@@ -96,6 +96,12 @@ namespace Panda.EverythingLauncher
         private Subject<MouseButtonEventArgs> PreviewMouseRightButtonDownObservable { get; } =
             new Subject<MouseButtonEventArgs>();
 
+        /// <summary>
+        ///     Gets or sets the preview mouse double click subject.
+        /// </summary>
+        /// <value>
+        ///     The preview mouse double click subject.
+        /// </value>
         internal Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; }
             = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
 

@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -20,22 +19,32 @@ namespace Panda.Client
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
         /// <summary>
-        /// The preview mouse up obs
+        ///     The launcher selector key up obs
+        /// </summary>
+        private IObservable<KeyEventArgs> _launcherSelectorKeyUpObs;
+
+        /// <summary>
+        ///     The launcher selector key up subscription
+        /// </summary>
+        private IDisposable _launcherSelectorKeyUpSubscription;
+
+        /// <summary>
+        ///     The preview mouse up obs
         /// </summary>
         private IObservable<(LauncherViewModel, MouseButtonEventArgs)> _mouseUpObs;
 
         /// <summary>
-        /// The preview mouse up subscription
+        ///     The preview mouse up subscription
         /// </summary>
         private IDisposable _previewMouseUpSubscription;
 
         /// <summary>
-        /// The search text box preview key up obs
+        ///     The search text box preview key up obs
         /// </summary>
         private IObservable<(string, KeyEventArgs)> _searchTextBoxPreviewKeyUpObs;
 
         /// <summary>
-        /// The search text box preview key up subscription
+        ///     The search text box preview key up subscription
         /// </summary>
         private IDisposable _searchTextBoxPreviewKeyUpSubscription;
 
@@ -58,8 +67,6 @@ namespace Panda.Client
         ///     The text changed subscription
         /// </summary>
         private IDisposable _textChangedSubscription;
-
-        private IObservable<KeyEventArgs> _launcherSelectorKeyUpObs;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
@@ -176,12 +183,12 @@ namespace Panda.Client
                 });
             }
         }
-        
+
         /// <summary>
-        /// Gets or sets the preview mouse up obs.
+        ///     Gets or sets the preview mouse up obs.
         /// </summary>
         /// <value>
-        /// The preview mouse up obs.
+        ///     The preview mouse up obs.
         /// </value>
         public IObservable<(LauncherViewModel, MouseButtonEventArgs)> MouseUpObs
         {
@@ -194,16 +201,16 @@ namespace Panda.Client
                 {
                     Active?.Hide();
                     Active = tuple.Item1.Instance;
-                    Active.Show();             
+                    Active.Show();
                 });
             }
         }
 
         /// <summary>
-        /// Gets or sets the search text box preview key up obs.
+        ///     Gets or sets the search text box preview key up obs.
         /// </summary>
         /// <value>
-        /// The search text box preview key up obs.
+        ///     The search text box preview key up obs.
         /// </value>
         public IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
         {
@@ -221,14 +228,25 @@ namespace Panda.Client
                     {
                         StartFirst();
                         args.Handled = true;
-                    }                       
+                    }
                 });
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the hide action.
+        /// </summary>
+        /// <value>
+        ///     The hide action.
+        /// </value>
         public Action HideAction { get; set; }
 
-        private IDisposable _launcherSelectorKeyUpSubscription;
+        /// <summary>
+        ///     Gets or sets the launcher selector key up obs.
+        /// </summary>
+        /// <value>
+        ///     The launcher selector key up obs.
+        /// </value>
         public IObservable<KeyEventArgs> LauncherSelectorKeyUpObs
         {
             get => _launcherSelectorKeyUpObs;
@@ -241,7 +259,6 @@ namespace Panda.Client
                     if (args.Key == Key.Escape)
                         HideAction?.Invoke();
                 });
-
             }
         }
 
@@ -271,6 +288,5 @@ namespace Panda.Client
             Active.Show();
             // todo: allow multiple active windows
         }
-
     }
 }

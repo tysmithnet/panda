@@ -91,19 +91,15 @@ namespace Panda.AppLauncher
             items = items.ToList();
             var removeMenuItem = new MenuItem {Header = "Remove from Applications"};
             foreach (var launchableApplication in items)
-                removeMenuItem.Click += (sender, args) => LaunchableApplicationService.Remove(launchableApplication.LaunchableApplication);
+                removeMenuItem.Click += (sender, args) =>
+                    LaunchableApplicationService.Remove(launchableApplication.LaunchableApplication);
             removeMenuItem.Click += (sender, args) => LaunchableApplicationService.Save();
-             
+
             var editMenuItem = new MenuItem {Header = "Edit"};
             foreach (var launchableApplicationViewModel in items)
-            {
-                editMenuItem.Click += (sender, args) =>
-                {
-                    launchableApplicationViewModel.IsEditable = true;
-                };
-            }
+                editMenuItem.Click += (sender, args) => { launchableApplicationViewModel.IsEditable = true; };
 
-            return new[] { removeMenuItem, editMenuItem };
+            return new[] {removeMenuItem, editMenuItem};
         }
     }
 }

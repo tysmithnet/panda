@@ -13,12 +13,14 @@ using Panda.Client.Properties;
 namespace Panda.AppLauncher
 {
     /// <summary>
-    ///     View model for registered applications
+    ///     View model for launchable applications
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LaunchableApplicationViewModel : INotifyPropertyChanged
     {
         private string _appName;
+
+        private MenuItem _editMenuItem;
         private string _executableLocation;
 
         /// <summary>
@@ -28,23 +30,21 @@ namespace Panda.AppLauncher
 
         private bool _isEditable;
         private LaunchableApplication _launchableApplication;
+        private MenuItem _saveMenuItem;
 
         public LaunchableApplicationViewModel(ILaunchableApplicationService launcherService)
         {
             LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
-            SetupMenuItems();  
+            SetupMenuItems();
             MenuItems.Add(_editMenuItem);
             Observable.FromEvent<PropertyChangedEventHandler, PropertyChangedEventArgs>(handler =>
-                {
-                    PropertyChangedEventHandler h = (sender, args) => handler(args);
-                    return h;
-                },
-                h => { PropertyChanged += h; },
-                h => { PropertyChanged -= h; })
-            .Throttle(TimeSpan.FromSeconds(5)).Subscribe(args =>
-            {
-                LaunchableApplicationService.Save();
-            });
+                    {
+                        PropertyChangedEventHandler h = (sender, args) => handler(args);
+                        return h;
+                    },
+                    h => { PropertyChanged += h; },
+                    h => { PropertyChanged -= h; })
+                .Throttle(TimeSpan.FromSeconds(5)).Subscribe(args => { LaunchableApplicationService.Save(); });
         }
 
         /// <summary>
@@ -126,20 +126,16 @@ namespace Panda.AppLauncher
                 if (value)
                 {
                     if (MenuItems.Contains(_editMenuItem))
-                    {
                         MenuItems.Remove(_editMenuItem);
-                    }
                     MenuItems.Add(_saveMenuItem);
                 }
                 else
                 {
                     if (MenuItems.Contains(_saveMenuItem))
-                    {
                         MenuItems.Remove(_saveMenuItem);
-                    }
                     MenuItems.Add(_editMenuItem);
                 }
-                
+
                 OnPropertyChanged();
             }
         }
@@ -173,23 +169,13 @@ namespace Panda.AppLauncher
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private MenuItem _editMenuItem;
-        private MenuItem _saveMenuItem;
-
         private void SetupMenuItems()
         {
             _editMenuItem = new MenuItem {Header = "Edit"};
-            _editMenuItem.Click += (sender, args) =>
-            {
-                IsEditable = true;                
-            };
+            _editMenuItem.Click += (sender, args) => { IsEditable = true; };
 
-            _saveMenuItem = new MenuItem { Header = "Save" };
-            _saveMenuItem.Click += (sender, args) =>
-            {
-                IsEditable = false;                 
-            };                              
+            _saveMenuItem = new MenuItem {Header = "Save"};
+            _saveMenuItem.Click += (sender, args) => { IsEditable = false; };
         }
-            
     }
 }

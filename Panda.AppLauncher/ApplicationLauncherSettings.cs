@@ -19,12 +19,5 @@ namespace Panda.AppLauncher
         ///     The registered applications.
         /// </value>
         public IList<LaunchableApplication> RegisteredApplications { get; set; } = new List<LaunchableApplication>();
-
-        public uint SearchDepth { get; set; } = 2;
-
-        public IList<string> SearchPaths = new List<string>()
-        {
-            
-        };
     }
 }

@@ -130,15 +130,30 @@ namespace Panda.CommonControls
             set => SetValue(ImageSourceProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is editable.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is editable; otherwise, <c>false</c>.
+        /// </value>
         public bool IsEditable
         {
             get => (bool)GetValue(IsEditableProperty);
             set => SetValue(IsEditableProperty, value);
         }
 
+        /// <summary>
+        /// The menu items property
+        /// </summary>
         public static readonly DependencyProperty MenuItemsProperty =
             DependencyProperty.Register("MenuItems", typeof(IEnumerable), typeof(ImageTextItem));
 
+        /// <summary>
+        /// Gets or sets the menu items.
+        /// </summary>
+        /// <value>
+        /// The menu items.
+        /// </value>
         public IEnumerable MenuItems
         {
             get => GetValue(MenuItemsProperty) as IEnumerable;
@@ -155,10 +170,18 @@ namespace Panda.CommonControls
         private void ImageTextItem_OnPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             // todo: needed?
-        } 
+        }
 
+        /// <summary>
+        /// The stop editing command
+        /// </summary>
         public static RoutedCommand StopEditingCommand = new RoutedCommand("StopEditing", typeof(ImageTextItem));
 
+        /// <summary>
+        /// Handles the OnExecuted event of the CommandBinding control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="ExecutedRoutedEventArgs"/> instance containing the event data.</param>
         private void CommandBinding_OnExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             IsEditable = false;                    
