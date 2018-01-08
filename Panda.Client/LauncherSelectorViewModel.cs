@@ -59,6 +59,8 @@ namespace Panda.Client
         /// </summary>
         private IDisposable _textChangedSubscription;
 
+        private IObservable<KeyEventArgs> _launcherSelectorKeyUpObs;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
@@ -174,7 +176,7 @@ namespace Panda.Client
                 });
             }
         }
-
+        
         /// <summary>
         /// Gets or sets the preview mouse up obs.
         /// </summary>
@@ -221,6 +223,25 @@ namespace Panda.Client
                         args.Handled = true;
                     }                       
                 });
+            }
+        }
+
+        public Action HideAction { get; set; }
+
+        private IDisposable _launcherSelectorKeyUpSubscription;
+        public IObservable<KeyEventArgs> LauncherSelectorKeyUpObs
+        {
+            get => _launcherSelectorKeyUpObs;
+            set
+            {
+                _launcherSelectorKeyUpSubscription?.Dispose();
+                _launcherSelectorKeyUpObs = value;
+                _launcherSelectorKeyUpSubscription = value.Subscribe(args =>
+                {
+                    if (args.Key == Key.Escape)
+                        HideAction?.Invoke();
+                });
+
             }
         }
 

@@ -115,7 +115,9 @@ namespace Panda.Client
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
                 MouseUpObs = MouseUpSubject,
-                SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject
+                SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject,
+                LauncherSelectorKeyUpObs = LauncherSelectedKeyUpSubject,
+                HideAction = Hide
             };
             DataContext = ViewModel;
         }
@@ -151,5 +153,12 @@ namespace Panda.Client
         {
             SearchTextBoxPreviewKeyUpSubject.OnNext((SearchText.Text, e));
         }
+
+        private void LauncherSelector_OnKeyUp(object sender, KeyEventArgs e)
+        {
+            LauncherSelectedKeyUpSubject.OnNext(e);
+        }
+
+        public Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
     }
 }
