@@ -6,7 +6,15 @@
              xmlns:local="clr-namespace:Panda.ClipboardLauncher"
              xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Label>Hello world</Label>
+             d:DesignHeight="300" d:DesignWidth="300"
+                 d:DataContext="{d:DesignInstance local:ClipboardLauncherViewModel}">
+    
+    <ListBox ItemsSource="{Binding ClipboardHistory}">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <Label Content="{Binding}"></Label>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
 </client:Launcher>
 

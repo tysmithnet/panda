@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
@@ -79,10 +80,11 @@ namespace Panda.ClipboardLauncher
         }
 
         public IntPtr NextClipboardViewer { get; set; }
-        
+
+        public ObservableCollection<string> ClipboardHistory { get; set; } = new ObservableCollection<string>();
+
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            Debug.WriteLine($"{hwnd} - {msg} - {wParam} - {lParam}");
+        {                                                              
             // defined in winuser.h
             const int WM_DRAWCLIPBOARD = 0x308;
             const int WM_CHANGECBCHAIN = 0x030D;
@@ -92,7 +94,8 @@ namespace Panda.ClipboardLauncher
                 case WM_DRAWCLIPBOARD:     
                     NativeMethods.SendMessage(NextClipboardViewer, msg, wParam,
                         lParam);
-                    Debug.WriteLine($"WM_DRAWCLIPBOARD {msg}");
+                    var text = Clipboard.GetText();
+                    ClipboardHistory.Add(text);                        
                     break;
 
                 case WM_CHANGECBCHAIN:
