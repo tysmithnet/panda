@@ -9,29 +9,44 @@ using Newtonsoft.Json.Linq;
 
 namespace Panda.Wikipedia
 {
+    /// <summary>
+    ///     Implementation for Wikipedia service
+    /// </summary>
+    /// <seealso cref="Panda.Wikipedia.IWikipediaService" />
     [Export]
     public class WikipediaService : IWikipediaService
-    {                                                      
+    {
+        /// <summary>
+        ///     Get a small list of wikipedia potential matches
+        /// </summary>
+        /// <param name="search">The search.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public IObservable<WikipediaResult> AutoComplete(string search, CancellationToken cancellationToken)
         {
             var obs = Observable.Create<WikipediaResult>(async (observer, token) =>
             {
                 // todo: abstract http (wikipedia likes when you use a friendly user agent string)
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"https://en.wikipedia.org/w/api.php?action=opensearch&search={search}&limit=10&namespace=0&format=json");
-                request.Credentials = CredentialCache.DefaultCredentials;                                                                                                            
-                ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);
+                var request = (HttpWebRequest) WebRequest.Create(
+                    $"https://en.wikipedia.org/w/api.php?action=opensearch&search={search}&limit=10&namespace=0&format=json");
+                request.Credentials = CredentialCache.DefaultCredentials;
+                ServicePointManager.ServerCertificateValidationCallback =
+                    (sender, certificate, chain, sslPolicyErrors) => true;
 
                 var response = (HttpWebResponse) await request.GetResponseAsync();
                 var resStream = response.GetResponseStream();
-                var reader = new StreamReader(resStream ?? throw new InvalidOperationException($"Wikipedia response stream was null"));
+                var reader = new StreamReader(resStream ??
+                                              throw new InvalidOperationException(
+                                                  $"Wikipedia response stream was null"));
                 var responseFromServer = await reader.ReadToEndAsync();
 
                 var root = JArray.Parse(responseFromServer);
                 var toBeZipped = root.OfType<JArray>();
                 var arrays = toBeZipped.Select(j => j.Values<string>().ToArray()).ToArray();
                 // todo: assert all are the same size, but we can probably trust wikipedia
-                int n = arrays[0].Length; // api seems to return 3 empty arrays so its fine to always check for the first
-                for (int i = 0; i < n; i++)
+                var n = arrays[0]
+                    .Length; // api seems to return 3 empty arrays so its fine to always check for the first
+                for (var i = 0; i < n; i++)
                 {
                     var title = arrays[0][i];
                     var description = arrays[1][i];
@@ -47,7 +62,7 @@ namespace Panda.Wikipedia
                 observer.OnCompleted();
             });
 
-            return obs;               
+            return obs;
         }
     }
 }
