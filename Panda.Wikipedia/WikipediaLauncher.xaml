@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Panda.Wikipedia"
              xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
+             xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
                  d:DataContext="{d:DesignInstance local:WikipediaLauncherViewModel}"
@@ -16,10 +17,7 @@
         <ListBox ItemsSource="{Binding WikipediaResultViewModels}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
-                        <Label Content="{Binding Title}"></Label>
-                        <Label Content="{Binding Description}"></Label>
-                    </StackPanel>                                
+                    <commonControls:ImageTextItem HeaderText="{Binding Title}" SubHeaderText="{Binding Description}" MouseDoubleClick="Control_OnMouseDoubleClick"></commonControls:ImageTextItem>                               
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

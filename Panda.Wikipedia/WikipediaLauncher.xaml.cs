@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -25,6 +26,7 @@ using Newtonsoft.Json.Linq;
 using Panda.Client;
 using Panda.Wikipedia.Annotations;
 using System.Reactive.Subjects;
+using Panda.CommonControls;
 
 namespace Panda.Wikipedia
 {
@@ -41,7 +43,7 @@ namespace Panda.Wikipedia
         public WikipediaService WikipediaService { get; set; }
 
         public Subject<string> SearchTextChangedSubject = new Subject<string>();
-
+        public Subject<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickSubject { get; set; }= new Subject<(WikipediaResultViewModel, MouseButtonEventArgs)>();
         public WikipediaLauncher()
         {
             InitializeComponent();   
@@ -64,9 +66,22 @@ namespace Panda.Wikipedia
         {
             ViewModel = new WikipediaLauncherViewModel(WikipediaService)
             {
-                SearchTextChangedObs = SearchTextChangedSubject
+                SearchTextChangedObs = SearchTextChangedSubject,
+                ItemMouseDoubleClickObs = ItemMouseDoubleClickSubject
             };
             DataContext = ViewModel;
+        }
+
+        private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
+        {
+            //mouse double click
+        }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var imageTextItem = sender as ImageTextItem;
+            var vm = imageTextItem?.DataContext as WikipediaResultViewModel;
+            ItemMouseDoubleClickSubject.OnNext((vm, e));
         }
     }
 
@@ -83,6 +98,8 @@ namespace Panda.Wikipedia
         }
 
         private IDisposable _searchResultsSubscription;
+        private IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> _itemMouseDoubleClickObs;
+
         internal IObservable<string> SearchTextChangedObs
         {
             get => _searchTextChangedObs;
@@ -125,6 +142,24 @@ namespace Panda.Wikipedia
 
         public ObservableCollection<WikipediaResultViewModel> WikipediaResultViewModels { get; set; } = new ObservableCollection<WikipediaResultViewModel>();
         public WikipediaService WikipediaService { get; private set; }
+
+        private IDisposable _itemMouseDoubleClickSubscription;
+        public IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickObs
+        {
+            get => _itemMouseDoubleClickObs;
+            set
+            {
+                _itemMouseDoubleClickSubscription?.Dispose();
+                _itemMouseDoubleClickObs = value;
+                _itemMouseDoubleClickSubscription = value.Subscribe(tuple =>
+                {
+                    var vm = tuple.Item1;
+                    var args = tuple.Item2;
+
+                    Process.Start(vm.Url.AbsoluteUri); //todo: application service should be able to open browsers for provided urls
+                });
+            }
+        }
     }
 
     public class WikipediaResultViewModel : INotifyPropertyChanged
@@ -156,12 +191,9 @@ namespace Panda.Wikipedia
         {
             var obs = Observable.Create<WikipediaResult>(async (observer, token) =>
             {
+                // todo: abstract http (wikipedia likes when you use a friendly user agent string)
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"https://en.wikipedia.org/w/api.php?action=opensearch&search={search}&limit=10&namespace=0&format=json");
-                //request.Method = "HEAD";
-                //request.AllowAutoRedirect = false;
-                request.Credentials = CredentialCache.DefaultCredentials;
-
-                // Ignore Certificate validation failures (aka untrusted certificate + certificate chains)
+                request.Credentials = CredentialCache.DefaultCredentials;                                                                                                            
                 ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);
 
                 var response = (HttpWebResponse) await request.GetResponseAsync();
