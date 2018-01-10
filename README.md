@@ -35,9 +35,71 @@ Recommendations:
 
 
 ###### Services
-Services are whatever you want them to be. I make no restrictions on the API you can provide. That being said,
-I recommend the following guide lines:
+Services are the main source of functionality and plugin specific events. Services are whatever you want them to be. 
+I make no restrictions on the API you can provide. That being said, I recommend the following guide lines:
 
 1. Expose `IObservable`s for changes in state
 1. Favor asynchronous APIs to synchronous
 1. TBD
+
+###### Settings
+Anything can have settings. Settings can be anything serializable. Settings are created almost immediately
+after start up, so you cannot use anything injected. If you need settings simply add a dependency on `ISettingsService`
+and get whatever settings you are interested in. If you want to create settings just implement `IPluginSettings`.
+
+###### Domain Events
+Anything can receive events and anything can broadcast events. There are no restrictions on events other
+than that it implements `IDomainEvent`. To send and receive events add a dependency on `IEventHub`. 
+
+This is not for regular UI events or things that would be better suited to using injected components. Examples
+of good events are:
+1. Intentional file deletion
+1. Restarting of components
+1. Shutdown requests
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
