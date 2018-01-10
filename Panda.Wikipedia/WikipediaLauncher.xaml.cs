@@ -37,7 +37,7 @@ namespace Panda.Wikipedia
         ///     The wikipedia service.
         /// </value>
         [Import]
-        public WikipediaService WikipediaService { get; set; }
+        public IWikipediaService WikipediaService { get; set; }
 
         /// <summary>
         ///     Gets or sets the item mouse double click subject.

@@ -15,7 +15,7 @@ namespace Panda.Wikipedia
     ///     View Model for wikipedia launcher
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public class WikipediaLauncherViewModel : INotifyPropertyChanged
+    public sealed class WikipediaLauncherViewModel : INotifyPropertyChanged
     {
         /// <summary>
         ///     The item mouse double click observable
@@ -46,9 +46,9 @@ namespace Panda.Wikipedia
         ///     Initializes a new instance of the <see cref="WikipediaLauncherViewModel" /> class.
         /// </summary>
         /// <param name="wikipediaService">The wikipedia service.</param>
-        public WikipediaLauncherViewModel(WikipediaService wikipediaService)
+        public WikipediaLauncherViewModel(IWikipediaService wikipediaService)
         {
-            WikipediaService = wikipediaService;
+            _wikipediaService = wikipediaService ?? throw new NullReferenceException(nameof(wikipediaService));
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Panda.Wikipedia
                     {
                         Application.Current.Dispatcher.Invoke(() => { WikipediaResultViewModels.Clear(); });
                         _searchResultsSubscription?.Dispose();
-                        _searchResultsSubscription = WikipediaService.AutoComplete(text, CancellationToken.None)
+                        _searchResultsSubscription = _wikipediaService.AutoComplete(text, CancellationToken.None)
                             .Subscribe(
                                 result =>
                                 {
@@ -101,7 +101,7 @@ namespace Panda.Wikipedia
         /// <value>
         ///     The wikipedia service.
         /// </value>
-        public WikipediaService WikipediaService { get; }
+        private IWikipediaService _wikipediaService;
 
         /// <summary>
         ///     Gets or sets the item mouse double click obs.
@@ -109,7 +109,7 @@ namespace Panda.Wikipedia
         /// <value>
         ///     The item mouse double click obs.
         /// </value>
-        public IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickObs
+        internal IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickObs
         {
             get => _itemMouseDoubleClickObs;
             set
@@ -137,7 +137,7 @@ namespace Panda.Wikipedia
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

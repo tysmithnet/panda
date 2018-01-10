@@ -13,8 +13,8 @@ namespace Panda.Wikipedia
     ///     Implementation for Wikipedia service
     /// </summary>
     /// <seealso cref="Panda.Wikipedia.IWikipediaService" />
-    [Export]
-    public class WikipediaService : IWikipediaService
+    [Export(typeof(IWikipediaService))]
+    internal sealed class WikipediaService : IWikipediaService
     {
         /// <summary>
         ///     Get a small list of wikipedia potential matches

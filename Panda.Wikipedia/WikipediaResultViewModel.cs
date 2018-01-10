@@ -9,7 +9,7 @@ namespace Panda.Wikipedia
     ///     Wikipedia result view model result
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public class WikipediaResultViewModel : INotifyPropertyChanged
+    public sealed class WikipediaResultViewModel : INotifyPropertyChanged
     {
         /// <summary>
         ///     Gets or sets the title.
@@ -45,7 +45,7 @@ namespace Panda.Wikipedia
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
