@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Interop;
 
@@ -67,7 +68,9 @@ namespace Panda.ClipboardLauncher
                 case WM_DRAWCLIPBOARD:
                     NativeMethods.SendMessage(NextClipboardViewer, msg, wParam,
                         lParam);
-                    var text = Clipboard.GetText();
+                    var text = Clipboard.GetText();   
+                    if(ClipboardHistory.Count >= 50) // todo: make setting
+                        ClipboardHistory.RemoveAt(0);
                     ClipboardHistory.Add(text);
                     break;
 
