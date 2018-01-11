@@ -155,11 +155,12 @@ namespace Panda.AppLauncher
                             Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
                         foreach (var registeredApplication in filteredApps)
                         {
-                            var item = new LaunchableApplicationViewModel(LauncherService)
+                            var item = new LaunchableApplicationViewModel(LaunchableApplicationService)
                             {
                                 AppName = registeredApplication.DisplayName,
                                 ExecutableLocation = registeredApplication.FullPath,
-                                LaunchableApplication = registeredApplication
+                                LaunchableApplication = registeredApplication,
+                                LaunchableApplicationService = LaunchableApplicationService
                             };
                             AppViewModels.Add(item);
                             await item.LoadIcon(IconSize.Large);
@@ -167,9 +168,7 @@ namespace Panda.AppLauncher
                     });
             }
         }
-
-        internal ILaunchableApplicationService LauncherService { get; set; }
-
+                                                                            
         /// <summary>
         ///     Gets or sets the application unregistered subscription.
         /// </summary>

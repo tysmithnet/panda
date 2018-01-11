@@ -119,7 +119,7 @@ namespace Panda.Client
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(args =>
                 {
-                    if (args.Alt && args.KeyCode == Keys.Space)
+                    if (args.Control && args.KeyCode == Keys.Oem3)
                     {
                         WindowState = WindowState.Normal;
                         //Topmost = true;
