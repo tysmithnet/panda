@@ -119,10 +119,10 @@ namespace Panda.Client
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(args =>
                 {
-                    if (args.Control && args.KeyCode == Keys.Oem3)
+                    if (args.Control && args.KeyCode == Keys.Oem3) // `
                     {
                         WindowState = WindowState.Normal;
-                        //Topmost = true;
+                        BringIntoView();
                         Show();
                         Activate();
                         Focus();
