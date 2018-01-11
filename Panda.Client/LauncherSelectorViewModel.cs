@@ -68,6 +68,8 @@ namespace Panda.Client
         /// </summary>
         private IDisposable _textChangedSubscription;
 
+        private string _searchText;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
@@ -154,7 +156,15 @@ namespace Panda.Client
         /// <value>
         ///     The search text.
         /// </value>
-        public string SearchText { get; set; }
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value; 
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the selection changed obs.
@@ -179,6 +189,7 @@ namespace Panda.Client
                         Active?.Hide();
                         Active = first.Instance;
                         Active.Show();
+                        SearchText = "";
                     }
                 });
             }
@@ -202,6 +213,7 @@ namespace Panda.Client
                     Active?.Hide();
                     Active = tuple.Item1.Instance;
                     Active.Show();
+                    SearchText = "";
                 });
             }
         }
@@ -289,6 +301,7 @@ namespace Panda.Client
             Active?.Hide();
             Active = first.Instance;
             Active.Show();
+            SearchText = "";
             // todo: allow multiple active windows
         }
     }
