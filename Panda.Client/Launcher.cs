@@ -34,7 +34,7 @@ namespace Panda.Client
         ///     Raises the <see cref="E:PreviewKeyDown" /> event.
         /// </summary>
         /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
