@@ -115,7 +115,7 @@ namespace Panda.Client
         {
             // todo: move to VM
             SearchText.Focus();
-            KeyboardMouseService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
+            KeyboardMouseService.KeyDownObservable
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(args =>
                 {
