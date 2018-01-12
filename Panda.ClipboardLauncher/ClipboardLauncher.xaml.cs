@@ -15,7 +15,7 @@ namespace Panda.ClipboardLauncher
         public ClipboardLauncher()
         {
             InitializeComponent();
-            ViewModel = new ClipboardLauncherViewModel(this);
+            ViewModel = new ClipboardLauncherViewModel(this, SettingsService);
             DataContext = ViewModel;
         }
 

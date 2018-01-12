@@ -60,7 +60,7 @@ namespace Panda.Client
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 try
                 {
-                    File.WriteAllText($"{settings.GetType().FullName}.config.json", json); // todo: error checking    
+                    File.WriteAllText($"{settings.GetType().FullName}.config.json", json); 
                 }
                 catch (Exception e)
                 {

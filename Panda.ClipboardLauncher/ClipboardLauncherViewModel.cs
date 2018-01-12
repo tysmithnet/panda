@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Interop;
+using Panda.Client;
 
 namespace Panda.ClipboardLauncher
 {
@@ -11,16 +13,29 @@ namespace Panda.ClipboardLauncher
     internal sealed class ClipboardLauncherViewModel
     {
         /// <summary>
+        /// Settings service
+        /// </summary>
+        private ISettingsService _settingsService;
+
+        /// <summary>
+        /// Settings
+        /// </summary>
+        private ClipboardLauncherSettings _settings;
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="ClipboardLauncherViewModel" /> class.
         /// </summary>
         /// <param name="instance">The instance.</param>
-        public ClipboardLauncherViewModel(ClipboardLauncher instance)
+        /// <param name="settingsService"></param>
+        public ClipboardLauncherViewModel(ClipboardLauncher instance, ISettingsService settingsService)
         {
-            Instance = instance;
-            var handle = new WindowInteropHelper(Instance).EnsureHandle();
+            _settingsService = settingsService;
+            _settings = settingsService.Get<ClipboardLauncherSettings>().Single();
+            _instance = instance;
+            var handle = new WindowInteropHelper(_instance).EnsureHandle();
             var source = HwndSource.FromHwnd(handle);
             source?.AddHook(WndProc);
-            NextClipboardViewer = (IntPtr) NativeMethods.SetClipboardViewer((int) handle);
+            _nextClipboardViewer = (IntPtr) NativeMethods.SetClipboardViewer((int) handle);
         }
 
         /// <summary>
@@ -29,7 +44,7 @@ namespace Panda.ClipboardLauncher
         /// <value>
         ///     The instance.
         /// </value>
-        internal ClipboardLauncher Instance { get; set; }
+        private readonly ClipboardLauncher _instance;
 
         /// <summary>
         ///     Gets or sets the next clipboard viewer.
@@ -37,7 +52,7 @@ namespace Panda.ClipboardLauncher
         /// <value>
         ///     The next clipboard viewer.
         /// </value>
-        private IntPtr NextClipboardViewer { get; set; }
+        private IntPtr _nextClipboardViewer;
 
         /// <summary>
         ///     Gets or sets the clipboard history.
@@ -65,19 +80,19 @@ namespace Panda.ClipboardLauncher
             switch (msg)
             {
                 case WM_DRAWCLIPBOARD:
-                    NativeMethods.SendMessage(NextClipboardViewer, msg, wParam,
+                    NativeMethods.SendMessage(_nextClipboardViewer, msg, wParam,
                         lParam);
                     var text = Clipboard.GetText();
-                    if (ClipboardHistory.Count >= 50) // todo: make setting
+                    if (ClipboardHistory.Count >= _settings.ClipboardHistorySize) // todo: make setting
                         ClipboardHistory.RemoveAt(0);
                     ClipboardHistory.Add(text);
                     break;
 
                 case WM_CHANGECBCHAIN:
-                    if (wParam == NextClipboardViewer)
-                        NextClipboardViewer = lParam;
+                    if (wParam == _nextClipboardViewer)
+                        _nextClipboardViewer = lParam;
                     else
-                        NativeMethods.SendMessage(NextClipboardViewer, msg, wParam,
+                        NativeMethods.SendMessage(_nextClipboardViewer, msg, wParam,
                             lParam);
                     break;
             }

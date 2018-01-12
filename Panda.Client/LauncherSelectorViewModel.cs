@@ -139,14 +139,6 @@ namespace Panda.Client
         private IEnumerable<LauncherViewModel> ViewModels { get; }
 
         /// <summary>
-        ///     Gets or sets the active.
-        /// </summary>
-        /// <value>
-        ///     The active.
-        /// </value>
-        private Launcher Active { get; set; }
-
-        /// <summary>
         ///     Gets or sets the launcher view models.
         /// </summary>
         /// <value>
@@ -193,9 +185,7 @@ namespace Panda.Client
                         if (launcherViewModels.Any())
                         {
                             var first = launcherViewModels.First();
-                            Active?.Hide();
-                            Active = first.Instance;
-                            Active.Show();
+                            first.Instance.Show();
                             SearchText = "";
                         }
                     });
@@ -220,9 +210,7 @@ namespace Panda.Client
                     .ObserveOn(UiScheduler)
                     .Subscribe(tuple =>
                     {
-                        Active?.Hide();
-                        Active = tuple.Item1.Instance;
-                        Active.Show();
+                        tuple.Item1.Instance.Show();
                         SearchText = "";
                     });
             }
@@ -307,6 +295,8 @@ namespace Panda.Client
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private IList<LauncherViewModel> _activeLaunchers=  new List<LauncherViewModel>(); 
+
         /// <summary>
         ///     Submits this instance.
         /// </summary>
@@ -314,11 +304,8 @@ namespace Panda.Client
         {
             var first = LauncherViewModels.FirstOrDefault();
             if (first == null) return;
-            Active?.Hide();
-            Active = first.Instance;
-            Active.Show();
+            first.Instance.Show();                                     
             SearchText = "";
-            // todo: allow multiple active windows
         }
     }
 }

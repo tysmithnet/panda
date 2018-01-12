@@ -19,9 +19,7 @@ namespace Panda.Client
         {
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
-
-        // todo: make it so escape minimizes
-        // todo: close makes it minimize        
+      
         /// <summary>
         ///     Gets or sets the settings service.
         /// </summary>

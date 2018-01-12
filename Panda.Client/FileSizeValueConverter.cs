@@ -25,7 +25,7 @@ namespace Panda.Client
             if (value == null)
                 return null;
             var converted = System.Convert.ToUInt64(value);
-            return ByteSize.FromBytes(converted).Humanize("#.#"); // todo: make setting
+            return ByteSize.FromBytes(converted).Humanize("#.#");
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Panda.Client
         /// <exception cref="NotSupportedException">This should eventually be supported</exception>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException("This is a lossy conversion, and thus 1 way"); // todo: implement parsing
+            throw new NotSupportedException("This is a lossy conversion, and thus 1 way");
         }
     }
 }
