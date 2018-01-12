@@ -29,8 +29,8 @@ namespace Panda.Client
         ///     The settings service.
         /// </value>
         [Import]
-        private ISettingsService SettingsService { get; set; }
-
+        protected ISettingsService SettingsService { get; set; }
+                                                  
         [Import]
         protected IScheduler UiScheduler { get; set; }
 

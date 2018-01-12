@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -58,8 +59,9 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="launcherService">The launcher service.</param>
         /// <exception cref="ArgumentNullException">launcherService</exception>
-        public LaunchableApplicationViewModel(ILaunchableApplicationService launcherService)
+        public LaunchableApplicationViewModel(IScheduler uiScheduler, ILaunchableApplicationService launcherService)
         {
+            UiScheduler = uiScheduler;
             LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
             SetupMenuItems();
             MenuItems.Add(_editMenuItem);
@@ -70,8 +72,13 @@ namespace Panda.AppLauncher
                     },
                     h => { PropertyChanged += h; },
                     h => { PropertyChanged -= h; })
-                .Throttle(TimeSpan.FromSeconds(5)).Subscribe(args => { LaunchableApplicationService.Save(); });
+                .SubscribeOn(TaskPoolScheduler.Default)
+                .ObserveOn(UiScheduler)
+                .Throttle(TimeSpan.FromSeconds(5))
+                .Subscribe(args => { LaunchableApplicationService.Save(); });
         }
+
+        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the name of the application.

@@ -75,8 +75,9 @@ namespace Panda.Client
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
         /// <param name="launcherService">The launcher service.</param>
-        internal LauncherSelectorViewModel(ILauncherService launcherService)
+        internal LauncherSelectorViewModel(IScheduler uiScheduler, ILauncherService launcherService)
         {
+            UiScheduler = uiScheduler;
             LauncherService = launcherService;
             ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
             {
@@ -85,6 +86,8 @@ namespace Panda.Client
             });
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
         }
+
+        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the text changed obs.
@@ -181,7 +184,10 @@ namespace Panda.Client
             {
                 _selectionChangedSubscription?.Dispose();
                 _selectionChangedObs = value;
-                _selectionChangedSubscription = value.Subscribe(e =>
+                _selectionChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(e =>
                 {
                     var added = e.AddedItems.Cast<LauncherViewModel>();
                     var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
@@ -210,7 +216,10 @@ namespace Panda.Client
             {
                 _previewMouseUpSubscription?.Dispose();
                 _mouseUpObs = value;
-                _previewMouseUpSubscription = value.Subscribe(tuple =>
+                _previewMouseUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(tuple =>
                 {
                     Active?.Hide();
                     Active = tuple.Item1.Instance;
@@ -233,7 +242,10 @@ namespace Panda.Client
             {
                 _searchTextBoxPreviewKeyUpSubscription?.Dispose();
                 _searchTextBoxPreviewKeyUpObs = value;
-                _searchTextBoxPreviewKeyUpSubscription = value.Subscribe(tuple =>
+                _searchTextBoxPreviewKeyUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(tuple =>
                 {
                     var currentText = tuple.Item1;
                     var args = tuple.Item2;
@@ -268,7 +280,10 @@ namespace Panda.Client
             {
                 _launcherSelectorKeyUpSubscription?.Dispose();
                 _launcherSelectorKeyUpObs = value;
-                _launcherSelectorKeyUpSubscription = value.Subscribe(args =>
+                _launcherSelectorKeyUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(args =>
                 {
                     if (args.Key == Key.Escape)
                     {
@@ -278,8 +293,7 @@ namespace Panda.Client
                 });
             }
         }
-
-        public IScheduler UiScheduler { get; set; }
+                                                       
 
         /// <summary>
         ///     Occurs when [property changed].

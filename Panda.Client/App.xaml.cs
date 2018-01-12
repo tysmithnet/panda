@@ -47,7 +47,7 @@ namespace Panda.Client
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
             var compositionContainer = new CompositionContainer(aggregateCatalog);
-            compositionContainer.ComposeExportedValue<IScheduler>(Scheduler.CurrentThread);
+            compositionContainer.ComposeExportedValue<IScheduler>(new SynchronizationContextScheduler(SynchronizationContext.Current));
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();

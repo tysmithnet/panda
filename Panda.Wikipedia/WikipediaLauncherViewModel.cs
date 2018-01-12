@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -46,10 +47,14 @@ namespace Panda.Wikipedia
         ///     Initializes a new instance of the <see cref="WikipediaLauncherViewModel" /> class.
         /// </summary>
         /// <param name="wikipediaService">The wikipedia service.</param>
-        public WikipediaLauncherViewModel(IWikipediaService wikipediaService)
+        public WikipediaLauncherViewModel(IScheduler uiScheduler, IWikipediaService wikipediaService)
         {
+            UiScheduler = uiScheduler;
             _wikipediaService = wikipediaService ?? throw new NullReferenceException(nameof(wikipediaService));
         }
+
+        public IScheduler UiScheduler { get; set; }
+
 
         /// <summary>
         ///     Gets or sets the search text changed obs.
@@ -65,12 +70,17 @@ namespace Panda.Wikipedia
                 _searchTextChangedSubscription?.Dispose();
                 _searchTextChangedObs = value;
                 _searchTextChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
                     .Throttle(TimeSpan.FromMilliseconds(333))
                     .Subscribe(text =>
                     {
                         Application.Current.Dispatcher.Invoke(() => { WikipediaResultViewModels.Clear(); });
                         _searchResultsSubscription?.Dispose();
-                        _searchResultsSubscription = _wikipediaService.AutoComplete(text, CancellationToken.None)
+                        _searchResultsSubscription = _wikipediaService
+                            .AutoComplete(text, CancellationToken.None)
+                            .SubscribeOn(TaskPoolScheduler.Default)
+                            .ObserveOn(UiScheduler)
                             .Subscribe(
                                 result =>
                                 {
@@ -116,7 +126,9 @@ namespace Panda.Wikipedia
             {
                 _itemMouseDoubleClickSubscription?.Dispose();
                 _itemMouseDoubleClickObs = value;
-                _itemMouseDoubleClickSubscription = value.Subscribe(tuple =>
+                _itemMouseDoubleClickSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(tuple =>
                 {
                     var vm = tuple.Item1;
                     var args = tuple.Item2;

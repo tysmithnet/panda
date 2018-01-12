@@ -74,7 +74,7 @@ namespace Panda.Wikipedia
         /// <param name="e">The <see cref="RoutedEventArgs" /> instance containing the event data.</param>
         private void WikipediaLauncher_OnLoaded(object sender, RoutedEventArgs e)
         {
-            ViewModel = new WikipediaLauncherViewModel(WikipediaService)
+            ViewModel = new WikipediaLauncherViewModel(UiScheduler, WikipediaService)
             {
                 SearchTextChangedObs = SearchTextChangedSubject,
                 ItemMouseDoubleClickObs = ItemMouseDoubleClickSubject

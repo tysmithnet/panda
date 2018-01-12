@@ -135,9 +135,8 @@ namespace Panda.Client
                         args.Handled = true;
                     }
                 });
-            ViewModel = new LauncherSelectorViewModel(LauncherService)
-            {
-                UiScheduler = UiScheduler,
+            ViewModel = new LauncherSelectorViewModel(UiScheduler, LauncherService)
+            {                              
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
                 MouseUpObs = MouseUpSubject,
