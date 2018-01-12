@@ -77,7 +77,9 @@ namespace Panda.EverythingLauncher
         /// <param name="keyboardMouseService"></param>
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
         /// <param name="eventHub"></param>
-        public EverythingLauncherViewModel(IScheduler uiScheduler, IEverythingService everythingService, IKeyboardMouseService keyboardMouseService, IFileSystemContextMenuProvider[] fileSystemContextMenuProviders, IEventHub eventHub)
+        public EverythingLauncherViewModel(IScheduler uiScheduler, IEverythingService everythingService,
+            IKeyboardMouseService keyboardMouseService, IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
+            IEventHub eventHub)
         {
             UiScheduler = uiScheduler;
             EverythingService = everythingService;
@@ -88,20 +90,19 @@ namespace Panda.EverythingLauncher
                 .SubscribeOn(TaskPoolScheduler.Default)
                 .ObserveOn(UiScheduler)
                 .Subscribe(@event =>
-            {
-                var toRemove = EverythingResults.Where(model => model.FullName == @event.FullName);
-                foreach (var everythingResultViewModel in toRemove)
-                    Application.Current.Dispatcher.Invoke(
-                        () => { EverythingResults.Remove(everythingResultViewModel); });
-            });
+                {
+                    var toRemove = EverythingResults.Where(model => model.FullName == @event.FullName);
+                    foreach (var everythingResultViewModel in toRemove)
+                        Application.Current.Dispatcher.Invoke(
+                            () => { EverythingResults.Remove(everythingResultViewModel); });
+                });
         }
 
         /// <summary>
-        /// Gets or sets the UI scheduler.
+        ///     Gets or sets the UI scheduler.
         /// </summary>
         /// <value>The UI scheduler.</value>
         public IScheduler UiScheduler { get; set; }
-
 
         /// <summary>
         ///     Gets or sets the refresh data grid action.
@@ -236,7 +237,6 @@ namespace Panda.EverythingLauncher
             }
         }
 
-
         /// <summary>
         ///     Gets or sets the file system context menu providers.
         /// </summary>
@@ -335,10 +335,10 @@ namespace Panda.EverythingLauncher
                 _previewMouseDoubleClickSubscription = value
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .Subscribe(tuple =>
-                {
-                    Log.Trace($"Starting {tuple.Item1.FullName}");
-                    Process.Start(tuple.Item1.FullName);
-                });
+                    {
+                        Log.Trace($"Starting {tuple.Item1.FullName}");
+                        Process.Start(tuple.Item1.FullName);
+                    });
             }
         }
 

@@ -20,12 +20,12 @@ namespace Panda.Client
     public sealed partial class App : Application
     {
         /// <summary>
-        /// System mutex to prevent multiple instances from being open at the same time
+        ///     System mutex to prevent multiple instances from being open at the same time
         /// </summary>
         private static readonly Semaphore SingleInstanceGuard;
 
         /// <summary>
-        /// Initializes the <see cref="App"/> class.
+        ///     Initializes the <see cref="App" /> class.
         /// </summary>
         static App()
         {
@@ -79,7 +79,6 @@ namespace Panda.Client
             compositionContainer.ComposeExportedValue<IScheduler>(
                 new SynchronizationContextScheduler(SynchronizationContext.Current));
 
-
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();
@@ -123,7 +122,7 @@ namespace Panda.Client
         }
 
         /// <summary>
-        /// Methods for manipulating the panda windows
+        ///     Methods for manipulating the panda windows
         /// </summary>
         private static class NativeMethods
         {
@@ -144,14 +143,14 @@ namespace Panda.Client
             ShowNormal = 1,
             ShowMinimized = 2,
             ShowMaximized = 3,
-            Maximize = 3,     
+            Maximize = 3,
             ShowNormalNoActivate = 4,
-            Show = 5,                
-            Minimize = 6,            
-            ShowMinNoActivate = 7,                            
-            ShowNoActivate = 8,      
-            Restore = 9,             
-            ShowDefault = 10,        
+            Show = 5,
+            Minimize = 6,
+            ShowMinNoActivate = 7,
+            ShowNoActivate = 8,
+            Restore = 9,
+            ShowDefault = 10,
             ForceMinimized = 11
         }
     }

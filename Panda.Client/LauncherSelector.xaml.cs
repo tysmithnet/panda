@@ -4,7 +4,6 @@ using System.ComponentModel.Composition;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -80,7 +79,7 @@ namespace Panda.Client
         /// <value>
         ///     The mouse up subject.
         /// </value>
-        private Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; set; } =
+        private Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; } =
             new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
@@ -89,7 +88,7 @@ namespace Panda.Client
         /// <value>
         ///     The search text box preview key up subject.
         /// </value>
-        private Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
+        private Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; } =
             new Subject<(string, KeyEventArgs)>();
 
         /// <summary>
@@ -98,7 +97,7 @@ namespace Panda.Client
         /// <value>
         ///     The launcher selected key up subject.
         /// </value>
-        private Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
+        private Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; } = new Subject<KeyEventArgs>();
 
         /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
@@ -136,7 +135,7 @@ namespace Panda.Client
                     }
                 });
             ViewModel = new LauncherSelectorViewModel(UiScheduler, LauncherService)
-            {                              
+            {
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
                 MouseUpObs = MouseUpSubject,

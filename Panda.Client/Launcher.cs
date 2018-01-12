@@ -30,7 +30,7 @@ namespace Panda.Client
         /// </value>
         [Import]
         protected ISettingsService SettingsService { get; set; }
-                                                  
+
         [Import]
         protected IScheduler UiScheduler { get; set; }
 
@@ -47,7 +47,7 @@ namespace Panda.Client
             }
             else
             {
-                base.OnPreviewKeyDown(e);
+                OnPreviewKeyDown(e);
             }
         }
 

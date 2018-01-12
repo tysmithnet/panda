@@ -106,7 +106,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The preview mouse double click subject.
         /// </value>
-        private Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; }
+        private Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; }
             = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
 
         /// <summary>

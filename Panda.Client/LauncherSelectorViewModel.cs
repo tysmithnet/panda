@@ -7,7 +7,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -39,6 +38,8 @@ namespace Panda.Client
         /// </summary>
         private IDisposable _previewMouseUpSubscription;
 
+        private string _searchText;
+
         /// <summary>
         ///     The search text box preview key up obs
         /// </summary>
@@ -68,8 +69,6 @@ namespace Panda.Client
         ///     The text changed subscription
         /// </summary>
         private IDisposable _textChangedSubscription;
-
-        private string _searchText;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
@@ -166,7 +165,7 @@ namespace Panda.Client
             get => _searchText;
             set
             {
-                _searchText = value; 
+                _searchText = value;
                 OnPropertyChanged();
             }
         }
@@ -188,18 +187,18 @@ namespace Panda.Client
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .ObserveOn(UiScheduler)
                     .Subscribe(e =>
-                {
-                    var added = e.AddedItems.Cast<LauncherViewModel>();
-                    var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
-                    if (launcherViewModels.Any())
                     {
-                        var first = launcherViewModels.First();
-                        Active?.Hide();
-                        Active = first.Instance;
-                        Active.Show();
-                        SearchText = "";
-                    }
-                });
+                        var added = e.AddedItems.Cast<LauncherViewModel>();
+                        var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
+                        if (launcherViewModels.Any())
+                        {
+                            var first = launcherViewModels.First();
+                            Active?.Hide();
+                            Active = first.Instance;
+                            Active.Show();
+                            SearchText = "";
+                        }
+                    });
             }
         }
 
@@ -220,12 +219,12 @@ namespace Panda.Client
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .ObserveOn(UiScheduler)
                     .Subscribe(tuple =>
-                {
-                    Active?.Hide();
-                    Active = tuple.Item1.Instance;
-                    Active.Show();
-                    SearchText = "";
-                });
+                    {
+                        Active?.Hide();
+                        Active = tuple.Item1.Instance;
+                        Active.Show();
+                        SearchText = "";
+                    });
             }
         }
 
@@ -246,16 +245,16 @@ namespace Panda.Client
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .ObserveOn(UiScheduler)
                     .Subscribe(tuple =>
-                {
-                    var currentText = tuple.Item1;
-                    var args = tuple.Item2;
-
-                    if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
                     {
-                        StartFirst();
-                        args.Handled = true;
-                    }
-                });
+                        var currentText = tuple.Item1;
+                        var args = tuple.Item2;
+
+                        if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
+                        {
+                            StartFirst();
+                            args.Handled = true;
+                        }
+                    });
             }
         }
 
@@ -284,16 +283,15 @@ namespace Panda.Client
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .ObserveOn(UiScheduler)
                     .Subscribe(args =>
-                {
-                    if (args.Key == Key.Escape)
                     {
-                        HideAction?.Invoke();
-                        args.Handled = true;
-                    }
-                });
+                        if (args.Key == Key.Escape)
+                        {
+                            HideAction?.Invoke();
+                            args.Handled = true;
+                        }
+                    });
             }
         }
-                                                       
 
         /// <summary>
         ///     Occurs when [property changed].
