@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -99,7 +100,8 @@ namespace Panda.Client
                 _textChangedSubscription?.Dispose();
                 _textChangedObs = value;
                 _textChangedSubscription = value
-                    .ObserveOn(SynchronizationContext.Current)
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
                     .Subscribe(filter =>
                     {
                         LauncherViewModels.Clear();
@@ -276,6 +278,8 @@ namespace Panda.Client
                 });
             }
         }
+
+        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Occurs when [property changed].

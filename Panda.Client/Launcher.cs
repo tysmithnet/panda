@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Reactive.Concurrency;
 using System.Windows;
 using System.Windows.Input;
 
@@ -29,6 +30,9 @@ namespace Panda.Client
         /// </value>
         [Import]
         private ISettingsService SettingsService { get; set; }
+
+        [Import]
+        protected IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Raises the <see cref="E:PreviewKeyDown" /> event.

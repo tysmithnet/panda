@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -44,6 +45,9 @@ namespace Panda.Client
         /// </value>
         [Import]
         private IKeyboardMouseService KeyboardMouseService { get; set; }
+
+        [Import]
+        private IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the view model.
@@ -116,7 +120,8 @@ namespace Panda.Client
             // todo: move to VM
             SearchText.Focus();
             KeyboardMouseService.KeyDownObservable
-                .ObserveOn(SynchronizationContext.Current)
+                .SubscribeOn(TaskPoolScheduler.Default)
+                .ObserveOn(UiScheduler)
                 .Subscribe(args =>
                 {
                     if (args.Control && args.KeyCode == Keys.Oem3) // `
@@ -132,6 +137,7 @@ namespace Panda.Client
                 });
             ViewModel = new LauncherSelectorViewModel(LauncherService)
             {
+                UiScheduler = UiScheduler,
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
                 MouseUpObs = MouseUpSubject,
@@ -159,7 +165,8 @@ namespace Panda.Client
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            TextChangedSubject.OnNext(SearchText.Text);
+            TextChangedSubject
+                .OnNext(SearchText.Text);
         }
 
         /// <summary>

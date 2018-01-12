@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +47,7 @@ namespace Panda.Client
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
             var compositionContainer = new CompositionContainer(aggregateCatalog);
+            compositionContainer.ComposeExportedValue<IScheduler>(Scheduler.CurrentThread);
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();
@@ -86,5 +89,5 @@ namespace Panda.Client
             Task.WaitAll(setupTasks);
             Selector.Show();
         }
-    }
+    }                                       
 }
