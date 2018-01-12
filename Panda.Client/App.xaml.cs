@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +19,25 @@ namespace Panda.Client
     /// </summary>
     public sealed partial class App : Application
     {
+        private static readonly Semaphore SingleInstanceGuard;
+
+        static App()
+        {
+            SingleInstanceGuard = new Semaphore(0, 1, Assembly.GetExecutingAssembly().FullName, out var createdNew);
+
+            if (!createdNew)
+            {
+                var current = Process.GetCurrentProcess();
+                var other = Process.GetProcessesByName(current.ProcessName).FirstOrDefault(p => p.Id != current.Id);
+                if (other != null)
+                {
+                    NativeMethods.SetForegroundWindow(other.MainWindowHandle);
+                    NativeMethods.ShowWindow(other.MainWindowHandle, WindowShowStyle.Restore);
+                }
+                Environment.Exit(-2);
+            }
+        }
+
         /// <summary>
         ///     Gets the log.
         /// </summary>
@@ -47,7 +68,11 @@ namespace Panda.Client
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
             var compositionContainer = new CompositionContainer(aggregateCatalog);
-            compositionContainer.ComposeExportedValue<IScheduler>(new SynchronizationContextScheduler(SynchronizationContext.Current));
+
+            compositionContainer.ComposeExportedValue<IScheduler>(
+                new SynchronizationContextScheduler(SynchronizationContext.Current));
+
+
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();
@@ -89,5 +114,35 @@ namespace Panda.Client
             Task.WaitAll(setupTasks);
             Selector.Show();
         }
-    }                                       
+
+        private static class NativeMethods
+        {
+            [DllImport("user32.dll")]
+            internal static extern bool SetForegroundWindow(IntPtr hWnd);
+
+            [DllImport("user32.dll")]
+            internal static extern bool ShowWindow(IntPtr hWnd,
+                WindowShowStyle nCmdShow);
+        }
+
+        /// <summary>
+        ///     Enumeration of the different ways of showing a window.
+        /// </summary>
+        internal enum WindowShowStyle : uint
+        {
+            Hide = 0,
+            ShowNormal = 1,
+            ShowMinimized = 2,
+            ShowMaximized = 3,
+            Maximize = 3,     
+            ShowNormalNoActivate = 4,
+            Show = 5,                
+            Minimize = 6,            
+            ShowMinNoActivate = 7,                            
+            ShowNoActivate = 8,      
+            Restore = 9,             
+            ShowDefault = 10,        
+            ForceMinimized = 11
+        }
+    }
 }
