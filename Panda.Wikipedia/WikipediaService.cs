@@ -18,6 +18,10 @@ namespace Panda.Wikipedia
     [Export(typeof(IWikipediaService))]
     internal sealed class WikipediaService : IWikipediaService
     {
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>The log.</value>
         private ILog Log { get; } = LogManager.GetLogger<WikipediaService>();
 
         /// <inheritdoc />
@@ -47,17 +51,16 @@ namespace Panda.Wikipedia
 
                 var root = JArray.Parse(responseFromServer);
                 var toBeZipped = root.OfType<JArray>();
-                var arrays = toBeZipped.Select(j => j.Values<string>().ToArray()).ToArray();  
+                var arrays = toBeZipped.Select(j => j.Values<string>().ToArray()).ToArray();
                 var n = arrays[0]
                     .Length; // api seems to return 3 empty arrays so its fine to always check for the first
                 for (var i = 0; i < n; i++)
-                {
                     try
-                    {     
+                    {
                         var title = arrays[0][i];
                         var description = arrays[1][i];
                         var url = arrays[2][i];
-                        var newResult = new WikipediaResult 
+                        var newResult = new WikipediaResult
                         {
                             Title = title,
                             Description = description,
@@ -67,9 +70,9 @@ namespace Panda.Wikipedia
                     }
                     catch (Exception e)
                     {
-                          Log.Error($"Error creating WikipediaResult: {e.Message}");
+                        Log.Error($"Error creating WikipediaResult: {e.Message}");
+                        observer.OnError(e);
                     }
-                }
                 observer.OnCompleted();
             });
 
