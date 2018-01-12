@@ -7,8 +7,11 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.Client
 {
@@ -73,11 +76,14 @@ namespace Panda.Client
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
+        /// <param name="uiScheduler"></param>
         /// <param name="launcherService">The launcher service.</param>
-        internal LauncherSelectorViewModel(IScheduler uiScheduler, ILauncherService launcherService)
+        /// <param name="keyboardMouseService"></param>
+        internal LauncherSelectorViewModel(IScheduler uiScheduler, ILauncherService launcherService, IKeyboardMouseService keyboardMouseService)
         {
             UiScheduler = uiScheduler;
             LauncherService = launcherService;
+            KeyboardMouseService = keyboardMouseService;
             ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
             {
                 Name = l.GetType().FullName,
@@ -86,6 +92,38 @@ namespace Panda.Client
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
         }
 
+        private IDisposable _globalShowLauncherSelectorSubscription;
+
+        /// <summary>
+        /// Gets or sets the keyboard mouse service.
+        /// </summary>
+        /// <value>The keyboard mouse service.</value>
+        public IKeyboardMouseService KeyboardMouseService
+        {
+            get => _keyboardMouseService;
+            set
+            {
+                _globalShowLauncherSelectorSubscription?.Dispose();
+                _keyboardMouseService = value; 
+                _globalShowLauncherSelectorSubscription = value
+                    .KeyDownObservable
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(args =>
+                    {
+                        if (args.Control && args.KeyCode == Keys.Oem3) // `
+                        {
+                            ShowAction?.Invoke();
+                            args.Handled = true;
+                        }
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
         public IScheduler UiScheduler { get; set; }
 
         /// <summary>
@@ -281,6 +319,8 @@ namespace Panda.Client
             }
         }
 
+        public Action ShowAction { get; set; }
+
         /// <summary>
         ///     Occurs when [property changed].
         /// </summary>
@@ -295,7 +335,8 @@ namespace Panda.Client
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private IList<LauncherViewModel> _activeLaunchers=  new List<LauncherViewModel>(); 
+        private IList<LauncherViewModel> _activeLaunchers=  new List<LauncherViewModel>();
+        private IKeyboardMouseService _keyboardMouseService;
 
         /// <summary>
         ///     Submits this instance.
@@ -306,6 +347,6 @@ namespace Panda.Client
             if (first == null) return;
             first.Instance.Show();                                     
             SearchText = "";
-        }
+        }           
     }
 }

@@ -115,33 +115,26 @@ namespace Panda.Client
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void LauncherSelector_OnLoaded(object sender, EventArgs e)
-        {
-            // todo: move to VM
+        {           
             SearchText.Focus();
-            KeyboardMouseService.KeyDownObservable
-                .SubscribeOn(TaskPoolScheduler.Default)
-                .ObserveOn(UiScheduler)
-                .Subscribe(args =>
-                {
-                    if (args.Control && args.KeyCode == Keys.Oem3) // `
-                    {
-                        WindowState = WindowState.Normal;
-                        BringIntoView();
-                        Show();
-                        Activate();
-                        Focus();
-                        SearchText.Focus();
-                        args.Handled = true;
-                    }
-                });
-            ViewModel = new LauncherSelectorViewModel(UiScheduler, LauncherService)
+          
+            ViewModel = new LauncherSelectorViewModel(UiScheduler, LauncherService, KeyboardMouseService)
             {
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
                 MouseUpObs = MouseUpSubject,
                 SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject,
                 LauncherSelectorKeyUpObs = LauncherSelectedKeyUpSubject,
-                HideAction = Hide
+                HideAction = Hide,
+                ShowAction = () =>
+                {
+                    WindowState = WindowState.Normal;
+                    BringIntoView();
+                    Show();
+                    Activate();
+                    Focus();
+                    SearchText.Focus();
+                }
             };
             DataContext = ViewModel;
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Windows;
 using Panda.Client;
 
 namespace Panda.ClipboardLauncher
@@ -15,8 +16,6 @@ namespace Panda.ClipboardLauncher
         public ClipboardLauncher()
         {
             InitializeComponent();
-            ViewModel = new ClipboardLauncherViewModel(this, SettingsService);
-            DataContext = ViewModel;
         }
 
         /// <summary>
@@ -25,6 +24,17 @@ namespace Panda.ClipboardLauncher
         /// <value>
         ///     The view model.
         /// </value>
-        private ClipboardLauncherViewModel ViewModel { get; }
+        private ClipboardLauncherViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Handles the OnLoaded event of the ClipboardLauncher control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void ClipboardLauncher_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel = new ClipboardLauncherViewModel(this, SettingsService);
+            DataContext = ViewModel;
+        }
     }
 }
