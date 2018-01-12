@@ -96,6 +96,10 @@ namespace Panda.EverythingLauncher
             });
         }
 
+        /// <summary>
+        /// Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
         public IScheduler UiScheduler { get; set; }
 
 

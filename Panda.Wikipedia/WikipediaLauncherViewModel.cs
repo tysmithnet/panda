@@ -13,55 +13,59 @@ using Panda.Wikipedia.Annotations;
 namespace Panda.Wikipedia
 {
     /// <summary>
-    ///     View Model for wikipedia launcher
+    /// View Model for wikipedia launcher
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class WikipediaLauncherViewModel : INotifyPropertyChanged
     {
         /// <summary>
-        ///     The item mouse double click observable
+        /// The item mouse double click observable
         /// </summary>
         private IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> _itemMouseDoubleClickObs;
 
         /// <summary>
-        ///     The item mouse double click subscription
+        /// The item mouse double click subscription
         /// </summary>
         private IDisposable _itemMouseDoubleClickSubscription;
 
         /// <summary>
-        ///     The search results subscription
+        /// The search results subscription
         /// </summary>
         private IDisposable _searchResultsSubscription;
 
         /// <summary>
-        ///     The search text changed observable
+        /// The search text changed observable
         /// </summary>
         private IObservable<string> _searchTextChangedObs;
 
         /// <summary>
-        ///     The search text changed subscription
+        /// The search text changed subscription
         /// </summary>
         private IDisposable _searchTextChangedSubscription;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="WikipediaLauncherViewModel" /> class.
+        /// Initializes a new instance of the <see cref="WikipediaLauncherViewModel" /> class.
         /// </summary>
+        /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="wikipediaService">The wikipedia service.</param>
+        /// <exception cref="NullReferenceException">wikipediaService</exception>
         public WikipediaLauncherViewModel(IScheduler uiScheduler, IWikipediaService wikipediaService)
         {
             UiScheduler = uiScheduler;
             _wikipediaService = wikipediaService ?? throw new NullReferenceException(nameof(wikipediaService));
         }
 
+        /// <summary>
+        /// Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
         public IScheduler UiScheduler { get; set; }
 
 
         /// <summary>
-        ///     Gets or sets the search text changed obs.
+        /// Gets or sets the search text changed obs.
         /// </summary>
-        /// <value>
-        ///     The search text changed obs.
-        /// </value>
+        /// <value>The search text changed obs.</value>
         internal IObservable<string> SearchTextChangedObs
         {
             get => _searchTextChangedObs;
@@ -97,28 +101,24 @@ namespace Panda.Wikipedia
         }
 
         /// <summary>
-        ///     Gets or sets the wikipedia result view models.
+        /// Gets or sets the wikipedia result view models.
         /// </summary>
-        /// <value>
-        ///     The wikipedia result view models.
-        /// </value>
+        /// <value>The wikipedia result view models.</value>
         public ObservableCollection<WikipediaResultViewModel> WikipediaResultViewModels { get; set; } =
             new ObservableCollection<WikipediaResultViewModel>();
 
         /// <summary>
-        ///     Gets the wikipedia service.
+        /// Gets the wikipedia service.
         /// </summary>
         /// <value>
-        ///     The wikipedia service.
+        /// The wikipedia service.
         /// </value>
         private IWikipediaService _wikipediaService;
 
         /// <summary>
-        ///     Gets or sets the item mouse double click obs.
+        /// Gets or sets the item mouse double click obs.
         /// </summary>
-        /// <value>
-        ///     The item mouse double click obs.
-        /// </value>
+        /// <value>The item mouse double click obs.</value>
         internal IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickObs
         {
             get => _itemMouseDoubleClickObs;
@@ -140,12 +140,12 @@ namespace Panda.Wikipedia
         }
 
         /// <summary>
-        ///     Occurs when [property changed].
+        /// Occurs when [property changed].
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        ///     Called when [property changed].
+        /// Called when [property changed].
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         [NotifyPropertyChangedInvocator]

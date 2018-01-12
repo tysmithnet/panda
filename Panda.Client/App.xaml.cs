@@ -19,14 +19,21 @@ namespace Panda.Client
     /// </summary>
     public sealed partial class App : Application
     {
+        /// <summary>
+        /// System mutex to prevent multiple instances from being open at the same time
+        /// </summary>
         private static readonly Semaphore SingleInstanceGuard;
 
+        /// <summary>
+        /// Initializes the <see cref="App"/> class.
+        /// </summary>
         static App()
         {
             SingleInstanceGuard = new Semaphore(0, 1, Assembly.GetExecutingAssembly().FullName, out var createdNew);
 
             if (!createdNew)
             {
+                // activate the already created instance
                 var current = Process.GetCurrentProcess();
                 var other = Process.GetProcessesByName(current.ProcessName).FirstOrDefault(p => p.Id != current.Id);
                 if (other != null)
@@ -115,6 +122,9 @@ namespace Panda.Client
             Selector.Show();
         }
 
+        /// <summary>
+        /// Methods for manipulating the panda windows
+        /// </summary>
         private static class NativeMethods
         {
             [DllImport("user32.dll")]

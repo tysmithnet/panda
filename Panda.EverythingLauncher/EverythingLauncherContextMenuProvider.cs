@@ -12,7 +12,7 @@ namespace Panda.EverythingLauncher
 {
     /// <inheritdoc />
     /// <summary>
-    ///     Contexte menu provider for everything launcher
+    ///     Context menu provider for everything launcher
     /// </summary>
     /// <seealso cref="T:Panda.Client.IFileSystemContextMenuProvider" />
     [Export(typeof(IFileSystemContextMenuProvider))]
