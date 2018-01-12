@@ -82,15 +82,16 @@ namespace Panda.Client
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
 
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();
+            var setupCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));                            
             var systemServiceSetupTasks =
-                systemServices.Select(service => service.Setup(CancellationToken.None).ContinueWith(task =>
+                systemServices.Select(service => service.Setup(setupCts.Token).ContinueWith(task =>
                 {
                     if (task.IsFaulted)
                         Log.Error($"Service failed to setup: {service.GetType().FullName}");
 
                     if (task.IsCanceled)
                         Log.Warn($"Service was cancelled during setup: {service.GetType().FullName}");
-                })); // todo: use real CT
+                }, setupCts.Token));
 
             try
             {
@@ -103,7 +104,8 @@ namespace Panda.Client
             }
             // todo: break up method
             var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
-            var setupTasks = requiresSetup.Select(x => x.Setup(CancellationToken.None).ContinueWith(t =>
+            var requiresSetupCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            var setupTasks = requiresSetup.Select(x => x.Setup(requiresSetupCts.Token).ContinueWith(t =>
             {
                 if (t.IsCanceled)
                 {
@@ -116,7 +118,7 @@ namespace Panda.Client
                         Log.Error($"Setup task for {x.GetType()} failed: {exception.Message}");
                         return true;
                     });
-            })).ToArray();
+            }, requiresSetupCts.Token)).ToArray();
             Task.WaitAll(setupTasks);
             Selector.Show();
         }
