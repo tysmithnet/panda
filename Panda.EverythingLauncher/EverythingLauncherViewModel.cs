@@ -224,11 +224,8 @@ namespace Panda.EverythingLauncher
                             .Subscribe(async result =>
                             {
                                 var resultVm = new EverythingResultViewModel(result.FullPath);
-                                await Application.Current.Dispatcher.InvokeAsync(async () =>
-                                {
-                                    EverythingResults.Add(resultVm);
-                                    await resultVm.LoadIcon();
-                                });
+                                EverythingResults.Add(resultVm);
+                                await resultVm.LoadIcon();                                    
                             }, exception =>
                             {
                                 // todo: log
