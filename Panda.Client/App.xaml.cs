@@ -69,20 +69,46 @@ namespace Panda.Client
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             Log.Trace("Looking for MEF components");
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll")
-                .Concat(Directory.EnumerateFiles(assemblyPath, "Panda.Client.exe"));
-            var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
-            var aggregateCatalog = new AggregateCatalog(catalogs);
-            var compositionContainer = new CompositionContainer(aggregateCatalog);
+            var compositionContainer = CreateCompositionContainer();
+            ManipulateCompositionContainer(compositionContainer);
+            SetupSystemServices(compositionContainer);
+            SetupComponentsRequiringSetup(compositionContainer);
+            Selector.Show();
+        }
 
-            compositionContainer.ComposeExportedValue<IScheduler>(
-                new SynchronizationContextScheduler(SynchronizationContext.Current));
+        /// <summary>
+        ///     Setups the components requiring setup.
+        /// </summary>
+        /// <param name="compositionContainer">The composition container.</param>
+        private void SetupComponentsRequiringSetup(CompositionContainer compositionContainer)
+        {
+            var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
+            var requiresSetupCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            var setupTasks = requiresSetup.Select(x => x.Setup(requiresSetupCts.Token).ContinueWith(t =>
+            {
+                if (t.IsCanceled)
+                {
+                    Log.Error($"Setup task for {x.GetType()} was cancelled.");
+                    return;
+                }
+                if (t.IsFaulted)
+                    t.Exception?.Flatten().Handle(exception =>
+                    {
+                        Log.Error($"Setup task for {x.GetType()} failed: {exception.Message}");
+                        return true;
+                    });
+            }, requiresSetupCts.Token)).ToArray();
+            Task.WaitAll(setupTasks);
+        }
 
-            Selector = compositionContainer.GetExportedValue<LauncherSelector>();
-
+        /// <summary>
+        ///     Setups the system services.
+        /// </summary>
+        /// <param name="compositionContainer">The composition container.</param>
+        private void SetupSystemServices(CompositionContainer compositionContainer)
+        {
             var systemServices = compositionContainer.GetExportedValues<ISystemService>();
-            var setupCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));                            
+            var setupCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
             var systemServiceSetupTasks =
                 systemServices.Select(service => service.Setup(setupCts.Token).ContinueWith(task =>
                 {
@@ -102,25 +128,33 @@ namespace Panda.Client
                 Log.Fatal($"One or more system  services failed during startup. Check the logs for more information.");
                 Current.Shutdown(-1);
             }
-            // todo: break up method
-            var requiresSetup = compositionContainer.GetExportedValues<IRequiresSetup>();
-            var requiresSetupCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-            var setupTasks = requiresSetup.Select(x => x.Setup(requiresSetupCts.Token).ContinueWith(t =>
-            {
-                if (t.IsCanceled)
-                {
-                    Log.Error($"Setup task for {x.GetType()} was cancelled.");
-                    return;
-                }
-                if (t.IsFaulted)
-                    t.Exception?.Flatten().Handle(exception =>
-                    {
-                        Log.Error($"Setup task for {x.GetType()} failed: {exception.Message}");
-                        return true;
-                    });
-            }, requiresSetupCts.Token)).ToArray();
-            Task.WaitAll(setupTasks);
-            Selector.Show();
+        }
+
+        /// <summary>
+        ///     Manipulates the composition container.
+        /// </summary>
+        /// <param name="compositionContainer">The composition container.</param>
+        private void ManipulateCompositionContainer(CompositionContainer compositionContainer)
+        {
+            compositionContainer.ComposeExportedValue<IScheduler>(
+                new SynchronizationContextScheduler(SynchronizationContext.Current));
+
+            Selector = compositionContainer.GetExportedValue<LauncherSelector>();
+        }
+
+        /// <summary>
+        ///     Creates the composition container.
+        /// </summary>
+        /// <returns>CompositionContainer.</returns>
+        private static CompositionContainer CreateCompositionContainer()
+        {
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll")
+                .Concat(Directory.EnumerateFiles(assemblyPath, "Panda.Client.exe"));
+            var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
+            var aggregateCatalog = new AggregateCatalog(catalogs);
+            var compositionContainer = new CompositionContainer(aggregateCatalog);
+            return compositionContainer;
         }
 
         /// <summary>
