@@ -101,7 +101,7 @@ namespace Panda.Wikipedia
                                         Description = result.Description,
                                         Url = new Uri(result.Url)
                                     };
-                                    Application.Current.Dispatcher.Invoke(() => { WikipediaResultViewModels.Add(vm); });
+                                    WikipediaResultViewModels.Add(vm);
                                 });
                     });
             }
@@ -132,7 +132,7 @@ namespace Panda.Wikipedia
                         var vm = tuple.Item1;
                         var args = tuple.Item2;
 
-                        Process.Start(vm.Url.AbsoluteUri);
+                        Process.Start(vm.Url.AbsoluteUri); 
                     });
             }
         }

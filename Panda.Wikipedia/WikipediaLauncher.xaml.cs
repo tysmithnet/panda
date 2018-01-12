@@ -7,7 +7,7 @@ using Panda.Client;
 using Panda.CommonControls;
 
 namespace Panda.Wikipedia
-{                              
+{                       
     /// <summary>
     ///     Interaction logic for WikipediaLauncher.xaml
     /// </summary>
@@ -19,8 +19,9 @@ namespace Panda.Wikipedia
         /// </summary>
         public Subject<string> SearchTextChangedSubject = new Subject<string>();
 
+        /// <inheritdoc />
         /// <summary>
-        ///     Initializes a new instance of the <see cref="WikipediaLauncher" /> class.
+        ///     Initializes a new instance of the <see cref="T:Panda.Wikipedia.WikipediaLauncher" /> class.
         /// </summary>
         public WikipediaLauncher()
         {
