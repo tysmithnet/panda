@@ -12,12 +12,12 @@ namespace Panda.Wikipedia
     ///     Interaction logic for WikipediaLauncher.xaml
     /// </summary>
     [Export(typeof(Launcher))]
-    public partial class WikipediaLauncher : Launcher
+    public sealed partial class WikipediaLauncher : Launcher
     {
         /// <summary>
         ///     The search text changed subject
         /// </summary>
-        public Subject<string> SearchTextChangedSubject = new Subject<string>();
+        private Subject<string> SearchTextChangedSubject { get; } = new Subject<string>();
 
         /// <inheritdoc />
         /// <summary>
@@ -35,7 +35,7 @@ namespace Panda.Wikipedia
         ///     The wikipedia service.
         /// </value>
         [Import]
-        public IWikipediaService WikipediaService { get; set; }
+        private IWikipediaService WikipediaService { get; set; }
 
         /// <summary>
         ///     Gets or sets the item mouse double click subject.
@@ -43,7 +43,7 @@ namespace Panda.Wikipedia
         /// <value>
         ///     The item mouse double click subject.
         /// </value>
-        public Subject<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickSubject { get; set; } =
+        private Subject<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickSubject { get; set; } =
             new Subject<(WikipediaResultViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Panda.Wikipedia
         /// <value>
         ///     The view model.
         /// </value>
-        public WikipediaLauncherViewModel ViewModel { get; set; }
+        private WikipediaLauncherViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     Handles the OnTextChanged event of the SearchText control.
