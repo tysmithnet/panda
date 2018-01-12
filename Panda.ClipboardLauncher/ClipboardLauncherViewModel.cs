@@ -83,7 +83,7 @@ namespace Panda.ClipboardLauncher
                     NativeMethods.SendMessage(_nextClipboardViewer, msg, wParam,
                         lParam);
                     var text = Clipboard.GetText();
-                    if (ClipboardHistory.Count >= _settings.ClipboardHistorySize) // todo: make setting
+                    if (ClipboardHistory.Count >= _settings.ClipboardHistorySize)
                         ClipboardHistory.RemoveAt(0);
                     ClipboardHistory.Add(text);
                     break;

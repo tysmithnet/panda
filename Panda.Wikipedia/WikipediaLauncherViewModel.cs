@@ -132,8 +132,7 @@ namespace Panda.Wikipedia
                         var vm = tuple.Item1;
                         var args = tuple.Item2;
 
-                        Process.Start(vm.Url
-                            .AbsoluteUri); //todo: application service should be able to open browsers for provided urls
+                        Process.Start(vm.Url.AbsoluteUri);
                     });
             }
         }

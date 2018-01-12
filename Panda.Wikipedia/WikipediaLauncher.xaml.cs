@@ -7,10 +7,7 @@ using Panda.Client;
 using Panda.CommonControls;
 
 namespace Panda.Wikipedia
-{
-    // todo: weather
-    // todo: traffic
-    // todo: msdn documentation
+{                              
     /// <summary>
     ///     Interaction logic for WikipediaLauncher.xaml
     /// </summary>

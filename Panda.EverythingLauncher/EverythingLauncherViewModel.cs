@@ -228,7 +228,7 @@ namespace Panda.EverythingLauncher
                                 await resultVm.LoadIcon();                                    
                             }, exception =>
                             {
-                                // todo: log
+                                Log.Error($"EverythingResultViewModel creation failure: {exception.Message}");
                             }, () => { RefreshDataGridAction?.Invoke(); });
                     });
             }
