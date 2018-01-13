@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -45,6 +45,9 @@ namespace Panda.Client
         [Import]
         private IKeyboardMouseService KeyboardMouseService { get; set; }
 
+        [Import]
+        private IScheduler UiScheduler { get; set; }
+
         /// <summary>
         ///     Gets or sets the view model.
         /// </summary>
@@ -76,7 +79,7 @@ namespace Panda.Client
         /// <value>
         ///     The mouse up subject.
         /// </value>
-        private Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; set; } =
+        private Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; } =
             new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
@@ -85,7 +88,7 @@ namespace Panda.Client
         /// <value>
         ///     The search text box preview key up subject.
         /// </value>
-        private Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; set; } =
+        private Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; } =
             new Subject<(string, KeyEventArgs)>();
 
         /// <summary>
@@ -94,7 +97,7 @@ namespace Panda.Client
         /// <value>
         ///     The launcher selected key up subject.
         /// </value>
-        private Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; set; } = new Subject<KeyEventArgs>();
+        private Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; } = new Subject<KeyEventArgs>();
 
         /// <summary>
         ///     Raises the <see cref="E:Closing" /> event.
@@ -112,32 +115,26 @@ namespace Panda.Client
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void LauncherSelector_OnLoaded(object sender, EventArgs e)
-        {
-            // todo: move to VM
+        {           
             SearchText.Focus();
-            KeyboardMouseService.KeyDownObservable.Throttle(TimeSpan.FromMilliseconds(100)) // todo: setting
-                .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(args =>
-                {
-                    if (args.Alt && args.KeyCode == Keys.Space)
-                    {
-                        WindowState = WindowState.Normal;
-                        //Topmost = true;
-                        Show();
-                        Activate();
-                        Focus();
-                        SearchText.Focus();
-                        args.Handled = true;
-                    }
-                });
-            ViewModel = new LauncherSelectorViewModel(LauncherService)
+          
+            ViewModel = new LauncherSelectorViewModel(UiScheduler, LauncherService, KeyboardMouseService)
             {
                 TextChangedObs = TextChangedSubject,
                 SelectionChangedObs = SelectionChangedSubject,
                 MouseUpObs = MouseUpSubject,
                 SearchTextBoxPreviewKeyUpObs = SearchTextBoxPreviewKeyUpSubject,
                 LauncherSelectorKeyUpObs = LauncherSelectedKeyUpSubject,
-                HideAction = Hide
+                HideAction = Hide,
+                ShowAction = () =>
+                {
+                    WindowState = WindowState.Normal;
+                    BringIntoView();
+                    Show();
+                    Activate();
+                    Focus();
+                    SearchText.Focus();
+                }
             };
             DataContext = ViewModel;
         }
@@ -159,7 +156,8 @@ namespace Panda.Client
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            TextChangedSubject.OnNext(SearchText.Text);
+            TextChangedSubject
+                .OnNext(SearchText.Text);
         }
 
         /// <summary>

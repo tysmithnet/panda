@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
@@ -70,6 +71,9 @@ namespace Panda.EverythingLauncher
         [Import]
         private IEventHub EventHub { get; set; }
 
+        [Import]
+        private IScheduler UiScheduler { get; set; }
+
         /// <summary>
         ///     Gets the text changed observable.
         /// </summary>
@@ -102,7 +106,7 @@ namespace Panda.EverythingLauncher
         /// <value>
         ///     The preview mouse double click subject.
         /// </value>
-        private Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; set; }
+        private Subject<(EverythingResultViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickSubject { get; }
             = new Subject<(EverythingResultViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
@@ -126,7 +130,7 @@ namespace Panda.EverythingLauncher
         private void EverythingLauncher_OnLoaded(object sender, EventArgs e)
         {
             SearchText.Focus();
-            ViewModel = new EverythingLauncherViewModel(EverythingService, KeyboardMouseService,
+            ViewModel = new EverythingLauncherViewModel(UiScheduler, EverythingService, KeyboardMouseService,
                 FileSystemContextMenuProviders, EventHub)
             {
                 TextChangedObs = TextChangedSubject,

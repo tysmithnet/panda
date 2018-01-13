@@ -2,10 +2,12 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Wikipedia.Annotations;
 
@@ -15,8 +17,16 @@ namespace Panda.Wikipedia
     ///     View Model for wikipedia launcher
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public class WikipediaLauncherViewModel : INotifyPropertyChanged
+    public sealed class WikipediaLauncherViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        ///     Gets the wikipedia service.
+        /// </summary>
+        /// <value>
+        ///     The wikipedia service.
+        /// </value>
+        private readonly IWikipediaService _wikipediaService;
+
         /// <summary>
         ///     The item mouse double click observable
         /// </summary>
@@ -26,6 +36,16 @@ namespace Panda.Wikipedia
         ///     The item mouse double click subscription
         /// </summary>
         private IDisposable _itemMouseDoubleClickSubscription;
+
+        /// <summary>
+        ///     The list box key up obs
+        /// </summary>
+        private IObservable<KeyEventArgs> _listBoxKeyUpObs;
+
+        /// <summary>
+        ///     The list box key up subscription
+        /// </summary>
+        private IDisposable _listBoxKeyUpSubscription;
 
         /// <summary>
         ///     The search results subscription
@@ -43,20 +63,42 @@ namespace Panda.Wikipedia
         private IDisposable _searchTextChangedSubscription;
 
         /// <summary>
+        ///     The selected
+        /// </summary>
+        private WikipediaResultViewModel _selected;
+
+        /// <summary>
+        ///     The selection changed obs
+        /// </summary>
+        private IObservable<(WikipediaResultViewModel, SelectionChangedEventArgs)> _selectionChangedObs;
+
+        /// <summary>
+        ///     The selection changed subscription
+        /// </summary>
+        private IDisposable _selectionChangedSubscription;
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="WikipediaLauncherViewModel" /> class.
         /// </summary>
+        /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="wikipediaService">The wikipedia service.</param>
-        public WikipediaLauncherViewModel(WikipediaService wikipediaService)
+        /// <exception cref="NullReferenceException">wikipediaService</exception>
+        public WikipediaLauncherViewModel(IScheduler uiScheduler, IWikipediaService wikipediaService)
         {
-            WikipediaService = wikipediaService;
+            UiScheduler = uiScheduler;
+            _wikipediaService = wikipediaService ?? throw new NullReferenceException(nameof(wikipediaService));
         }
+
+        /// <summary>
+        ///     Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
+        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the search text changed obs.
         /// </summary>
-        /// <value>
-        ///     The search text changed obs.
-        /// </value>
+        /// <value>The search text changed obs.</value>
         internal IObservable<string> SearchTextChangedObs
         {
             get => _searchTextChangedObs;
@@ -65,12 +107,17 @@ namespace Panda.Wikipedia
                 _searchTextChangedSubscription?.Dispose();
                 _searchTextChangedObs = value;
                 _searchTextChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
                     .Throttle(TimeSpan.FromMilliseconds(333))
                     .Subscribe(text =>
                     {
                         Application.Current.Dispatcher.Invoke(() => { WikipediaResultViewModels.Clear(); });
                         _searchResultsSubscription?.Dispose();
-                        _searchResultsSubscription = WikipediaService.AutoComplete(text, CancellationToken.None)
+                        _searchResultsSubscription = _wikipediaService
+                            .AutoComplete(text, CancellationToken.None)
+                            .SubscribeOn(TaskPoolScheduler.Default)
+                            .ObserveOn(UiScheduler)
                             .Subscribe(
                                 result =>
                                 {
@@ -80,7 +127,7 @@ namespace Panda.Wikipedia
                                         Description = result.Description,
                                         Url = new Uri(result.Url)
                                     };
-                                    Application.Current.Dispatcher.Invoke(() => { WikipediaResultViewModels.Add(vm); });
+                                    WikipediaResultViewModels.Add(vm);
                                 });
                     });
             }
@@ -89,41 +136,76 @@ namespace Panda.Wikipedia
         /// <summary>
         ///     Gets or sets the wikipedia result view models.
         /// </summary>
-        /// <value>
-        ///     The wikipedia result view models.
-        /// </value>
+        /// <value>The wikipedia result view models.</value>
         public ObservableCollection<WikipediaResultViewModel> WikipediaResultViewModels { get; set; } =
             new ObservableCollection<WikipediaResultViewModel>();
 
         /// <summary>
-        ///     Gets the wikipedia service.
-        /// </summary>
-        /// <value>
-        ///     The wikipedia service.
-        /// </value>
-        public WikipediaService WikipediaService { get; }
-
-        /// <summary>
         ///     Gets or sets the item mouse double click obs.
         /// </summary>
-        /// <value>
-        ///     The item mouse double click obs.
-        /// </value>
-        public IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickObs
+        /// <value>The item mouse double click obs.</value>
+        internal IObservable<(WikipediaResultViewModel, MouseButtonEventArgs)> ItemMouseDoubleClickObs
         {
             get => _itemMouseDoubleClickObs;
             set
             {
                 _itemMouseDoubleClickSubscription?.Dispose();
                 _itemMouseDoubleClickObs = value;
-                _itemMouseDoubleClickSubscription = value.Subscribe(tuple =>
-                {
-                    var vm = tuple.Item1;
-                    var args = tuple.Item2;
+                _itemMouseDoubleClickSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(tuple =>
+                    {
+                        var vm = tuple.Item1;
+                        var args = tuple.Item2;
 
-                    Process.Start(vm.Url
-                        .AbsoluteUri); //todo: application service should be able to open browsers for provided urls
-                });
+                        Process.Start(vm.Url.AbsoluteUri);
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the selection changed obs.
+        /// </summary>
+        /// <value>The selection changed obs.</value>
+        public IObservable<(WikipediaResultViewModel, SelectionChangedEventArgs)> SelectionChangedObs
+        {
+            get => _selectionChangedObs;
+            set
+            {
+                _selectionChangedSubscription?.Dispose();
+                _selectionChangedObs = value;
+                _selectionChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(tuple =>
+                    {
+                        var vm = tuple.Item1;
+                        var args = tuple.Item2;
+                        _selected = vm;
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the ListBox key up obs.
+        /// </summary>
+        /// <value>The ListBox key up obs.</value>
+        public IObservable<KeyEventArgs> ListBoxKeyUpObs
+        {
+            get => _listBoxKeyUpObs;
+            set
+            {
+                _listBoxKeyUpSubscription?.Dispose();
+                _listBoxKeyUpObs = value;
+                _listBoxKeyUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(args =>
+                    {
+                        if (args.Key != Key.Enter && args.Key != Key.Return) return;
+                        if (_selected != null)
+                            Process.Start(_selected.Url.AbsoluteUri);
+                    });
             }
         }
 
@@ -137,7 +219,7 @@ namespace Panda.Wikipedia
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

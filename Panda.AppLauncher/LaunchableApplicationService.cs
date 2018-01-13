@@ -108,7 +108,8 @@ namespace Panda.AppLauncher
         /// <param name="launchableApplication">The registered application to remove</param>
         public void Remove(LaunchableApplication launchableApplication)
         {
-            Settings.RegisteredApplications.Remove(launchableApplication); // todo: test
+            if(Settings.RegisteredApplications.Contains(launchableApplication))
+                Settings.RegisteredApplications.Remove(launchableApplication);
             RegisteredApplications.Remove(launchableApplication);
             ApplicationUnregisteredSubject.OnNext(launchableApplication);
         }

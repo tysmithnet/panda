@@ -6,7 +6,7 @@ namespace Panda.EverythingLauncher
     /// <summary>
     ///     Represents something capable of using everything to find files
     /// </summary>
-    public interface IEverythingService // todo: should be more generic of a file system searcher
+    public interface IEverythingService
     {
         /// <summary>
         ///     Searches the specified query.

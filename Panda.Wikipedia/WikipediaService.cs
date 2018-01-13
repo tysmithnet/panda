@@ -5,17 +5,26 @@ using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
 using System.Threading;
+using Common.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Panda.Wikipedia
 {
+    /// <inheritdoc />
     /// <summary>
     ///     Implementation for Wikipedia service
     /// </summary>
-    /// <seealso cref="Panda.Wikipedia.IWikipediaService" />
-    [Export]
-    public class WikipediaService : IWikipediaService
+    /// <seealso cref="T:Panda.Wikipedia.IWikipediaService" />
+    [Export(typeof(IWikipediaService))]
+    internal sealed class WikipediaService : IWikipediaService
     {
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>The log.</value>
+        private ILog Log { get; } = LogManager.GetLogger<WikipediaService>();
+
+        /// <inheritdoc />
         /// <summary>
         ///     Get a small list of wikipedia potential matches
         /// </summary>
@@ -43,22 +52,27 @@ namespace Panda.Wikipedia
                 var root = JArray.Parse(responseFromServer);
                 var toBeZipped = root.OfType<JArray>();
                 var arrays = toBeZipped.Select(j => j.Values<string>().ToArray()).ToArray();
-                // todo: assert all are the same size, but we can probably trust wikipedia
                 var n = arrays[0]
                     .Length; // api seems to return 3 empty arrays so its fine to always check for the first
                 for (var i = 0; i < n; i++)
-                {
-                    var title = arrays[0][i];
-                    var description = arrays[1][i];
-                    var url = arrays[2][i];
-                    var newResult = new WikipediaResult // todo: error checking
+                    try
                     {
-                        Title = title,
-                        Description = description,
-                        Url = url
-                    };
-                    observer.OnNext(newResult);
-                }
+                        var title = arrays[0][i];
+                        var description = arrays[1][i];
+                        var url = arrays[2][i];
+                        var newResult = new WikipediaResult
+                        {
+                            Title = title,
+                            Description = description,
+                            Url = url
+                        };
+                        observer.OnNext(newResult);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Error creating WikipediaResult: {e.Message}");
+                        observer.OnError(e);
+                    }
                 observer.OnCompleted();
             });
 

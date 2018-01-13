@@ -3,7 +3,7 @@
     /// <summary>
     ///     Result from wikipedia autocomplete search
     /// </summary>
-    public class WikipediaResult
+    public sealed class WikipediaResult
     {
         /// <summary>
         ///     Gets or sets the title.
@@ -11,7 +11,7 @@
         /// <value>
         ///     The title.
         /// </value>
-        public string Title { get; set; }
+        public string Title { get; internal set; }
 
         /// <summary>
         ///     Gets or sets the description.
@@ -19,7 +19,7 @@
         /// <value>
         ///     The description.
         /// </value>
-        public string Description { get; set; }
+        public string Description { get; internal set; }
 
         /// <summary>
         ///     Gets or sets the URL.
@@ -27,6 +27,6 @@
         /// <value>
         ///     The URL.
         /// </value>
-        public string Url { get; set; }
+        public string Url { get; internal set; }
     }
 }

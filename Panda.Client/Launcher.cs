@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Reactive.Concurrency;
 using System.Windows;
 using System.Windows.Input;
 
@@ -18,9 +19,7 @@ namespace Panda.Client
         {
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
-
-        // todo: make it so escape minimizes
-        // todo: close makes it minimize        
+      
         /// <summary>
         ///     Gets or sets the settings service.
         /// </summary>
@@ -28,13 +27,16 @@ namespace Panda.Client
         ///     The settings service.
         /// </value>
         [Import]
-        private ISettingsService SettingsService { get; set; }
+        protected ISettingsService SettingsService { get; set; }
+
+        [Import]
+        protected IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Raises the <see cref="E:PreviewKeyDown" /> event.
         /// </summary>
         /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
@@ -43,7 +45,7 @@ namespace Panda.Client
             }
             else
             {
-                base.OnPreviewKeyDown(e);
+                OnPreviewKeyDown(e);
             }
         }
 

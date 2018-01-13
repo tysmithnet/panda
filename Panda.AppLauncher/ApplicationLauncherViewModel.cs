@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -77,12 +78,16 @@ namespace Panda.AppLauncher
         /// <param name="launchableApplicationService">The registered application service.</param>
         /// <param name="launchableApplicationContextMenuProviders">The registered application context menu providers.</param>
         public ApplicationLauncherViewModel(
+            IScheduler uiScheduler,
             ILaunchableApplicationService launchableApplicationService,
             ILaunchableApplicationContextMenuProvider[] launchableApplicationContextMenuProviders)
         {
+            UiScheduler = uiScheduler;
             LaunchableApplicationService = launchableApplicationService;
             LaunchableApplicationContextMenuProviders = launchableApplicationContextMenuProviders;
         }
+
+        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the preview double click observable
@@ -97,11 +102,13 @@ namespace Panda.AppLauncher
             {
                 _previewDoubleClickSubscription?.Dispose();
                 _previewDoubleClickObs = value;
-                _previewDoubleClickSubscription = value.Subscribe(model =>
-                {
-                    Log.Trace($"Starting {model.ExecutableLocation}");
-                    Process.Start(model.ExecutableLocation);
-                });
+                _previewDoubleClickSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(model =>
+                    {
+                        Log.Trace($"Starting {model.ExecutableLocation}");
+                        Process.Start(model.ExecutableLocation);
+                    });
             }
         }
 
@@ -118,16 +125,18 @@ namespace Panda.AppLauncher
             {
                 _previewKeyUpSubscription?.Dispose();
                 _previewKeyUpObs = value;
-                _previewKeyUpSubscription = value.Subscribe(args =>
-                {
-                    if (args.Key != Key.Enter && args.Key != Key.Return) return;
-                    var first = AppViewModels.FirstOrDefault();
-                    if (first != null)
+                _previewKeyUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(args =>
                     {
-                        Log.Trace($"Starting {first.ExecutableLocation}");
-                        Process.Start(first.ExecutableLocation);
-                    }
-                });
+                        if (args.Key != Key.Enter && args.Key != Key.Return) return;
+                        var first = AppViewModels.FirstOrDefault();
+                        if (first != null)
+                        {
+                            Log.Trace($"Starting {first.ExecutableLocation}");
+                            Process.Start(first.ExecutableLocation);
+                        }
+                    });
             }
         }
 
@@ -146,7 +155,10 @@ namespace Panda.AppLauncher
                 value = value ?? throw new ArgumentNullException(nameof(value));
                 _textChangedSubscription?.Dispose();
                 _searchTextChangedObs = value;
-                _textChangedSubscription = value.Where(s => s != null)
+                _textChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Where(s => s != null)
                     .Subscribe(async s =>
                     {
                         AppViewModels.Clear();
@@ -155,11 +167,12 @@ namespace Panda.AppLauncher
                             Regex.IsMatch(application.FullPath, s, RegexOptions.IgnoreCase)).ToEnumerable();
                         foreach (var registeredApplication in filteredApps)
                         {
-                            var item = new LaunchableApplicationViewModel(LauncherService)
+                            var item = new LaunchableApplicationViewModel(UiScheduler, LaunchableApplicationService)
                             {
                                 AppName = registeredApplication.DisplayName,
                                 ExecutableLocation = registeredApplication.FullPath,
-                                LaunchableApplication = registeredApplication
+                                LaunchableApplication = registeredApplication,
+                                LaunchableApplicationService = LaunchableApplicationService
                             };
                             AppViewModels.Add(item);
                             await item.LoadIcon(IconSize.Large);
@@ -167,8 +180,6 @@ namespace Panda.AppLauncher
                     });
             }
         }
-
-        internal ILaunchableApplicationService LauncherService { get; set; }
 
         /// <summary>
         ///     Gets or sets the application unregistered subscription.
@@ -249,11 +260,13 @@ namespace Panda.AppLauncher
             {
                 _previewMouseUpSubscription?.Dispose();
                 _previewMouseDoubleClickObs = value;
-                _previewMouseUpSubscription = value.Subscribe(tuple =>
-                {
-                    Log.Trace($"Starting {tuple.Item1.ExecutableLocation}");
-                    Process.Start(tuple.Item1.ExecutableLocation);
-                });
+                _previewMouseUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(tuple =>
+                    {
+                        Log.Trace($"Starting {tuple.Item1.ExecutableLocation}");
+                        Process.Start(tuple.Item1.ExecutableLocation);
+                    });
             }
         }
 
@@ -270,23 +283,27 @@ namespace Panda.AppLauncher
             {
                 _selectedItemsChangedSubscription?.Dispose();
                 _selectedItemsChangedObs = value;
-                _selectedItemsChangedSubscription = value.Subscribe(models =>
-                {
-                    ContextMenuItems.Clear();
-                    var list = models.ToList();
-                    foreach (var registeredApplicationContextMenuProvider in LaunchableApplicationContextMenuProviders)
+                _selectedItemsChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(models =>
                     {
-                        var canHandle =
-                            registeredApplicationContextMenuProvider.CanHandle(
-                                list);
+                        ContextMenuItems.Clear();
+                        var list = models.ToList();
+                        foreach (var registeredApplicationContextMenuProvider in
+                            LaunchableApplicationContextMenuProviders)
+                        {
+                            var canHandle =
+                                registeredApplicationContextMenuProvider.CanHandle(
+                                    list);
 
-                        if (!canHandle) continue;
+                            if (!canHandle) continue;
 
-                        foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
-                            list))
-                            ContextMenuItems.Add(item);
-                    }
-                });
+                            foreach (var item in registeredApplicationContextMenuProvider.GetContextMenuItems(
+                                list))
+                                ContextMenuItems.Add(item);
+                        }
+                    });
             }
         }
 
@@ -309,39 +326,48 @@ namespace Panda.AppLauncher
         /// </summary>
         public void SetupSubscriptions()
         {
-            LaunchableApplicationService.Get().Subscribe(async application =>
-            {
-                var item = new LaunchableApplicationViewModel(LaunchableApplicationService)
+            LaunchableApplicationService.Get()
+                .SubscribeOn(TaskPoolScheduler.Default)
+                .ObserveOn(UiScheduler)
+                .Subscribe(async application =>
                 {
-                    AppName = application.DisplayName,
-                    ExecutableLocation = application.FullPath,
-                    LaunchableApplication = application,
-                    LaunchableApplicationService = LaunchableApplicationService
-                };
-                AppViewModels.Add(item);
-                await item.LoadIcon(IconSize.Large);
-            });
-
-            ApplicationRegisteredSubscription =
-                LaunchableApplicationService.ApplicationRegisteredObservable.Subscribe(async application =>
-                {
-                    var item = new LaunchableApplicationViewModel(LaunchableApplicationService)
+                    var item = new LaunchableApplicationViewModel(UiScheduler, LaunchableApplicationService)
                     {
                         AppName = application.DisplayName,
                         ExecutableLocation = application.FullPath,
-                        LaunchableApplication = application
+                        LaunchableApplication = application,
+                        LaunchableApplicationService = LaunchableApplicationService
                     };
                     AppViewModels.Add(item);
                     await item.LoadIcon(IconSize.Large);
                 });
 
+            ApplicationRegisteredSubscription =
+                LaunchableApplicationService.ApplicationRegisteredObservable
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(async application =>
+                    {
+                        var item = new LaunchableApplicationViewModel(UiScheduler, LaunchableApplicationService)
+                        {
+                            AppName = application.DisplayName,
+                            ExecutableLocation = application.FullPath,
+                            LaunchableApplication = application
+                        };
+                        AppViewModels.Add(item);
+                        await item.LoadIcon(IconSize.Large);
+                    });
+
             ApplicationUnregisteredSubscription =
-                LaunchableApplicationService.ApplicationUnregisteredObservable.Subscribe(application =>
-                {
-                    var toRemove = AppViewModels.Where(vm => vm.LaunchableApplication.Equals(application)).ToList();
-                    foreach (var appViewModel in toRemove)
-                        AppViewModels.Remove(appViewModel);
-                });
+                LaunchableApplicationService.ApplicationUnregisteredObservable
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(application =>
+                    {
+                        var toRemove = AppViewModels.Where(vm => vm.LaunchableApplication.Equals(application)).ToList();
+                        foreach (var appViewModel in toRemove)
+                            AppViewModels.Remove(appViewModel);
+                    });
         }
 
         /// <summary>

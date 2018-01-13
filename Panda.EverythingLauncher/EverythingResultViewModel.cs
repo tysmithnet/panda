@@ -162,7 +162,6 @@ namespace Panda.EverythingLauncher
             });
         }
 
-
         /// <summary>
         ///     Called when [property changed].
         /// </summary>

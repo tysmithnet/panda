@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -71,28 +72,37 @@ namespace Panda.EverythingLauncher
         /// <summary>
         ///     Initializes a new instance of the <see cref="EverythingLauncherViewModel" /> class.
         /// </summary>
+        /// <param name="uiScheduler"></param>
         /// <param name="everythingService">The everything service.</param>
         /// <param name="keyboardMouseService"></param>
         /// <param name="fileSystemContextMenuProviders">The file system context menu providers.</param>
         /// <param name="eventHub"></param>
-        public EverythingLauncherViewModel(
-            IEverythingService everythingService,
-            IKeyboardMouseService keyboardMouseService,
-            IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
+        public EverythingLauncherViewModel(IScheduler uiScheduler, IEverythingService everythingService,
+            IKeyboardMouseService keyboardMouseService, IFileSystemContextMenuProvider[] fileSystemContextMenuProviders,
             IEventHub eventHub)
         {
+            UiScheduler = uiScheduler;
             EverythingService = everythingService;
             FileSystemContextMenuProviders = fileSystemContextMenuProviders;
             KeyboardMouseService = keyboardMouseService;
             EventHub = eventHub;
-            EventHub.Get<FileDeletedEvent>().Subscribe(@event =>
-            {
-                var toRemove = EverythingResults.Where(model => model.FullName == @event.FullName);
-                foreach (var everythingResultViewModel in toRemove)
-                    Application.Current.Dispatcher.Invoke(
-                        () => { EverythingResults.Remove(everythingResultViewModel); });
-            });
+            EventHub.Get<FileDeletedEvent>()
+                .SubscribeOn(TaskPoolScheduler.Default)
+                .ObserveOn(UiScheduler)
+                .Subscribe(@event =>
+                {
+                    var toRemove = EverythingResults.Where(model => model.FullName == @event.FullName);
+                    foreach (var everythingResultViewModel in toRemove)
+                        Application.Current.Dispatcher.Invoke(
+                            () => { EverythingResults.Remove(everythingResultViewModel); });
+                });
         }
+
+        /// <summary>
+        ///     Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
+        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the refresh data grid action.
@@ -116,6 +126,8 @@ namespace Panda.EverythingLauncher
                 _previewMouseRightButtonDownSubscription?.Dispose();
                 _previewMouseRightButtonDownObs = value;
                 _previewMouseRightButtonDownSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
                     .Where(args => args != null)
                     .WithLatestFrom(SelectedItemsChangedObs,
                         (args, models) => (args, models))
@@ -165,7 +177,10 @@ namespace Panda.EverythingLauncher
                 _selectedItemsChangedSubscription?.Dispose();
                 _selectedItemsChangedObs = value;
                 _selectedItemsChangedSubscription = value
+                    .Throttle(TimeSpan.FromMilliseconds(333))
                     .Where(model => model != null)
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
                     .Subscribe(selectedItems =>
                     {
                         ContextMenuItems.Clear();
@@ -193,6 +208,7 @@ namespace Panda.EverythingLauncher
                 _textChangedSubscription?.Dispose();
                 _textChangedObs = value;
                 _textChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
                     .Where(s => s != null && s.Length > 1)
                     .Throttle(TimeSpan.FromMilliseconds(333))
                     .Subscribe(s =>
@@ -203,22 +219,20 @@ namespace Panda.EverythingLauncher
                         Application.Current.Dispatcher.Invoke(() => EverythingResults.Clear());
                         _everythingSubscription = EverythingService
                             .Search(s, CancellationTokenSource.Token)
+                            .SubscribeOn(TaskPoolScheduler.Default)
+                            .ObserveOn(UiScheduler)
                             .Subscribe(async result =>
                             {
                                 var resultVm = new EverythingResultViewModel(result.FullPath);
-                                await Application.Current.Dispatcher.InvokeAsync(async () =>
-                                {
-                                    EverythingResults.Add(resultVm);
-                                    await resultVm.LoadIcon();
-                                });
+                                EverythingResults.Add(resultVm);
+                                await resultVm.LoadIcon();                                    
                             }, exception =>
                             {
-                                // todo: log
+                                Log.Error($"EverythingResultViewModel creation failure: {exception.Message}");
                             }, () => { RefreshDataGridAction?.Invoke(); });
                     });
             }
         }
-
 
         /// <summary>
         ///     Gets or sets the file system context menu providers.
@@ -315,11 +329,13 @@ namespace Panda.EverythingLauncher
             {
                 _previewMouseDoubleClickSubscription?.Dispose();
                 _previewMouseDoubleClickObs = value;
-                _previewMouseDoubleClickSubscription = value.Subscribe(tuple =>
-                {
-                    Log.Trace($"Starting {tuple.Item1.FullName}");
-                    Process.Start(tuple.Item1.FullName);
-                });
+                _previewMouseDoubleClickSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(tuple =>
+                    {
+                        Log.Trace($"Starting {tuple.Item1.FullName}");
+                        Process.Start(tuple.Item1.FullName);
+                    });
             }
         }
 

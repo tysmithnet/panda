@@ -103,7 +103,7 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void AppLauncher_OnLoaded(object sender, EventArgs e)
         {
-            ViewModel = new ApplicationLauncherViewModel(LaunchableApplicationService,
+            ViewModel = new ApplicationLauncherViewModel(UiScheduler, LaunchableApplicationService,
                 LaunchableApplicationContextMenuProviders)
             {
                 SearchTextChangedObs = SearchTextChangedSubject,

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.Client
 {
@@ -37,6 +40,8 @@ namespace Panda.Client
         ///     The preview mouse up subscription
         /// </summary>
         private IDisposable _previewMouseUpSubscription;
+
+        private string _searchText;
 
         /// <summary>
         ///     The search text box preview key up obs
@@ -71,10 +76,14 @@ namespace Panda.Client
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
+        /// <param name="uiScheduler"></param>
         /// <param name="launcherService">The launcher service.</param>
-        internal LauncherSelectorViewModel(ILauncherService launcherService)
+        /// <param name="keyboardMouseService"></param>
+        internal LauncherSelectorViewModel(IScheduler uiScheduler, ILauncherService launcherService, IKeyboardMouseService keyboardMouseService)
         {
+            UiScheduler = uiScheduler;
             LauncherService = launcherService;
+            KeyboardMouseService = keyboardMouseService;
             ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
             {
                 Name = l.GetType().FullName,
@@ -82,6 +91,40 @@ namespace Panda.Client
             });
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
         }
+
+        private IDisposable _globalShowLauncherSelectorSubscription;
+
+        /// <summary>
+        /// Gets or sets the keyboard mouse service.
+        /// </summary>
+        /// <value>The keyboard mouse service.</value>
+        public IKeyboardMouseService KeyboardMouseService
+        {
+            get => _keyboardMouseService;
+            set
+            {
+                _globalShowLauncherSelectorSubscription?.Dispose();
+                _keyboardMouseService = value; 
+                _globalShowLauncherSelectorSubscription = value
+                    .KeyDownObservable
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(args =>
+                    {
+                        if (args.Control && args.KeyCode == Keys.Oem3) // `
+                        {
+                            ShowAction?.Invoke();
+                            args.Handled = true;
+                        }
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
+        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the text changed obs.
@@ -97,7 +140,8 @@ namespace Panda.Client
                 _textChangedSubscription?.Dispose();
                 _textChangedObs = value;
                 _textChangedSubscription = value
-                    .ObserveOn(SynchronizationContext.Current)
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
                     .Subscribe(filter =>
                     {
                         LauncherViewModels.Clear();
@@ -133,14 +177,6 @@ namespace Panda.Client
         private IEnumerable<LauncherViewModel> ViewModels { get; }
 
         /// <summary>
-        ///     Gets or sets the active.
-        /// </summary>
-        /// <value>
-        ///     The active.
-        /// </value>
-        private Launcher Active { get; set; }
-
-        /// <summary>
         ///     Gets or sets the launcher view models.
         /// </summary>
         /// <value>
@@ -154,7 +190,15 @@ namespace Panda.Client
         /// <value>
         ///     The search text.
         /// </value>
-        public string SearchText { get; set; }
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the selection changed obs.
@@ -169,18 +213,20 @@ namespace Panda.Client
             {
                 _selectionChangedSubscription?.Dispose();
                 _selectionChangedObs = value;
-                _selectionChangedSubscription = value.Subscribe(e =>
-                {
-                    var added = e.AddedItems.Cast<LauncherViewModel>();
-                    var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
-                    if (launcherViewModels.Any())
+                _selectionChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(e =>
                     {
-                        var first = launcherViewModels.First();
-                        Active?.Hide();
-                        Active = first.Instance;
-                        Active.Show();
-                    }
-                });
+                        var added = e.AddedItems.Cast<LauncherViewModel>();
+                        var launcherViewModels = added as LauncherViewModel[] ?? added.ToArray();
+                        if (launcherViewModels.Any())
+                        {
+                            var first = launcherViewModels.First();
+                            first.Instance.Show();
+                            SearchText = "";
+                        }
+                    });
             }
         }
 
@@ -197,12 +243,14 @@ namespace Panda.Client
             {
                 _previewMouseUpSubscription?.Dispose();
                 _mouseUpObs = value;
-                _previewMouseUpSubscription = value.Subscribe(tuple =>
-                {
-                    Active?.Hide();
-                    Active = tuple.Item1.Instance;
-                    Active.Show();
-                });
+                _previewMouseUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(tuple =>
+                    {
+                        tuple.Item1.Instance.Show();
+                        SearchText = "";
+                    });
             }
         }
 
@@ -219,17 +267,20 @@ namespace Panda.Client
             {
                 _searchTextBoxPreviewKeyUpSubscription?.Dispose();
                 _searchTextBoxPreviewKeyUpObs = value;
-                _searchTextBoxPreviewKeyUpSubscription = value.Subscribe(tuple =>
-                {
-                    var currentText = tuple.Item1;
-                    var args = tuple.Item2;
-
-                    if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
+                _searchTextBoxPreviewKeyUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(tuple =>
                     {
-                        StartFirst();
-                        args.Handled = true;
-                    }
-                });
+                        var currentText = tuple.Item1;
+                        var args = tuple.Item2;
+
+                        if (new[] {Key.Enter, Key.Return}.Contains(args.Key))
+                        {
+                            StartFirst();
+                            args.Handled = true;
+                        }
+                    });
             }
         }
 
@@ -254,16 +305,21 @@ namespace Panda.Client
             {
                 _launcherSelectorKeyUpSubscription?.Dispose();
                 _launcherSelectorKeyUpObs = value;
-                _launcherSelectorKeyUpSubscription = value.Subscribe(args =>
-                {
-                    if (args.Key == Key.Escape)
+                _launcherSelectorKeyUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(args =>
                     {
-                        HideAction?.Invoke();
-                        args.Handled = true;
-                    }
-                });
+                        if (args.Key == Key.Escape)
+                        {
+                            HideAction?.Invoke();
+                            args.Handled = true;
+                        }
+                    });
             }
         }
+
+        public Action ShowAction { get; set; }
 
         /// <summary>
         ///     Occurs when [property changed].
@@ -279,6 +335,9 @@ namespace Panda.Client
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private IList<LauncherViewModel> _activeLaunchers=  new List<LauncherViewModel>();
+        private IKeyboardMouseService _keyboardMouseService;
+
         /// <summary>
         ///     Submits this instance.
         /// </summary>
@@ -286,10 +345,8 @@ namespace Panda.Client
         {
             var first = LauncherViewModels.FirstOrDefault();
             if (first == null) return;
-            Active?.Hide();
-            Active = first.Instance;
-            Active.Show();
-            // todo: allow multiple active windows
-        }
+            first.Instance.Show();                                     
+            SearchText = "";
+        }           
     }
 }
