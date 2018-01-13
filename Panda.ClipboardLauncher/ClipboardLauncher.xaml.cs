@@ -1,8 +1,12 @@
-﻿using System.ComponentModel.Composition;
+﻿using System;
+using System.ComponentModel.Composition;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Windows.Input;
 using Panda.Client;
+using Panda.CommonControls;
 
 namespace Panda.ClipboardLauncher
 {
@@ -17,7 +21,11 @@ namespace Panda.ClipboardLauncher
         /// <summary>
         ///     The search text changed
         /// </summary>
-        private readonly Subject<string> _searchTextChanged = new Subject<string>();
+        private readonly Subject<string> _searchTextChangedSubject = new Subject<string>();
+
+        private Subject<string> _clipboardItemSelected = new Subject<string>();
+
+        
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ClipboardLauncher" /> class.
@@ -43,7 +51,9 @@ namespace Panda.ClipboardLauncher
             SearchText.Focus();
             ViewModel = new ClipboardLauncherViewModel(this, UiScheduler, SettingsService)
             {
-                SearchTextChangedObs = _searchTextChanged
+                SearchTextChangedObs = _searchTextChangedSubject,
+                ClipboardItemSelected = _clipboardItemSelected,
+                ClipboardItemMouseUpObs = _clipboardItemMouseUpSubject 
             };
             DataContext = ViewModel;
         }
@@ -55,7 +65,15 @@ namespace Panda.ClipboardLauncher
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
         private void SearchText_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            _searchTextChanged.OnNext(SearchText.Text);
+            _searchTextChangedSubject.OnNext(SearchText.Text);
+        }
+
+        private Subject<(string, MouseButtonEventArgs)> _clipboardItemMouseUpSubject = new Subject<(string, MouseButtonEventArgs)>();
+
+        private void ClipboardItem_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var item = sender as ImageTextItem;
+            _clipboardItemMouseUpSubject.OnNext((item?.HeaderText, e));
         }
     }
 }

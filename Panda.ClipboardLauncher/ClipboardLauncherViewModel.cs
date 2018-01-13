@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 using Panda.Client;
 
@@ -16,17 +17,29 @@ namespace Panda.ClipboardLauncher
     internal sealed class ClipboardLauncherViewModel
     {
         /// <summary>
-        ///     Gets or sets the instance.
-        /// </summary>
-        /// <value>
-        ///     The instance.
-        /// </value>
-        private readonly ClipboardLauncher _instance;
-
-        /// <summary>
         ///     The clipboard history
         /// </summary>
         private readonly IList<string> _clipboardHistory = new List<string>();
+
+        /// <summary>
+        ///     Settings
+        /// </summary>
+        private readonly ClipboardLauncherSettings _settings;
+
+        /// <summary>
+        ///     The UI scheduler
+        /// </summary>
+        private readonly IScheduler _uiScheduler;
+
+        /// <summary>
+        ///     The clipboard item mouse up obs
+        /// </summary>
+        private IObservable<(string, MouseButtonEventArgs)> _clipboardItemMouseUpObs;
+
+        /// <summary>
+        ///     The clipboard item mouse up subscription
+        /// </summary>
+        private IDisposable _clipboardItemMouseUpSubscription;
 
         /// <summary>
         ///     Gets or sets the next clipboard viewer.
@@ -47,19 +60,9 @@ namespace Panda.ClipboardLauncher
         private IDisposable _searchTextChangedSubscription;
 
         /// <summary>
-        ///     Settings
-        /// </summary>
-        private readonly ClipboardLauncherSettings _settings;
-
-        /// <summary>
         ///     Settings service
         /// </summary>
         private ISettingsService _settingsService;
-
-        /// <summary>
-        ///     The UI scheduler
-        /// </summary>
-        private readonly IScheduler _uiScheduler;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ClipboardLauncherViewModel" /> class.
@@ -73,8 +76,7 @@ namespace Panda.ClipboardLauncher
             _uiScheduler = uiScheduler;
             _settingsService = settingsService;
             _settings = settingsService.Get<ClipboardLauncherSettings>().Single();
-            _instance = instance;
-            var handle = new WindowInteropHelper(_instance).EnsureHandle();
+            var handle = new WindowInteropHelper(instance).EnsureHandle();
             var source = HwndSource.FromHwnd(handle);
             source?.AddHook(WndProc);
             _nextClipboardViewer = (IntPtr) NativeMethods.SetClipboardViewer((int) handle);
@@ -109,6 +111,36 @@ namespace Panda.ClipboardLauncher
                             foreach (var newItem in newItems)
                                 ClipboardHistory.Add(newItem);
                         });
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the clipboard item selected.
+        /// </summary>
+        /// <value>The clipboard item selected.</value>
+        public IObservable<string> ClipboardItemSelected { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the clipboard item mouse up obs.
+        /// </summary>
+        /// <value>The clipboard item mouse up obs.</value>
+        public IObservable<(string, MouseButtonEventArgs)> ClipboardItemMouseUpObs
+        {
+            get => _clipboardItemMouseUpObs;
+            set
+            {
+                _clipboardItemMouseUpSubscription?.Dispose();
+                _clipboardItemMouseUpObs = value;
+                _clipboardItemMouseUpSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .ObserveOn(_uiScheduler)
+                    .Subscribe(tuple =>
+                    {
+                        var item = tuple.Item1;
+                        var args = tuple.Item2;
+                        if (item != null)
+                            Clipboard.SetText(item);
                     });
             }
         }
@@ -152,16 +184,11 @@ namespace Panda.ClipboardLauncher
         /// </summary>
         private void SaveClipboardItem()
         {
-            var text = Clipboard.GetText();
-            if (_clipboardHistory.Count >= _settings.ClipboardHistorySize)
-                _clipboardHistory.RemoveAt(0);
-            _clipboardHistory.Add(text);
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                ClipboardHistory.Clear();
-                foreach (var s in _clipboardHistory)
-                    ClipboardHistory.Add(s);
-            });
+            var newItem = Clipboard.GetText();
+            ClipboardHistory.Remove(newItem);
+            ClipboardHistory.Insert(0, newItem);
+            _clipboardHistory.Remove(newItem);
+            _clipboardHistory.Insert(0, newItem);
         }
     }
 }
