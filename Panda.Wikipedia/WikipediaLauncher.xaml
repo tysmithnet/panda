@@ -14,7 +14,7 @@
     </Window.Resources>
     <DockPanel>
         <TextBox DockPanel.Dock="Top" x:Name="SearchText" TextChanged="SearchText_OnTextChanged" />
-        <ListBox ItemsSource="{Binding WikipediaResultViewModels}">
+        <ListBox ItemsSource="{Binding WikipediaResultViewModels}" SelectionChanged="Selector_OnSelectionChanged" KeyUp="UIElement_OnKeyUp">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <commonControls:ImageTextItem HeaderText="{Binding Title}" SubHeaderText="{Binding Description}"
