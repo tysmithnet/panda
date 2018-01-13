@@ -8,13 +8,13 @@ using System.Threading;
 using Common.Logging;
 using Newtonsoft.Json.Linq;
 
-namespace Panda.Wikipedia
+namespace Panda.WikipediaLauncher
 {
     /// <inheritdoc />
     /// <summary>
     ///     Implementation for Wikipedia service
     /// </summary>
-    /// <seealso cref="T:Panda.Wikipedia.IWikipediaService" />
+    /// <seealso cref="T:Panda.WikipediaLauncher.IWikipediaService" />
     [Export(typeof(IWikipediaService))]
     internal sealed class WikipediaService : IWikipediaService
     {
