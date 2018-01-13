@@ -10,6 +10,8 @@
                  d:DataContext="{d:DesignInstance local:ClipboardLauncherViewModel}"
                  Loaded="ClipboardLauncher_OnLoaded">
 
+<DockPanel>
+    <TextBox DockPanel.Dock="Top" x:Name="SearchText" TextChanged="SearchText_OnTextChanged"></TextBox>
     <ListBox ItemsSource="{Binding ClipboardHistory}">
         <ListBox.ItemTemplate>
             <DataTemplate>
@@ -17,4 +19,5 @@
             </DataTemplate>
         </ListBox.ItemTemplate>
     </ListBox>
+    </DockPanel>
 </client:Launcher>
