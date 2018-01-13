@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Panda.Wikipedia
+namespace Panda.WikipediaLauncher
 {
     /// <summary>
     ///     Service to interact with wikipedia api

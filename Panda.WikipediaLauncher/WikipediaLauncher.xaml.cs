@@ -6,7 +6,7 @@ using System.Windows.Input;
 using Panda.Client;
 using Panda.CommonControls;
 
-namespace Panda.Wikipedia
+namespace Panda.WikipediaLauncher
 {
     /// <summary>
     ///     Interaction logic for WikipediaLauncher.xaml
@@ -23,7 +23,7 @@ namespace Panda.Wikipedia
         private readonly Subject<KeyEventArgs> _listBoxKeyUpSubject = new Subject<KeyEventArgs>();
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Panda.Wikipedia.WikipediaLauncher" /> class.
+        ///     Initializes a new instance of the <see cref="T:Panda.WikipediaLauncher.WikipediaLauncher" /> class.
         /// </summary>
         /// <inheritdoc />
         public WikipediaLauncher()

@@ -1,4 +1,4 @@
-﻿namespace Panda.Wikipedia
+﻿namespace Panda.WikipediaLauncher
 {
     /// <summary>
     ///     Result from wikipedia autocomplete search

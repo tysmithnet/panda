@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Panda.Wikipedia.Annotations;
 
-namespace Panda.Wikipedia
+namespace Panda.WikipediaLauncher
 {
     /// <summary>
     ///     Wikipedia result view model result

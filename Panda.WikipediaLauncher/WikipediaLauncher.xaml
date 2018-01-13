@@ -1,4 +1,4 @@
-﻿<client:Launcher x:Class="Panda.Wikipedia.WikipediaLauncher"
+﻿<client:Launcher x:Class="Panda.WikipediaLauncher.WikipediaLauncher"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,9 +6,10 @@
                  xmlns:local="clr-namespace:Panda.Wikipedia"
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
                  xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
+                 xmlns:wikipediaLauncher="clr-namespace:Panda.WikipediaLauncher"
                  mc:Ignorable="d"
                  d:DesignHeight="300" d:DesignWidth="300"
-                 d:DataContext="{d:DesignInstance local:WikipediaLauncherViewModel}"
+                 d:DataContext="{d:DesignInstance wikipediaLauncher:WikipediaLauncherViewModel}"
                  Loaded="WikipediaLauncher_OnLoaded">
     <Window.Resources>
     </Window.Resources>

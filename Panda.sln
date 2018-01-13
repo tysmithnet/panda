@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.CommonControls", "Pan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.ClipboardLauncher", "Panda.ClipboardLauncher\Panda.ClipboardLauncher.csproj", "{BB989E08-2F82-40BB-8F7A-4633F849F483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.Wikipedia", "Panda.Wikipedia\Panda.Wikipedia.csproj", "{5DC27553-C850-4883-B698-C85F6F762BA1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.WikipediaLauncher", "Panda.WikipediaLauncher\Panda.WikipediaLauncher.csproj", "{5DC27553-C850-4883-B698-C85F6F762BA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

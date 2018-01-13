@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Wikipedia.Annotations;
 
-namespace Panda.Wikipedia
+namespace Panda.WikipediaLauncher
 {
     /// <summary>
     ///     View Model for wikipedia launcher
