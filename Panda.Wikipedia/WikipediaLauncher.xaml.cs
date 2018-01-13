@@ -78,6 +78,7 @@ namespace Panda.Wikipedia
                 ItemMouseDoubleClickObs = ItemMouseDoubleClickSubject
             };
             DataContext = ViewModel;
+            SearchText.Focus();
         }
 
         /// <summary>
