@@ -11,14 +11,14 @@
                  d:DataContext="{d:DesignInstance local:ClipboardLauncherViewModel}"
                  Loaded="ClipboardLauncher_OnLoaded">
 
-<DockPanel>
-    <TextBox DockPanel.Dock="Top" x:Name="SearchText" TextChanged="SearchText_OnTextChanged"></TextBox>
-    <ListBox ItemsSource="{Binding ClipboardHistory}">
-        <ListBox.ItemTemplate>
-            <DataTemplate>
-                    <commonControls:ImageTextItem HeaderText="{Binding}" MouseUp="ClipboardItem_OnMouseUp"></commonControls:ImageTextItem>
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+    <DockPanel>
+        <TextBox DockPanel.Dock="Top" x:Name="SearchText" TextChanged="SearchText_OnTextChanged" />
+        <ListBox ItemsSource="{Binding ClipboardHistory}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <commonControls:ImageTextItem HeaderText="{Binding Preview}" MouseUp="ClipboardItem_OnMouseUp" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </DockPanel>
 </client:Launcher>

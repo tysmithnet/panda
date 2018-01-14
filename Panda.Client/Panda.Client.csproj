@@ -135,6 +135,7 @@
     <Compile Include="IPluginSettings.cs" />
     <Compile Include="IRequiresSetup.cs" />
     <Compile Include="ISettingsService.cs" />
+    <Compile Include="ISystemInformationService.cs" />
     <Compile Include="ISystemService.cs" />
     <Compile Include="KeyboardMouseService.cs" />
     <Compile Include="LauncherService.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="LauncherViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SettingsService.cs" />
+    <Compile Include="SystemInformationService.cs" />
     <Compile Include="SystemTrayService.cs" />
     <Page Include="LauncherSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
