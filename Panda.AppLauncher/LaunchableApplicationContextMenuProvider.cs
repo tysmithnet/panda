@@ -56,10 +56,12 @@ namespace Panda.AppLauncher
             foreach (var fileInfo in fileInfos)
                 menuItem.Click += (sender, args) =>
                 {
+                    var shellInfo = ShellHelper.GetShellFileInfo(fileInfo.FullName);
                     var registerdApp = new LaunchableApplication
                     {
                         FullPath = fileInfo.FullName,
-                        DisplayName = fileInfo.Name
+                        DisplayName = shellInfo.DisplayName,
+                        Description = shellInfo.Description
                     };
                     LaunchableApplicationService.Add(registerdApp);
                 };

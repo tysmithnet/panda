@@ -123,7 +123,9 @@
     <Compile Include="EventHub.cs" />
     <Compile Include="FileDeletedEvent.cs" />
     <Compile Include="FileSizeValueConverter.cs" />
-    <Compile Include="IconHelper.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="ShellFileInfo.cs" />
+    <Compile Include="ShellHelper.cs" />
     <Compile Include="IconSize.cs" />
     <Compile Include="IContextMenuProvider.cs" />
     <Compile Include="IDomainEvent.cs" />
