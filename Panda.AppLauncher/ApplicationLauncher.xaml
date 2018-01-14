@@ -6,11 +6,15 @@
                  xmlns:local="clr-namespace:Panda.AppLauncher"
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
                  xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
+                 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                  mc:Ignorable="d"
                  d:DataContext="{d:DesignInstance local:ApplicationLauncherViewModel}"
                  Loaded="AppLauncher_OnLoaded"
                  d:DesignHeight="300" d:DesignWidth="300"
                  Title="App Launcher">
+    <Window.Resources>
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+    </Window.Resources>
     <DockPanel>
         <TextBox x:Name="SearchText"
                  DockPanel.Dock="Top"
@@ -18,27 +22,40 @@
                  TextChanged="TextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
 
-        <ListBox x:Name="RegisteredApplications"
-                 ItemsSource="{Binding AppViewModels}"
-                 SelectionMode="Extended"
-                 SelectionChanged="Selector_OnSelectionChanged"
-                 HorizontalAlignment="Stretch"
-                 HorizontalContentAlignment="Stretch">
+        <Grid>
+            <ListBox x:Name="RegisteredApplications"
+                     ItemsSource="{Binding AppViewModels}"
+                     SelectionMode="Extended"
+                     SelectionChanged="Selector_OnSelectionChanged"
+                     HorizontalAlignment="Stretch"
+                     HorizontalContentAlignment="Stretch">
 
-            <ListBox.ContextMenu>
-                <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
-            </ListBox.ContextMenu>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
-                                                  ImageSource="{Binding ImageSource}"
-                                                  HeaderText="{Binding AppName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                  SubHeaderText="{Binding ExecutableLocation, UpdateSourceTrigger=PropertyChanged}"
-                                                  IsEditable="{Binding IsEditable, Mode=TwoWay}"
-                                                  MenuItems="{Binding MenuItems}" />
+                <ListBox.ContextMenu>
+                    <ContextMenu ItemsSource="{Binding ContextMenuItems}" />
+                </ListBox.ContextMenu>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
+                                                      ImageSource="{Binding ImageSource}"
+                                                      HeaderText="{Binding AppName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                      SubHeaderText="{Binding ExecutableLocation, UpdateSourceTrigger=PropertyChanged}"
+                                                      IsEditable="{Binding IsEditable, Mode=TwoWay}"
+                                                      MenuItems="{Binding MenuItems}" />
 
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Button
+                Style="{StaticResource MaterialDesignFloatingActionButton}"
+                ToolTip="Add Application"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="20">
+                <materialDesign:PackIcon
+                    Width="24"
+                    Height="24"
+                    Kind="Plus" />
+            </Button>
+        </Grid>
     </DockPanel>
 </client:Launcher>
