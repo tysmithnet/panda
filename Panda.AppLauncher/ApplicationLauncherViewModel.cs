@@ -72,6 +72,8 @@ namespace Panda.AppLauncher
         /// </summary>
         private IDisposable _textChangedSubscription;
 
+        private IObservable<RoutedEventArgs> _addApplicationButtonClickedObs;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ApplicationLauncherViewModel" /> class.
         /// </summary>
@@ -303,6 +305,24 @@ namespace Panda.AppLauncher
                                 list))
                                 ContextMenuItems.Add(item);
                         }
+                    });
+            }
+        }
+
+        private IDisposable _addApplicationButtonClickedSubscription;
+        public IObservable<RoutedEventArgs> AddApplicationButtonClickedObs
+        {
+            get => _addApplicationButtonClickedObs;
+            set
+            {
+                _addApplicationButtonClickedSubscription?.Dispose();
+                _addApplicationButtonClickedObs = value;
+                _addApplicationButtonClickedSubscription = value
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(args =>
+                    {
+                        // todo: show new application dialog
+                        
                     });
             }
         }

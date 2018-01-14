@@ -50,7 +50,8 @@
                 ToolTip="Add Application"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Margin="20">
+                Margin="20"
+                Click="AddApplicationButton_OnClick">
                 <materialDesign:PackIcon
                     Width="24"
                     Height="24"

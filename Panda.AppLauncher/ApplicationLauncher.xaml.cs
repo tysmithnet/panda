@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Subjects;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Panda.Client;
@@ -83,7 +84,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The selected items changed subject.
         /// </value>
-        internal Subject<IEnumerable<LaunchableApplicationViewModel>> SelectedItemsChangedSubject { get; set; } =
+        internal Subject<IEnumerable<LaunchableApplicationViewModel>> SelectedItemsChangedSubject { get; set; } = // todo: make private field
             new Subject<IEnumerable<LaunchableApplicationViewModel>>();
 
         /// <summary>
@@ -110,7 +111,8 @@ namespace Panda.AppLauncher
                 PreviewDoubleClickObs = PreviewDoubleClickSubject,
                 PreviewKeyUpObs = PreviewKeyUpSubject,
                 PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
-                SelectedItemsChangedObs = SelectedItemsChangedSubject
+                SelectedItemsChangedObs = SelectedItemsChangedSubject,
+                AddApplicationButtonClickedObs = _addApplicationButtonClickedSubject as IObservable<RoutedEventArgs>
             };
             ViewModel.SetupSubscriptions();
             DataContext = ViewModel;
@@ -158,6 +160,13 @@ namespace Panda.AppLauncher
             var item = sender as ImageTextItem;
             var vm = item?.DataContext as LaunchableApplicationViewModel;
             PreviewMouseDoubleClickSubject.OnNext((vm, e));
+        }
+
+        private Subject<RoutedEventArgs> _addApplicationButtonClickedSubject = new Subject<RoutedEventArgs>();
+
+        private void AddApplicationButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            _addApplicationButtonClickedSubject.OnNext(e);
         }
     }
 }
