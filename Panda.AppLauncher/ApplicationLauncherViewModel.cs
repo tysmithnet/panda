@@ -323,7 +323,6 @@ namespace Panda.AppLauncher
                     .ObserveOn(UiScheduler)
                     .Subscribe(args =>
                     {
-                        // todo: show new application dialog
                         IsAddDialogOpen = true;
                     });
             }
@@ -338,6 +337,8 @@ namespace Panda.AppLauncher
                 OnPropertyChanged();
             }
         }
+
+        public string NewApplicationPath { get; set; }
 
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.

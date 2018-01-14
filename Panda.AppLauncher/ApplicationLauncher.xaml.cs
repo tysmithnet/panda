@@ -112,7 +112,7 @@ namespace Panda.AppLauncher
                 PreviewKeyUpObs = PreviewKeyUpSubject,
                 PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
                 SelectedItemsChangedObs = SelectedItemsChangedSubject,
-                AddApplicationButtonClickedObs = _addApplicationButtonClickedSubject as IObservable<RoutedEventArgs>
+                AddApplicationButtonClickedObs = _addApplicationButtonClickedSubject
             };
             ViewModel.SetupSubscriptions();
             DataContext = ViewModel;
@@ -167,6 +167,23 @@ namespace Panda.AppLauncher
         private void AddApplicationButton_OnClick(object sender, RoutedEventArgs e)
         {
             _addApplicationButtonClickedSubject.OnNext(e);
+        }
+
+        private void BrowseFile_OnClick(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                DefaultExt = ".exe",
+                Filter = "EXE Files (*.exe)|*.exe|All Files (*.*)|*.*"
+            };
+            
+            var result = dlg.ShowDialog();
+            
+            if (result == true)
+            {
+                string filename = dlg.FileName;
+                NewApplicationPath.Text = filename;
+            }
         }
     }
 }
