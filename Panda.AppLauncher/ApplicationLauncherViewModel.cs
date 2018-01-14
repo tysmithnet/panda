@@ -310,6 +310,8 @@ namespace Panda.AppLauncher
         }
 
         private IDisposable _addApplicationButtonClickedSubscription;
+        private bool _isAddDialogOpen;
+
         public IObservable<RoutedEventArgs> AddApplicationButtonClickedObs
         {
             get => _addApplicationButtonClickedObs;
@@ -322,8 +324,18 @@ namespace Panda.AppLauncher
                     .Subscribe(args =>
                     {
                         // todo: show new application dialog
-                        
+                        IsAddDialogOpen = true;
                     });
+            }
+        }
+
+        public bool IsAddDialogOpen
+        {
+            get => _isAddDialogOpen;
+            set
+            {   
+                _isAddDialogOpen = value; 
+                OnPropertyChanged();
             }
         }
 

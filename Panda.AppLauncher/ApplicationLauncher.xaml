@@ -7,6 +7,7 @@
                  xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
                  xmlns:commonControls="clr-namespace:Panda.CommonControls;assembly=Panda.CommonControls"
                  xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                 xmlns:system="clr-namespace:System;assembly=mscorlib"
                  mc:Ignorable="d"
                  d:DataContext="{d:DesignInstance local:ApplicationLauncherViewModel}"
                  Loaded="AppLauncher_OnLoaded"
@@ -23,6 +24,17 @@
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
 
         <Grid>
+            <materialDesign:DialogHost    HorizontalAlignment="Center" VerticalAlignment="Center"
+            IsOpen="{Binding IsAddDialogOpen}"
+            CloseOnClickAway="True">
+                <materialDesign:DialogHost.DialogContent>
+                    <Label>Hello world</Label>
+                </materialDesign:DialogHost.DialogContent>
+                <Border BorderThickness="1"
+                    MinWidth="256" MinHeight="256" ClipToBounds="True">
+                
+            </Border>
+            </materialDesign:DialogHost>
             <ListBox x:Name="RegisteredApplications"
                      ItemsSource="{Binding AppViewModels}"
                      SelectionMode="Extended"
@@ -57,6 +69,20 @@
                     Height="24"
                     Kind="Plus" />
             </Button>
+         <!--    <Button 
+                    materialDesign:DialogHost.DialogClosingAttached="Sample2_DialogHost_OnDialogClosing"
+                    Width="128">
+               <Button.CommandParameter>
+                    <StackPanel Margin="16">
+                        <ProgressBar Style="{DynamicResource MaterialDesignCircularProgressBar}" HorizontalAlignment="Center" Margin="16" IsIndeterminate="True" Value="0" />
+                        <Button Style="{StaticResource MaterialDesignFlatButton}" IsCancel="True" 
+                                Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                CommandParameter="Sample2Cancel"
+                                HorizontalAlignment="Center">CANCEL</Button>
+                    </StackPanel>
+                </Button.CommandParameter>
+                PASS VIEW
+            </Button>                 -->
         </Grid>
     </DockPanel>
 </client:Launcher>
