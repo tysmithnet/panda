@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Logging;
 using Panda.Client;
 
 namespace Panda.AppLauncher
@@ -17,7 +18,7 @@ namespace Panda.AppLauncher
     /// <seealso cref="ILaunchableApplicationService" />
     [Export(typeof(IRequiresSetup))]
     [Export(typeof(ILaunchableApplicationService))]
-    public sealed class LaunchableApplicationService : IRequiresSetup, ILaunchableApplicationService
+    internal sealed class LaunchableApplicationService : IRequiresSetup, ILaunchableApplicationService
     {
         /// <summary>
         ///     The application registered subject
@@ -30,6 +31,12 @@ namespace Panda.AppLauncher
         /// </summary>
         internal Subject<LaunchableApplication> ApplicationUnregisteredSubject =
             new Subject<LaunchableApplication>();
+
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>The log.</value>
+        private ILog Log { get; } = LogManager.GetLogger<LaunchableApplicationService>();
 
         /// <summary>
         ///     Gets or sets the registered applications.
@@ -97,6 +104,7 @@ namespace Panda.AppLauncher
         /// <param name="launchableApplication">The registered application to register.</param>
         public void Add(LaunchableApplication launchableApplication)
         {
+            Log.Trace($"Adding launchable application: {launchableApplication.FullPath}");
             RegisteredApplications.Add(launchableApplication);
             ApplicationRegisteredSubject.OnNext(launchableApplication);
         }
@@ -108,7 +116,8 @@ namespace Panda.AppLauncher
         /// <param name="launchableApplication">The registered application to remove</param>
         public void Remove(LaunchableApplication launchableApplication)
         {
-            if(Settings.RegisteredApplications.Contains(launchableApplication))
+            Log.Trace($"Removing launchable application: {launchableApplication.FullPath}");
+            if (Settings.RegisteredApplications.Contains(launchableApplication))
                 Settings.RegisteredApplications.Remove(launchableApplication);
             RegisteredApplications.Remove(launchableApplication);
             ApplicationUnregisteredSubject.OnNext(launchableApplication);
@@ -120,6 +129,7 @@ namespace Panda.AppLauncher
         /// </summary>
         public void Save()
         {
+            Log.Trace($"Saving launchable applications");
             SettingsService.Save();
         }
 

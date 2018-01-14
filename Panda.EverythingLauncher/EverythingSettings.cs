@@ -9,7 +9,7 @@ namespace Panda.EverythingLauncher
     /// </summary>
     /// <seealso cref="T:Panda.Client.IPluginSettings" />
     [Export(typeof(IPluginSettings))]
-    public class EverythingSettings : IPluginSettings
+    internal class EverythingSettings : IPluginSettings
     {
         /// <summary>
         ///     Gets or sets the es.exe executable path.

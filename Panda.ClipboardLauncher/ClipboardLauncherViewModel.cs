@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using Common.Logging;
 using Panda.Client;
 
 namespace Panda.ClipboardLauncher
@@ -81,6 +82,12 @@ namespace Panda.ClipboardLauncher
             source?.AddHook(WndProc);
             _nextClipboardViewer = (IntPtr) NativeMethods.SetClipboardViewer((int) handle);
         }
+
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>The log.</value>
+        private ILog Log { get; } = LogManager.GetLogger<ClipboardLauncherViewModel>();
 
         /// <summary>
         ///     Gets or sets the clipboard history.
@@ -184,7 +191,7 @@ namespace Panda.ClipboardLauncher
         /// </summary>
         private void SaveClipboardItem()
         {
-            var newItem = Clipboard.GetText();
+            var newItem = Clipboard.GetText();                                                                  
             ClipboardHistory.Remove(newItem);
             ClipboardHistory.Insert(0, newItem);
             _clipboardHistory.Remove(newItem);
