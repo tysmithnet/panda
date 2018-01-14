@@ -323,21 +323,22 @@ namespace Panda.AppLauncher
                     .ObserveOn(UiScheduler)
                     .Subscribe(args =>
                     {
-                        IsAddDialogOpen = true;
+                        var dlg = new Microsoft.Win32.OpenFileDialog
+                        {
+                            DefaultExt = ".exe",
+                            Filter = "EXE Files (*.exe)|*.exe|All Files (*.*)|*.*"
+                        };
+
+                        var result = dlg.ShowDialog();
+
+                        if (result == true)
+                        {
+                            string filename = dlg.FileName;
+                            LaunchableApplicationService.Add(filename);
+                        }
                     });
             }
-        }
-
-        public bool IsAddDialogOpen
-        {
-            get => _isAddDialogOpen;
-            set
-            {   
-                _isAddDialogOpen = value; 
-                OnPropertyChanged();
-            }
-        }
-
+        }           
         public string NewApplicationPath { get; set; }
 
         /// <summary>

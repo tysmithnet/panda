@@ -25,20 +25,6 @@
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
 
         <Grid>
-            <materialDesign:DialogHost HorizontalAlignment="Center" VerticalAlignment="Center"
-                                       IsOpen="{Binding IsAddDialogOpen}"
-                                       CloseOnClickAway="True">
-                <materialDesign:DialogHost.DialogContent>
-                    <Border CornerRadius="6" Width="500" Height="200">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBox x:Name="NewApplicationPath" Text="{Binding NewApplicationPath}" Width="200"></TextBox>
-                            <Button Click="BrowseFile_OnClick" Margin="50,0,0,0">Browse</Button>
-                        </StackPanel>
-                    </Border>
-                </materialDesign:DialogHost.DialogContent>
-                <!--<Border BorderThickness="1"
-                        MinWidth="256" MinHeight="128" ClipToBounds="True" />-->
-            </materialDesign:DialogHost>
             <ListBox x:Name="RegisteredApplications"
                      ItemsSource="{Binding AppViewModels}"
                      SelectionMode="Extended"

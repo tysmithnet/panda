@@ -171,19 +171,7 @@ namespace Panda.AppLauncher
 
         private void BrowseFile_OnClick(object sender, RoutedEventArgs e)
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog
-            {
-                DefaultExt = ".exe",
-                Filter = "EXE Files (*.exe)|*.exe|All Files (*.*)|*.*"
-            };
             
-            var result = dlg.ShowDialog();
-            
-            if (result == true)
-            {
-                string filename = dlg.FileName;
-                NewApplicationPath.Text = filename;
-            }
         }
     }
 }

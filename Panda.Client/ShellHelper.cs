@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Runtime.Caching;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -110,10 +111,13 @@ namespace Panda.Client
                 BitmapSizeOptions.FromEmptyOptions());
             img.Freeze();
             var fvi = FileVersionInfo.GetVersionInfo(filePath);
+            string displayName = Path.GetFileName(filePath);
+            if (!string.IsNullOrWhiteSpace(fvi.ProductName))
+                displayName = fvi.ProductName;
             return new ShellFileInfo
             {
                 Icon = img,
-                DisplayName = fvi.ProductName,
+                DisplayName = displayName,
                 Description = fvi.FileDescription,
                 FilePath = filePath
             };
