@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
 using Common.Logging;
 
 namespace Panda.Client
@@ -138,6 +139,11 @@ namespace Panda.Client
         {
             compositionContainer.ComposeExportedValue<IScheduler>(
                 new SynchronizationContextScheduler(SynchronizationContext.Current));
+            
+
+            var systemInfoService = new SystemInformationService();
+
+            compositionContainer.ComposeExportedValue<ISystemInformationService>(systemInfoService);
 
             Selector = compositionContainer.GetExportedValue<LauncherSelector>();
         }

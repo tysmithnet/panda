@@ -6,7 +6,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
+using Common.Logging;
 using Panda.Client;
 
 namespace Panda.ClipboardLauncher
@@ -19,7 +19,7 @@ namespace Panda.ClipboardLauncher
         /// <summary>
         ///     The clipboard history
         /// </summary>
-        private readonly IList<string> _clipboardHistory = new List<string>();
+        private readonly IList<ClipboardItemViewModel> _clipboardHistory = new List<ClipboardItemViewModel>();
 
         /// <summary>
         ///     Settings
@@ -34,7 +34,7 @@ namespace Panda.ClipboardLauncher
         /// <summary>
         ///     The clipboard item mouse up obs
         /// </summary>
-        private IObservable<(string, MouseButtonEventArgs)> _clipboardItemMouseUpObs;
+        private IObservable<(ClipboardItemViewModel, MouseButtonEventArgs)> _clipboardItemMouseUpObs;
 
         /// <summary>
         ///     The clipboard item mouse up subscription
@@ -42,12 +42,9 @@ namespace Panda.ClipboardLauncher
         private IDisposable _clipboardItemMouseUpSubscription;
 
         /// <summary>
-        ///     Gets or sets the next clipboard viewer.
+        ///     The clipboard service
         /// </summary>
-        /// <value>
-        ///     The next clipboard viewer.
-        /// </value>
-        private IntPtr _nextClipboardViewer;
+        private readonly IClipboardService _clipboardService;
 
         /// <summary>
         ///     The search text changed obs
@@ -70,23 +67,40 @@ namespace Panda.ClipboardLauncher
         /// <param name="instance">The instance.</param>
         /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="settingsService">The settings service.</param>
-        public ClipboardLauncherViewModel(ClipboardLauncher instance, IScheduler uiScheduler,
+        public ClipboardLauncherViewModel(IScheduler uiScheduler, IClipboardService clipboardService,
             ISettingsService settingsService)
         {
             _uiScheduler = uiScheduler;
+            _clipboardService = clipboardService;
             _settingsService = settingsService;
             _settings = settingsService.Get<ClipboardLauncherSettings>().Single();
-            var handle = new WindowInteropHelper(instance).EnsureHandle();
-            var source = HwndSource.FromHwnd(handle);
-            source?.AddHook(WndProc);
-            _nextClipboardViewer = (IntPtr) NativeMethods.SetClipboardViewer((int) handle);
+
+            _clipboardService.Get<TextClipboardItem>().SubscribeOn(TaskPoolScheduler.Default)
+                .ObserveOn(_uiScheduler)
+                .Subscribe(item =>
+                {
+                    var vm = new ClipboardItemViewModel(item);
+                    _clipboardHistory.Remove(vm); // todo: support image, wave, file, etc
+                    _clipboardHistory.Insert(0, vm);
+                    ClipboardHistory.Remove(vm);
+                    ClipboardHistory.Insert(0, vm);
+                });
+
+            // todo: add database service
         }
+
+        /// <summary>
+        ///     Gets the log.
+        /// </summary>
+        /// <value>The log.</value>
+        private ILog Log { get; } = LogManager.GetLogger<ClipboardLauncherViewModel>();
 
         /// <summary>
         ///     Gets or sets the clipboard history.
         /// </summary>
         /// <value>The clipboard history.</value>
-        public ObservableCollection<string> ClipboardHistory { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<ClipboardItemViewModel> ClipboardHistory { get; set; } =
+            new ObservableCollection<ClipboardItemViewModel>();
 
         /// <summary>
         ///     Gets or sets the search text changed obs.
@@ -101,16 +115,17 @@ namespace Panda.ClipboardLauncher
                 _searchTextChangedObs = value;
                 _searchTextChangedSubscription = value
                     .SubscribeOn(TaskPoolScheduler.Default)
+                    .Where(s => s != null)
                     .ObserveOn(_uiScheduler)
                     .Subscribe(s =>
                     {
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            ClipboardHistory.Clear();
-                            var newItems = _clipboardHistory.Where(item => item.Contains(s));
-                            foreach (var newItem in newItems)
-                                ClipboardHistory.Add(newItem);
-                        });
+                        Application.Current.Dispatcher.Invoke(() => ClipboardHistory.Clear());
+                        if (s.Length == 0)
+                            foreach (var clipboardItemViewModel in _clipboardHistory)
+                                ClipboardHistory.Add(clipboardItemViewModel);
+                        else
+                            foreach (var textClipboardItem in _clipboardService.Search<TextClipboardItem>(s))
+                                ClipboardHistory.Add(new ClipboardItemViewModel(textClipboardItem));
                     });
             }
         }
@@ -119,13 +134,13 @@ namespace Panda.ClipboardLauncher
         ///     Gets or sets the clipboard item selected.
         /// </summary>
         /// <value>The clipboard item selected.</value>
-        public IObservable<string> ClipboardItemSelected { get; set; }
+        public IObservable<ClipboardItemViewModel> ClipboardItemSelected { get; set; }
 
         /// <summary>
         ///     Gets or sets the clipboard item mouse up obs.
         /// </summary>
         /// <value>The clipboard item mouse up obs.</value>
-        public IObservable<(string, MouseButtonEventArgs)> ClipboardItemMouseUpObs
+        public IObservable<(ClipboardItemViewModel, MouseButtonEventArgs)> ClipboardItemMouseUpObs
         {
             get => _clipboardItemMouseUpObs;
             set
@@ -140,55 +155,9 @@ namespace Panda.ClipboardLauncher
                         var item = tuple.Item1;
                         var args = tuple.Item2;
                         if (item != null)
-                            Clipboard.SetText(item);
+                            _clipboardService.SetClipboard(item.Instance);
                     });
             }
-        }
-
-        /// <summary>
-        ///     Callback for the message loop
-        /// </summary>
-        /// <param name="hwnd">The HWND.</param>
-        /// <param name="msg">The MSG.</param>
-        /// <param name="wParam">The w parameter.</param>
-        /// <param name="lParam">The l parameter.</param>
-        /// <param name="handled">if set to <c>true</c> [handled].</param>
-        /// <returns>IntPtr.</returns>
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            // defined in winuser.h
-            const int WM_DRAWCLIPBOARD = 0x308;
-            const int WM_CHANGECBCHAIN = 0x030D;
-
-            switch (msg)
-            {
-                case WM_DRAWCLIPBOARD:
-                    NativeMethods.SendMessage(_nextClipboardViewer, msg, wParam,
-                        lParam);
-                    SaveClipboardItem();
-                    break;
-
-                case WM_CHANGECBCHAIN:
-                    if (wParam == _nextClipboardViewer)
-                        _nextClipboardViewer = lParam;
-                    else
-                        NativeMethods.SendMessage(_nextClipboardViewer, msg, wParam,
-                            lParam);
-                    break;
-            }
-            return IntPtr.Zero;
-        }
-
-        /// <summary>
-        ///     Saves the clipboard item.
-        /// </summary>
-        private void SaveClipboardItem()
-        {
-            var newItem = Clipboard.GetText();
-            ClipboardHistory.Remove(newItem);
-            ClipboardHistory.Insert(0, newItem);
-            _clipboardHistory.Remove(newItem);
-            _clipboardHistory.Insert(0, newItem);
         }
     }
 }

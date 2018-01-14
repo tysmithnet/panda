@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Panda.Client;
 using Panda.CommonControls;
@@ -23,9 +21,15 @@ namespace Panda.ClipboardLauncher
         /// </summary>
         private readonly Subject<string> _searchTextChangedSubject = new Subject<string>();
 
-        private Subject<string> _clipboardItemSelected = new Subject<string>();
+        /// <summary>
+        ///     The clipboard item mouse up subject
+        /// </summary>
+        private readonly Subject<(ClipboardItemViewModel, MouseButtonEventArgs)> _clipboardItemMouseUpSubject =
+            new Subject<(ClipboardItemViewModel, MouseButtonEventArgs)>();
 
-        
+        private readonly Subject<ClipboardItemViewModel> _clipboardItemSelected = new Subject<ClipboardItemViewModel>();
+
+        [Import] private IClipboardService _clipboardService;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ClipboardLauncher" /> class.
@@ -49,11 +53,11 @@ namespace Panda.ClipboardLauncher
         private void ClipboardLauncher_OnLoaded(object sender, RoutedEventArgs e)
         {
             SearchText.Focus();
-            ViewModel = new ClipboardLauncherViewModel(this, UiScheduler, SettingsService)
+            ViewModel = new ClipboardLauncherViewModel(UiScheduler, _clipboardService, SettingsService)
             {
                 SearchTextChangedObs = _searchTextChangedSubject,
                 ClipboardItemSelected = _clipboardItemSelected,
-                ClipboardItemMouseUpObs = _clipboardItemMouseUpSubject 
+                ClipboardItemMouseUpObs = _clipboardItemMouseUpSubject
             };
             DataContext = ViewModel;
         }
@@ -68,12 +72,16 @@ namespace Panda.ClipboardLauncher
             _searchTextChangedSubject.OnNext(SearchText.Text);
         }
 
-        private Subject<(string, MouseButtonEventArgs)> _clipboardItemMouseUpSubject = new Subject<(string, MouseButtonEventArgs)>();
-
+        /// <summary>
+        ///     Handles the OnMouseUp event of the ClipboardItem control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
         private void ClipboardItem_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             var item = sender as ImageTextItem;
-            _clipboardItemMouseUpSubject.OnNext((item?.HeaderText, e));
+            var vm = item.DataContext as ClipboardItemViewModel;
+            _clipboardItemMouseUpSubject.OnNext((vm, e));
         }
     }
 }
