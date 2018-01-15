@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Reactive.Concurrency;
 using System.Reactive.Subjects;
@@ -38,7 +39,10 @@ namespace Panda.LogLauncher
 
         public Task Setup(CancellationToken cancellationToken)
         {
-            ViewModel = new LogLauncherViewModel(UiScheduler, LogService);
+            ViewModel = new LogLauncherViewModel(UiScheduler, LogService)
+            {
+                SearchTextChangedObs = _searchTextChangedSubject
+            };
             DataContext = ViewModel;
             return Task.CompletedTask;
         }

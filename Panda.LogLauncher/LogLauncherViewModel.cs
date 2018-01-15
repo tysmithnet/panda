@@ -17,6 +17,7 @@ namespace Panda.LogLauncher
         private ILogService _logService;
         private string _searchText;
         private readonly IScheduler _uiScheduler;
+        private IObservable<string> _searchTextChangedObs;
 
         public LogLauncherViewModel(IScheduler uiScheduler, ILogService logService)
         {
@@ -76,6 +77,24 @@ namespace Panda.LogLauncher
                     var vm = o as LogMessageViewModel;
                     return vm?.Message?.Contains(SearchText ?? "") ?? false;
                 };
+            }
+        }
+
+        public Action RefreshDataGridAction { get; set; }
+
+        private IDisposable _searchTextChangedSubscription;
+        public IObservable<string> SearchTextChangedObs
+        {
+            get => _searchTextChangedObs;
+            set
+            {
+                _searchTextChangedSubscription?.Dispose();
+                _searchTextChangedObs = value;
+                _searchTextChangedSubscription = value
+                    .SubscribeOn(TaskPoolScheduler.Default)   
+                    .Subscribe(s =>
+                    {                                      
+                    });
             }
         }
 
