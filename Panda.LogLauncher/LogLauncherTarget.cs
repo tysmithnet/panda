@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Reactive.Subjects;
 using NLog;
 using NLog.Targets;
 using LogLevel = Common.Logging.LogLevel;
-using System.Reactive.Subjects;
 
 namespace Panda.LogLauncher
 {
     [Target("LogLauncher")]
     public sealed class LogLauncherTarget : TargetWithLayout
-    {       
+    {
         private static readonly Subject<ILogMessage> LogMessageSubject = new Subject<ILogMessage>();
-                                                                 
+
         internal static IObservable<ILogMessage> LogMessages => LogMessageSubject;
 
         protected override void Write(LogEventInfo logEvent)
@@ -32,10 +32,13 @@ namespace Panda.LogLauncher
                 level = LogLevel.Off;
             else
                 level = LogLevel.All;
-            
-            var logMessage = new LogMessage(logEvent.LoggerName, level, logEvent.FormattedMessage, logEvent.Exception, DateTime.Now);
-            lock(LogMessageSubject)
+
+            var logMessage = new LogMessage(logEvent.LoggerName, level, logEvent.FormattedMessage, logEvent.Exception,
+                DateTime.Now);
+            lock (LogMessageSubject)
+            {
                 LogMessageSubject.OnNext(logMessage);
+            }
         }
     }
 }

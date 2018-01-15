@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Common.Logging;
 using Panda.LogLauncher.Annotations;
 
 namespace Panda.LogLauncher

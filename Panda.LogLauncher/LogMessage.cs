@@ -5,12 +5,6 @@ namespace Panda.LogLauncher
 {
     internal class LogMessage : ILogMessage
     {
-        public LogLevel Level { get; private set; }
-        public string Message { get; private set; }
-        public Exception Exception { get; private set; }
-        public string LogName { get; private set; }
-        public DateTime LogTime { get; private set; }
-
         public LogMessage(string loggerName, LogLevel level, string message, Exception exception, DateTime logTime)
         {
             LogName = loggerName;
@@ -19,5 +13,11 @@ namespace Panda.LogLauncher
             Exception = exception;
             LogTime = logTime;
         }
+
+        public LogLevel Level { get; }
+        public string Message { get; }
+        public Exception Exception { get; }
+        public string LogName { get; }
+        public DateTime LogTime { get; }
     }
 }

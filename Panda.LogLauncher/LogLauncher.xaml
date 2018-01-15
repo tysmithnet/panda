@@ -18,15 +18,15 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </client:Launcher.Resources>
-      <DockPanel>
-          <TextBox DockPanel.Dock="Top" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-          <DataGrid
-              x:Name="LogMessagesDataGrid"
-              materialDesign:DataGridAssist.CellPadding="13 8 8 8"
-              materialDesign:DataGridAssist.ColumnHeaderPadding="8"
-              AutoGenerateColumns="False"
-              ItemsSource="{Binding LogMessages}"
-              >
+    <DockPanel>
+        <TextBox DockPanel.Dock="Top" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged"
+                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        <DataGrid
+            x:Name="LogMessagesDataGrid"
+            materialDesign:DataGridAssist.CellPadding="13 8 8 8"
+            materialDesign:DataGridAssist.ColumnHeaderPadding="8"
+            AutoGenerateColumns="False"
+            ItemsSource="{Binding LogMessages}">
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Binding="{Binding LogName}"
@@ -51,11 +51,11 @@
                 <DataGridTemplateColumn MinWidth="20" Header="Exception">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Label Content="{Binding Exception}"></Label>
+                            <Label Content="{Binding Exception}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-      </DockPanel>
+    </DockPanel>
 </client:Launcher>
