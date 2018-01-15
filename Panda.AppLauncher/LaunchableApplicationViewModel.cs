@@ -20,6 +20,11 @@ namespace Panda.AppLauncher
     public sealed class LaunchableApplicationViewModel : INotifyPropertyChanged
     {
         /// <summary>
+        ///     The UI scheduler
+        /// </summary>
+        private readonly IScheduler _uiScheduler;
+
+        /// <summary>
         ///     The application name
         /// </summary>
         private string _appName;
@@ -77,8 +82,6 @@ namespace Panda.AppLauncher
                 .Throttle(TimeSpan.FromSeconds(5))
                 .Subscribe(args => { LaunchableApplicationService.Save(); });
         }
-
-        private readonly IScheduler _uiScheduler;
 
         /// <summary>
         ///     Gets or sets the name of the application.
