@@ -9,5 +9,6 @@ namespace Panda.LogLauncher
         string Message { get; }
         Exception Exception { get; }
         string LogName { get; }
+        DateTime LogTime { get; }
     }
 }

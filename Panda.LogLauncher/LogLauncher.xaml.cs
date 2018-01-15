@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,7 +23,8 @@ namespace Panda.LogLauncher
     /// Interaction logic for LogLauncher.xaml
     /// </summary>
     [Export(typeof(Launcher))]
-    public partial class LogLauncher : Launcher
+    [Export(typeof(IRequiresSetup))]
+    public partial class LogLauncher : Launcher, IRequiresSetup
     {
         [Import]
         internal ILogService LogService { get; set; }
@@ -34,13 +36,13 @@ namespace Panda.LogLauncher
         {
             InitializeComponent();
         }
-
-        private void LogLauncher_OnLoaded(object sender, RoutedEventArgs e)
+                                    
+        public LogLauncherViewModel ViewModel { get; set; }
+        public Task Setup(CancellationToken cancellationToken)
         {
             ViewModel = new LogLauncherViewModel(UiScheduler, LogService);
             DataContext = ViewModel;
+            return Task.CompletedTask;
         }
-
-        public LogLauncherViewModel ViewModel { get; set; }
     }
 }

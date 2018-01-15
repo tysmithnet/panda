@@ -33,7 +33,7 @@ namespace Panda.LogLauncher
             else
                 level = LogLevel.All;
             
-            var logMessage = new LogMessage(logEvent.LoggerName, level, logEvent.Message, logEvent.Exception);
+            var logMessage = new LogMessage(logEvent.LoggerName, level, logEvent.FormattedMessage, logEvent.Exception, DateTime.Now);
             lock(LogMessageSubject)
                 LogMessageSubject.OnNext(logMessage);
         }

@@ -8,7 +8,53 @@
                  xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                  mc:Ignorable="d"
                  d:DesignHeight="300" d:DesignWidth="300"
-                 Loaded="LogLauncher_OnLoaded"
                  d:DataContext="{d:DesignInstance local:LogLauncherViewModel}">
-
+    <client:Launcher.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </client:Launcher.Resources>
+      <DockPanel>
+          <TextBox DockPanel.Dock="Top" x:Name="SearchTextBox" Text="{Binding SearchText}"></TextBox>
+          <DataGrid
+              x:Name="LogMessagesDataGrid"
+              materialDesign:DataGridAssist.CellPadding="13 8 8 8"
+              materialDesign:DataGridAssist.ColumnHeaderPadding="8"
+              AutoGenerateColumns="False"
+              ItemsSource="{Binding LogMessages}"
+              >
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Binding="{Binding LogName}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Log Name"
+                    MinWidth="100" />
+                <DataGridTextColumn
+                    Binding="{Binding LogLevel}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Log Level"
+                    MinWidth="100" />
+                <DataGridTextColumn
+                    Binding="{Binding Message}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Message"
+                    MinWidth="100" />
+                <DataGridTextColumn
+                    Binding="{Binding LogTime}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Time"
+                    MinWidth="100" />
+                <DataGridTemplateColumn MinWidth="20" Header="Exception">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Exception}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
 </client:Launcher>

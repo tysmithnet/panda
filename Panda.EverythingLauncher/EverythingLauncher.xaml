@@ -28,7 +28,6 @@
                  TextChanged="TextBoxBase_OnTextChanged" />
         <DataGrid
             x:Name="ResultsDataGrid"
-            Margin="0,8,0,0"
             materialDesign:DataGridAssist.CellPadding="13 8 8 8"
             materialDesign:DataGridAssist.ColumnHeaderPadding="8"
             AutoGenerateColumns="False"

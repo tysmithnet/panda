@@ -9,13 +9,15 @@ namespace Panda.LogLauncher
         public string Message { get; private set; }
         public Exception Exception { get; private set; }
         public string LogName { get; private set; }
+        public DateTime LogTime { get; private set; }
 
-        public LogMessage(string loggerName, LogLevel level, string message, Exception exception)
+        public LogMessage(string loggerName, LogLevel level, string message, Exception exception, DateTime logTime)
         {
             LogName = loggerName;
             Level = level;
             Message = message;
             Exception = exception;
+            LogTime = logTime;
         }
     }
 }
