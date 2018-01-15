@@ -1,16 +1,14 @@
 ﻿<client:Launcher x:Class="Panda.LogLauncher.LogLauncher"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Panda.LogLauncher"
-             xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300"
-             Loaded="LogLauncher_OnLoaded"
-             d:DataContext="{d:DesignInstance local:LogLauncherViewModel}">
-    <Grid>
-            <Label Content="{Binding Greeting}"></Label>
-    </Grid>
-</client:Launcher>
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:local="clr-namespace:Panda.LogLauncher"
+                 xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
+                 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                 mc:Ignorable="d"
+                 d:DesignHeight="300" d:DesignWidth="300"
+                 Loaded="LogLauncher_OnLoaded"
+                 d:DataContext="{d:DesignInstance local:LogLauncherViewModel}">
 
+</client:Launcher>

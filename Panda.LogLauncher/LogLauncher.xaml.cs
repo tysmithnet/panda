@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,6 +24,12 @@ namespace Panda.LogLauncher
     [Export(typeof(Launcher))]
     public partial class LogLauncher : Launcher
     {
+        [Import]
+        internal ILogService LogService { get; set; }
+
+        [Import]
+        internal IScheduler UiScheduler { get; set; }
+
         public LogLauncher()
         {
             InitializeComponent();
@@ -30,7 +37,7 @@ namespace Panda.LogLauncher
 
         private void LogLauncher_OnLoaded(object sender, RoutedEventArgs e)
         {
-            ViewModel = new LogLauncherViewModel();
+            ViewModel = new LogLauncherViewModel(UiScheduler, LogService);
             DataContext = ViewModel;
         }
 
