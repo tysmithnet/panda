@@ -91,7 +91,7 @@ namespace Panda.LogLauncher
                 _searchTextChangedSubscription?.Dispose();
                 _searchTextChangedObs = value;
                 _searchTextChangedSubscription = value
-                    .SubscribeOn(TaskPoolScheduler.Default)   
+                    .SubscribeOn(TaskPoolScheduler.Default)
                     .Subscribe(s =>
                     {                                      
                     });

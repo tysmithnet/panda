@@ -39,9 +39,9 @@ namespace Panda.LogLauncher
 
         public Task Setup(CancellationToken cancellationToken)
         {
-            ViewModel = new LogLauncherViewModel(UiScheduler, LogService)
+            ViewModel = new LogLauncherViewModel(UiScheduler, LogService)   // todo: handle large messages, color code level
             {
-                SearchTextChangedObs = _searchTextChangedSubject
+                SearchTextChangedObs = _searchTextChangedSubject,
             };
             DataContext = ViewModel;
             return Task.CompletedTask;

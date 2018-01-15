@@ -42,7 +42,8 @@
                     Binding="{Binding Message}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
                     Header="Message"
-                    MinWidth="100" />
+                    MinWidth="100"
+                    MaxWidth="600"/>
                 <DataGridTextColumn
                     Binding="{Binding LogTime}"
                     EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
