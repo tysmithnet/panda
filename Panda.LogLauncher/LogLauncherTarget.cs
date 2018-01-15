@@ -6,13 +6,29 @@ using LogLevel = Common.Logging.LogLevel;
 
 namespace Panda.LogLauncher
 {
+    /// <summary>
+    ///     Class LogLauncherTarget. This class cannot be inherited.
+    /// </summary>
+    /// <seealso cref="NLog.Targets.TargetWithLayout" />
     [Target("LogLauncher")]
     public sealed class LogLauncherTarget : TargetWithLayout
     {
+        /// <summary>
+        ///     The log message subject
+        /// </summary>
         private static readonly Subject<ILogMessage> LogMessageSubject = new Subject<ILogMessage>();
 
+        /// <summary>
+        ///     Gets the log messages.
+        /// </summary>
+        /// <value>The log messages.</value>
         internal static IObservable<ILogMessage> LogMessages => LogMessageSubject;
 
+        /// <summary>
+        ///     Writes logging event to the log target. Must be overridden in inheriting
+        ///     classes.
+        /// </summary>
+        /// <param name="logEvent">Logging event to be written out.</param>
         protected override void Write(LogEventInfo logEvent)
         {
             LogLevel level;

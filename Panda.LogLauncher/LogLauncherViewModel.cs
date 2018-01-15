@@ -10,21 +10,62 @@ using Panda.LogLauncher.Annotations;
 
 namespace Panda.LogLauncher
 {
+    /// <summary>
+    ///     Class LogLauncherViewModel.
+    /// </summary>
+    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public class LogLauncherViewModel : INotifyPropertyChanged
     {
-        private ICollectionView _collectionViewSource;
-        private IDisposable _logMessageSubscription;
-        private ILogService _logService;
-        private string _searchText;
+        /// <summary>
+        ///     The UI scheduler
+        /// </summary>
         private readonly IScheduler _uiScheduler;
+
+        /// <summary>
+        ///     The collection view source
+        /// </summary>
+        private ICollectionView _collectionViewSource;
+
+        /// <summary>
+        ///     The log message subscription
+        /// </summary>
+        private IDisposable _logMessageSubscription;
+
+        /// <summary>
+        ///     The log service
+        /// </summary>
+        private ILogService _logService;
+
+        /// <summary>
+        ///     The search text
+        /// </summary>
+        private string _searchText;
+
+        /// <summary>
+        ///     The search text changed obs
+        /// </summary>
         private IObservable<string> _searchTextChangedObs;
 
+        /// <summary>
+        ///     The search text changed subscription
+        /// </summary>
+        private IDisposable _searchTextChangedSubscription;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="LogLauncherViewModel" /> class.
+        /// </summary>
+        /// <param name="uiScheduler">The UI scheduler.</param>
+        /// <param name="logService">The log service.</param>
         public LogLauncherViewModel(IScheduler uiScheduler, ILogService logService)
         {
             _uiScheduler = uiScheduler;
             LogService = logService;
         }
 
+        /// <summary>
+        ///     Gets or sets the log service.
+        /// </summary>
+        /// <value>The log service.</value>
         private ILogService LogService
         {
             get => _logService;
@@ -50,6 +91,10 @@ namespace Panda.LogLauncher
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the search text.
+        /// </summary>
+        /// <value>The search text.</value>
         public string SearchText
         {
             get => _searchText;
@@ -60,12 +105,24 @@ namespace Panda.LogLauncher
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the log messages.
+        /// </summary>
+        /// <value>The log messages.</value>
         public ObservableCollection<LogMessageViewModel> LogMessages { get; set; } =
             new ObservableCollection<LogMessageViewModel>();
 
+        /// <summary>
+        ///     Gets or sets the context menu items.
+        /// </summary>
+        /// <value>The context menu items.</value>
         public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
 
+        /// <summary>
+        ///     Gets or sets the collection view source.
+        /// </summary>
+        /// <value>The collection view source.</value>
         public ICollectionView CollectionViewSource
         {
             get => _collectionViewSource;
@@ -80,9 +137,16 @@ namespace Panda.LogLauncher
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the refresh data grid action.
+        /// </summary>
+        /// <value>The refresh data grid action.</value>
         public Action RefreshDataGridAction { get; set; }
 
-        private IDisposable _searchTextChangedSubscription;
+        /// <summary>
+        ///     Gets or sets the search text changed obs.
+        /// </summary>
+        /// <value>The search text changed obs.</value>
         public IObservable<string> SearchTextChangedObs
         {
             get => _searchTextChangedObs;
@@ -92,14 +156,20 @@ namespace Panda.LogLauncher
                 _searchTextChangedObs = value;
                 _searchTextChangedSubscription = value
                     .SubscribeOn(TaskPoolScheduler.Default)
-                    .Subscribe(s =>
-                    {                                      
-                    });
+                    .Subscribe(s => { });
             }
         }
 
+        /// <summary>
+        ///     Occurs when [property changed].
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        ///     Translates the exception.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <returns>System.String.</returns>
         private string TranslateException(Exception exception)
         {
             if (exception == null)
@@ -107,6 +177,12 @@ namespace Panda.LogLauncher
             return $"{exception.GetType().FullName} - {exception.Message}{Environment.NewLine}{exception.StackTrace}";
         }
 
+        /// <summary>
+        ///     Translates the log level.
+        /// </summary>
+        /// <param name="messageLevel">The message level.</param>
+        /// <returns>System.String.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">messageLevel</exception>
         private string TranslateLogLevel(LogLevel messageLevel)
         {
             switch (messageLevel)
@@ -132,6 +208,10 @@ namespace Panda.LogLauncher
             }
         }
 
+        /// <summary>
+        ///     Called when [property changed].
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
