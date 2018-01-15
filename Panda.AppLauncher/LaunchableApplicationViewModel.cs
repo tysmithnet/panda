@@ -78,8 +78,8 @@ namespace Panda.AppLauncher
                     h => { PropertyChanged += h; },
                     h => { PropertyChanged -= h; })
                 .SubscribeOn(TaskPoolScheduler.Default)
-                .ObserveOn(_uiScheduler)
                 .Throttle(TimeSpan.FromSeconds(5))
+                .ObserveOn(_uiScheduler)
                 .Subscribe(args => { LaunchableApplicationService.Save(); });
         }
 

@@ -1,0 +1,62 @@
+﻿<client:Launcher x:Class="Panda.LogLauncher.LogLauncher"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:local="clr-namespace:Panda.LogLauncher"
+                 xmlns:client="clr-namespace:Panda.Client;assembly=Panda.Client"
+                 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                 mc:Ignorable="d"
+                 d:DesignHeight="300" d:DesignWidth="300"
+                 d:DataContext="{d:DesignInstance local:LogLauncherViewModel}"
+                 Loaded="LogLauncher_OnLoaded">
+    <client:Launcher.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </client:Launcher.Resources>
+    <DockPanel>
+        <TextBox DockPanel.Dock="Top" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged"
+                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        <DataGrid
+            x:Name="LogMessagesDataGrid"
+            materialDesign:DataGridAssist.CellPadding="13 8 8 8"
+            materialDesign:DataGridAssist.ColumnHeaderPadding="8"
+            AutoGenerateColumns="False"
+            ItemsSource="{Binding LogMessages}">
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Binding="{Binding LogName}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Log Name"
+                    MinWidth="100" />
+                <DataGridTextColumn
+                    Binding="{Binding LogLevel}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Log Level"
+                    MinWidth="100" />
+                <DataGridTextColumn
+                    Binding="{Binding Message}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Message"
+                    MinWidth="100"
+                    MaxWidth="600"/>
+                <DataGridTextColumn
+                    Binding="{Binding LogTime}"
+                    EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"
+                    Header="Time"
+                    MinWidth="100" />
+                <DataGridTemplateColumn MinWidth="20" Header="Exception">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Exception}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</client:Launcher>
