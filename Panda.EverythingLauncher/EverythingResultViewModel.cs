@@ -150,14 +150,14 @@ namespace Panda.EverythingLauncher
                 for (var i = 0; i < retries + 1; i++)
                     try
                     {
-                        Icon = IconHelper.IconFromFilePath(FullName, IconSize.Small);
+                        Icon = ShellHelper.IconFromFilePath(FullName, IconSize.Small);
                         return;
                     }
                     catch (Exception)
                     {
                         var timeoutMs = 1000; // todo: make setting
                         await Task.Delay(timeoutMs);
-                        Icon = IconHelper.GetFallbackIcon(IconSize.Small);
+                        Icon = ShellHelper.GetFallbackIcon(IconSize.Small);
                     }
             });
         }

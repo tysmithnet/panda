@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Runtime.Caching;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -12,17 +15,17 @@ namespace Panda.Client
     /// <summary>
     ///     Class that assists with the loading of icons
     /// </summary>
-    public static class IconHelper
+    public static class ShellHelper
     {
         /// <summary>
         ///     The large icon cache
         /// </summary>
-        private static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(IconHelper).FullName + "_large");
+        private static readonly MemoryCache LargeIconCache = new MemoryCache(typeof(ShellHelper).FullName + "_large");
 
         /// <summary>
         ///     The small icon cache
         /// </summary>
-        private static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(IconHelper).FullName + "_small");
+        private static readonly MemoryCache SmallIconCache = new MemoryCache(typeof(ShellHelper).FullName + "_small");
 
         /// <summary>
         ///     The unknown file large
@@ -35,13 +38,13 @@ namespace Panda.Client
         private static readonly ImageSource UnknownFileSmall;
 
         /// <summary>
-        ///     Initializes the <see cref="IconHelper" /> class.
+        ///     Initializes the <see cref="ShellHelper" /> class.
         /// </summary>
-        static IconHelper()
+        static ShellHelper()
         {
-            var shinfo = new ShFileInfo();
-            var hImgSmall = Win32.SHGetFileInfo("unknownfile32x32.ico", 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
-                Win32.SHGFI_ICON | IconSize.Large.ToIconFlag());
+            var shinfo = new NativeMethods.ShFileInfo();
+            var hImgSmall = NativeMethods.SHGetFileInfo("unknownfile32x32.ico", 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
+                NativeMethods.SHGFI_ICON | IconSize.Large.ToIconFlag());
             var icon = Icon.FromHandle(shinfo.hIcon);
             var bmp = icon.ToBitmap();
             var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
@@ -49,14 +52,23 @@ namespace Panda.Client
             img.Freeze();
             UnknownFileLarge = img;
 
-            hImgSmall = Win32.SHGetFileInfo("unknownfile16x16.ico", 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
-                Win32.SHGFI_ICON | IconSize.Small.ToIconFlag());
+            hImgSmall = NativeMethods.SHGetFileInfo("unknownfile16x16.ico", 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
+                NativeMethods.SHGFI_ICON | IconSize.Small.ToIconFlag());
             icon = Icon.FromHandle(shinfo.hIcon);
             bmp = icon.ToBitmap();
             img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
             img.Freeze();
             UnknownFileSmall = img;
+        }
+
+        public static string GetDisplayName(string filePath)
+        {
+            StringBuilder result = new StringBuilder();
+            int cch = 0;
+            int pidsRes = 0;
+            NativeMethods.SHGetLocalizedName(filePath, result, ref cch, out pidsRes);
+            return result.ToString();
         }
 
         /// <summary>
@@ -88,6 +100,30 @@ namespace Panda.Client
             }
         }
 
+        public static ShellFileInfo GetShellFileInfo(string filePath)
+        {
+            var shinfo = new NativeMethods.ShFileInfo();
+            var hImgSmall = NativeMethods.SHGetFileInfo(filePath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo),
+                NativeMethods.SHGFI_ICON | IconSize.Small.ToIconFlag());
+            var icon = Icon.FromHandle(shinfo.hIcon);
+            var bmp = icon.ToBitmap();
+            var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+            img.Freeze();
+            var fvi = FileVersionInfo.GetVersionInfo(filePath);
+            string displayName = Path.GetFileName(filePath);
+            if (!string.IsNullOrWhiteSpace(fvi.ProductName))
+                displayName = fvi.ProductName;
+            return new ShellFileInfo
+            {
+                Icon = img,
+                DisplayName = displayName,
+                Description = fvi.FileDescription,
+                FilePath = filePath
+            };
+        }
+
+
         /// <summary>
         ///     Gets an icon from a file path using windows shell
         /// </summary>
@@ -113,9 +149,9 @@ namespace Panda.Client
                 var cacheItem = memoryCache.GetCacheItem(filePath);
                 if (cacheItem != null)
                     return cacheItem.Value as ImageSource;
-                var shinfo = new ShFileInfo();
-                var hImgSmall = Win32.SHGetFileInfo(filePath, 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
-                    Win32.SHGFI_ICON | size.ToIconFlag());
+                var shinfo = new NativeMethods.ShFileInfo();
+                var hImgSmall = NativeMethods.SHGetFileInfo(filePath, 0, ref shinfo, (uint) Marshal.SizeOf(shinfo),
+                    NativeMethods.SHGFI_ICON | size.ToIconFlag());
                 var icon = Icon.FromHandle(shinfo.hIcon);
                 var bmp = icon.ToBitmap();
                 var img = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
@@ -143,34 +179,6 @@ namespace Panda.Client
                         throw new ArgumentOutOfRangeException($"{nameof(size)} is not a valid IconSize");
                 }
             }
-        }
-
-        /// <summary>
-        ///     Win32 Api Shell File Info structure
-        /// </summary>
-        [StructLayout(LayoutKind.Sequential)]
-        private struct ShFileInfo
-        {
-            public readonly IntPtr hIcon;
-            private readonly int iIcon;
-            private readonly uint dwAttributes;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] private readonly string szDisplayName;
-
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)] private readonly string szTypeName;
-        }
-
-        /// <summary>
-        ///     Local win32 api wrapper
-        /// </summary>
-        private static class Win32
-        {
-            public const uint SHGFI_ICON = 0x100;
-            public const uint SHGFI_LARGEICON = 0x0; // 'Large icon
-            public const uint SHGFI_SMALLICON = 0x1; // 'Small icon
-
-            [DllImport("shell32.dll")]
-            public static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref ShFileInfo psfi,
-                uint cbSizeFileInfo, uint uFlags);
         }
     }
 }

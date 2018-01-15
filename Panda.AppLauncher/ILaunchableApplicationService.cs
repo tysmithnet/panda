@@ -45,5 +45,11 @@ namespace Panda.AppLauncher
         ///     Saves the current state of registered applications
         /// </summary>
         void Save();
+
+        /// <summary>
+        /// Adds the specified filename as a registered application
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        void Add(string filename);
     }
 }

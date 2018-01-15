@@ -86,7 +86,7 @@ namespace Panda.Client
             KeyboardMouseService = keyboardMouseService;
             ViewModels = LauncherService.Get().Select(l => new LauncherViewModel
             {
-                Name = l.GetType().FullName,
+                Name = l.GetType().Name,
                 Instance = l
             });
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);

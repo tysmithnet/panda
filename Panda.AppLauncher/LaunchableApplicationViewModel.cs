@@ -20,6 +20,11 @@ namespace Panda.AppLauncher
     public sealed class LaunchableApplicationViewModel : INotifyPropertyChanged
     {
         /// <summary>
+        ///     The UI scheduler
+        /// </summary>
+        private readonly IScheduler _uiScheduler;
+
+        /// <summary>
         ///     The application name
         /// </summary>
         private string _appName;
@@ -61,7 +66,7 @@ namespace Panda.AppLauncher
         /// <exception cref="ArgumentNullException">launcherService</exception>
         public LaunchableApplicationViewModel(IScheduler uiScheduler, ILaunchableApplicationService launcherService)
         {
-            UiScheduler = uiScheduler;
+            _uiScheduler = uiScheduler;
             LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
             SetupMenuItems();
             MenuItems.Add(_editMenuItem);
@@ -73,12 +78,10 @@ namespace Panda.AppLauncher
                     h => { PropertyChanged += h; },
                     h => { PropertyChanged -= h; })
                 .SubscribeOn(TaskPoolScheduler.Default)
-                .ObserveOn(UiScheduler)
+                .ObserveOn(_uiScheduler)
                 .Throttle(TimeSpan.FromSeconds(5))
                 .Subscribe(args => { LaunchableApplicationService.Save(); });
         }
-
-        public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the name of the application.
@@ -207,7 +210,7 @@ namespace Panda.AppLauncher
         /// <returns>A task, that when complete, will signal the completion of the loading of the image source</returns>
         public Task LoadIcon(IconSize iconSize)
         {
-            return Task.Run(() => { ImageSource = IconHelper.IconFromFilePath(ExecutableLocation, iconSize); });
+            return Task.Run(() => { ImageSource = ShellHelper.IconFromFilePath(ExecutableLocation, iconSize); });
         }
 
         /// <summary>

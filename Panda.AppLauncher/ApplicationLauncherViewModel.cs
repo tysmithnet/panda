@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using Common.Logging;
+using Microsoft.Win32;
 using Panda.Client;
 
 namespace Panda.AppLauncher
@@ -22,6 +23,21 @@ namespace Panda.AppLauncher
     /// <seealso cref="System.IDisposable" />
     public sealed class ApplicationLauncherViewModel : INotifyPropertyChanged, IDisposable
     {
+        /// <summary>
+        ///     The add application button clicked obs
+        /// </summary>
+        private IObservable<RoutedEventArgs> _addApplicationButtonClickedObs;
+
+        /// <summary>
+        ///     The add application button clicked subscription
+        /// </summary>
+        private IDisposable _addApplicationButtonClickedSubscription;
+
+        /// <summary>
+        ///     The is add dialog open
+        /// </summary>
+        private bool _isAddDialogOpen;
+
         /// <summary>
         ///     The preview double click observable
         /// </summary>
@@ -75,6 +91,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Initializes a new instance of the <see cref="ApplicationLauncherViewModel" /> class.
         /// </summary>
+        /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="launchableApplicationService">The registered application service.</param>
         /// <param name="launchableApplicationContextMenuProviders">The registered application context menu providers.</param>
         public ApplicationLauncherViewModel(
@@ -87,14 +104,16 @@ namespace Panda.AppLauncher
             LaunchableApplicationContextMenuProviders = launchableApplicationContextMenuProviders;
         }
 
+        /// <summary>
+        ///     Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
         public IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the preview double click observable
         /// </summary>
-        /// <value>
-        ///     The preview double click observable.
-        /// </value>
+        /// <value>The preview double click observable.</value>
         public IObservable<LaunchableApplicationViewModel> PreviewDoubleClickObs
         {
             get => _previewDoubleClickObs;
@@ -115,9 +134,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets the preview key up observable.
         /// </summary>
-        /// <value>
-        ///     The preview key up observable.
-        /// </value>
+        /// <value>The preview key up observable.</value>
         public IObservable<KeyEventArgs> PreviewKeyUpObs
         {
             get => _previewKeyUpObs;
@@ -143,9 +160,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets the search text changed observable.
         /// </summary>
-        /// <value>
-        ///     The search text changed observable.
-        /// </value>
+        /// <value>The search text changed observable.</value>
         /// <exception cref="ArgumentNullException">value</exception>
         public IObservable<string> SearchTextChangedObs
         {
@@ -184,75 +199,57 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets the application unregistered subscription.
         /// </summary>
-        /// <value>
-        ///     The application unregistered subscription.
-        /// </value>
+        /// <value>The application unregistered subscription.</value>
         internal IDisposable ApplicationUnregisteredSubscription { get; set; }
 
         /// <summary>
         ///     Gets or sets the application registered subscription.
         /// </summary>
-        /// <value>
-        ///     The application registered subscription.
-        /// </value>
+        /// <value>The application registered subscription.</value>
         internal IDisposable ApplicationRegisteredSubscription { get; set; }
 
         /// <summary>
         ///     Gets or sets the registered application context menu providers.
         /// </summary>
-        /// <value>
-        ///     The registered application context menu providers.
-        /// </value>
+        /// <value>The registered application context menu providers.</value>
         internal ILaunchableApplicationContextMenuProvider[] LaunchableApplicationContextMenuProviders { get; set; }
 
         /// <summary>
         ///     Gets or sets the application view models.
         /// </summary>
-        /// <value>
-        ///     The application view models.
-        /// </value>
+        /// <value>The application view models.</value>
         public ObservableCollection<LaunchableApplicationViewModel> AppViewModels { get; set; } =
             new ObservableCollection<LaunchableApplicationViewModel>();
 
         /// <summary>
         ///     Gets the registered application service.
         /// </summary>
-        /// <value>
-        ///     The registered application service.
-        /// </value>
+        /// <value>The registered application service.</value>
         internal ILaunchableApplicationService LaunchableApplicationService { get; }
 
         /// <summary>
         ///     Gets or sets the context menu items.
         /// </summary>
-        /// <value>
-        ///     The context menu items.
-        /// </value>
+        /// <value>The context menu items.</value>
         public ObservableCollection<FrameworkElement> ContextMenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
 
         /// <summary>
         ///     Gets or sets the search text.
         /// </summary>
-        /// <value>
-        ///     The search text.
-        /// </value>
+        /// <value>The search text.</value>
         public string SearchText { get; set; }
 
         /// <summary>
         ///     Gets the log.
         /// </summary>
-        /// <value>
-        ///     The log.
-        /// </value>
+        /// <value>The log.</value>
         private ILog Log { get; } = LogManager.GetLogger<ApplicationLauncherViewModel>();
 
         /// <summary>
         ///     Gets or sets the preview mouse double click observable.
         /// </summary>
-        /// <value>
-        ///     The preview mouse double click observable.
-        /// </value>
+        /// <value>The preview mouse double click observable.</value>
         public IObservable<(LaunchableApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
             get => _previewMouseDoubleClickObs;
@@ -273,9 +270,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets the selected items changed observable.
         /// </summary>
-        /// <value>
-        ///     The selected items changed observable.
-        /// </value>
+        /// <value>The selected items changed observable.</value>
         public IObservable<IEnumerable<LaunchableApplicationViewModel>> SelectedItemsChangedObs
         {
             get => _selectedItemsChangedObs;
@@ -306,6 +301,44 @@ namespace Panda.AppLauncher
                     });
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the add application button clicked obs.
+        /// </summary>
+        /// <value>The add application button clicked obs.</value>
+        public IObservable<RoutedEventArgs> AddApplicationButtonClickedObs
+        {
+            get => _addApplicationButtonClickedObs;
+            set
+            {
+                _addApplicationButtonClickedSubscription?.Dispose();
+                _addApplicationButtonClickedObs = value;
+                _addApplicationButtonClickedSubscription = value
+                    .ObserveOn(UiScheduler)
+                    .Subscribe(args =>
+                    {
+                        var dlg = new OpenFileDialog
+                        {
+                            DefaultExt = ".exe",
+                            Filter = "EXE Files (*.exe)|*.exe|All Files (*.*)|*.*"
+                        };
+
+                        var result = dlg.ShowDialog();
+
+                        if (result == true)
+                        {
+                            var filename = dlg.FileName;
+                            LaunchableApplicationService.Add(filename);
+                        }
+                    });
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the new application path.
+        /// </summary>
+        /// <value>The new application path.</value>
+        public string NewApplicationPath { get; set; }
 
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.

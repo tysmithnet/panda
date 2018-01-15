@@ -135,6 +135,23 @@ namespace Panda.AppLauncher
 
         /// <inheritdoc />
         /// <summary>
+        ///     Adds the specified filename as a registered application
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        public void Add(string filename)
+        {
+            var shellInfo = ShellHelper.GetShellFileInfo(filename);
+            var newItem = new LaunchableApplication
+            {
+                FullPath = filename,
+                Description = shellInfo.Description,
+                DisplayName = shellInfo.DisplayName
+            };
+            Add(newItem);
+        }
+
+        /// <inheritdoc />
+        /// <summary>
         ///     Performs any setup logic required
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>

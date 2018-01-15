@@ -41,15 +41,55 @@ namespace Panda.WikipediaLauncher
                 request.Credentials = CredentialCache.DefaultCredentials;
                 ServicePointManager.ServerCertificateValidationCallback =
                     (sender, certificate, chain, sslPolicyErrors) => true;
+                HttpWebResponse response;
 
-                var response = (HttpWebResponse) await request.GetResponseAsync();
+                try
+                {
+                     response = (HttpWebResponse) await request.GetResponseAsync();
+                }
+                catch (Exception e)
+                {
+                    observer.OnError(e);
+                    Log.Error($"Error getting response stream: {e.Message}");
+                    return;
+                }          
+
                 var resStream = response.GetResponseStream();
-                var reader = new StreamReader(resStream ??
-                                              throw new InvalidOperationException(
-                                                  $"Wikipedia response stream was null"));
-                var responseFromServer = await reader.ReadToEndAsync();
 
-                var root = JArray.Parse(responseFromServer);
+                if (resStream == null)
+                {
+                    observer.OnError(new InvalidOperationException(
+                        $"Wikipedia response stream was null"));
+                    Log.Error($"Wikipedia response stream was null");
+                }
+
+                var reader = new StreamReader(resStream);
+
+                string responseFromServer;
+                try
+                {
+                    responseFromServer = await reader.ReadToEndAsync();
+                    Log.Debug($"Response from server: {responseFromServer}");
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Could not get response from server: {e.Message}");
+                    observer.OnError(e);
+                    return;
+                }
+
+                JArray root;
+                try
+                {
+                    root = JArray.Parse(responseFromServer);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Error parsing response from server: {e.Message}");
+                    observer.OnError(e);
+                    return;
+                }
+
                 var toBeZipped = root.OfType<JArray>();
                 var arrays = toBeZipped.Select(j => j.Values<string>().ToArray()).ToArray();
                 var n = arrays[0]
