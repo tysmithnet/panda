@@ -12,9 +12,19 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using Common.Logging;
+using Newtonsoft.Json;
 
 namespace Panda.Client
 {
+    internal class Bindings
+    {
+        [JsonProperty("blacklisted_assemblies")]
+        internal string[] BlackListedAssemblies = new string[0];
+
+        [JsonProperty("blacklisted_types")]
+        internal string[] BlackListedTypes = new string[0];
+    }
+
     /// <summary>
     ///     Interaction logic for App.xaml
     /// </summary>
@@ -70,11 +80,27 @@ namespace Panda.Client
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             Log.Trace("Looking for MEF components");
-            var compositionContainer = CreateCompositionContainer();
+            var bindings = GetBindings();
+            var compositionContainer = CreateCompositionContainer(bindings);
             ManipulateCompositionContainer(compositionContainer);
             SetupSystemServices(compositionContainer);
             SetupComponentsRequiringSetup(compositionContainer);
             Selector.Show();
+        }
+
+        private Bindings GetBindings()
+        {
+            try
+            {
+                string json = File.ReadAllText("panda.bindings.json");
+                var bindings = JsonConvert.DeserializeObject<Bindings>(json);
+                return bindings;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unable to read bindings config file: {e.Message}");
+                return new Bindings();
+            }   
         }
 
         /// <summary>
@@ -151,12 +177,14 @@ namespace Panda.Client
         /// <summary>
         ///     Creates the composition container.
         /// </summary>
+        /// <param name="bindings"></param>
         /// <returns>CompositionContainer.</returns>
-        private static CompositionContainer CreateCompositionContainer()
+        private static CompositionContainer CreateCompositionContainer(Bindings bindings)
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll")
-                .Concat(Directory.EnumerateFiles(assemblyPath, "Panda.Client.exe"));
+            var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll").Select(x => Path.GetFileName(x)).ToList();
+            assemblyPaths.Add("Panda.Client.exe");
+            assemblyPaths = assemblyPaths.Except(bindings.BlackListedAssemblies).ToList();
             var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
             var aggregateCatalog = new AggregateCatalog(catalogs);
             var compositionContainer = new CompositionContainer(aggregateCatalog);
