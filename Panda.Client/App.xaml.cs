@@ -16,15 +16,6 @@ using Newtonsoft.Json;
 
 namespace Panda.Client
 {
-    internal class Bindings
-    {
-        [JsonProperty("blacklisted_assemblies")]
-        internal string[] BlackListedAssemblies = new string[0];
-
-        [JsonProperty("blacklisted_types")]
-        internal string[] BlackListedTypes = new string[0];
-    }
-
     /// <summary>
     ///     Interaction logic for App.xaml
     /// </summary>
@@ -185,8 +176,25 @@ namespace Panda.Client
             var assemblyPaths = Directory.EnumerateFiles(assemblyPath, "Panda.*.dll").Select(x => Path.GetFileName(x)).ToList();
             assemblyPaths.Add("Panda.Client.exe");
             assemblyPaths = assemblyPaths.Except(bindings.BlackListedAssemblies).ToList();
-            var catalogs = assemblyPaths.Select(a => new AssemblyCatalog(a));
-            var aggregateCatalog = new AggregateCatalog(catalogs);
+
+            var assemblies = assemblyPaths.Select(s =>
+            {
+                try
+                {
+                    return Assembly.LoadFile(Path.GetFullPath(s));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Failed to load {s} - {e.Message}");
+                    return null;
+                }
+            }).Where(x => x != null);
+
+            var types = assemblies.SelectMany(x => x.DefinedTypes).ToList();
+            var blacklistedTypes = types.Where(x => bindings.BlackListedTypes.Contains(x.FullName)); // todo: really should be assembly qualified type
+            var okTypes = types.Except(blacklistedTypes);
+            var typeCatalog = new TypeCatalog(okTypes);                                                                             
+            var aggregateCatalog = new AggregateCatalog(typeCatalog);
             var compositionContainer = new CompositionContainer(aggregateCatalog);
             return compositionContainer;
         }
