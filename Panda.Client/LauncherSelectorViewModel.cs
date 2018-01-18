@@ -22,6 +22,21 @@ namespace Panda.Client
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
     {
         /// <summary>
+        ///     The active launchers
+        /// </summary>
+        private IList<LauncherViewModel> _activeLaunchers = new List<LauncherViewModel>();
+
+        /// <summary>
+        ///     The global show launcher selector subscription
+        /// </summary>
+        private IDisposable _globalShowLauncherSelectorSubscription;
+
+        /// <summary>
+        ///     The keyboard mouse service
+        /// </summary>
+        private IKeyboardMouseService _keyboardMouseService;
+
+        /// <summary>
         ///     The launcher selector key up obs
         /// </summary>
         private IObservable<KeyEventArgs> _launcherSelectorKeyUpObs;
@@ -41,6 +56,9 @@ namespace Panda.Client
         /// </summary>
         private IDisposable _previewMouseUpSubscription;
 
+        /// <summary>
+        ///     The search text
+        /// </summary>
         private string _searchText;
 
         /// <summary>
@@ -76,10 +94,11 @@ namespace Panda.Client
         /// <summary>
         ///     Initializes a new instance of the <see cref="LauncherSelectorViewModel" /> class.
         /// </summary>
-        /// <param name="uiScheduler"></param>
+        /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="launcherService">The launcher service.</param>
-        /// <param name="keyboardMouseService"></param>
-        internal LauncherSelectorViewModel(IScheduler uiScheduler, ILauncherService launcherService, IKeyboardMouseService keyboardMouseService)
+        /// <param name="keyboardMouseService">The keyboard mouse service.</param>
+        internal LauncherSelectorViewModel(IScheduler uiScheduler, ILauncherService launcherService,
+            IKeyboardMouseService keyboardMouseService)
         {
             UiScheduler = uiScheduler;
             LauncherService = launcherService;
@@ -92,10 +111,8 @@ namespace Panda.Client
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
         }
 
-        private IDisposable _globalShowLauncherSelectorSubscription;
-
         /// <summary>
-        /// Gets or sets the keyboard mouse service.
+        ///     Gets or sets the keyboard mouse service.
         /// </summary>
         /// <value>The keyboard mouse service.</value>
         public IKeyboardMouseService KeyboardMouseService
@@ -104,7 +121,7 @@ namespace Panda.Client
             set
             {
                 _globalShowLauncherSelectorSubscription?.Dispose();
-                _keyboardMouseService = value; 
+                _keyboardMouseService = value;
                 _globalShowLauncherSelectorSubscription = value
                     .KeyDownObservable
                     .SubscribeOn(TaskPoolScheduler.Default)
@@ -121,7 +138,7 @@ namespace Panda.Client
         }
 
         /// <summary>
-        /// Gets or sets the UI scheduler.
+        ///     Gets or sets the UI scheduler.
         /// </summary>
         /// <value>The UI scheduler.</value>
         public IScheduler UiScheduler { get; set; }
@@ -129,9 +146,7 @@ namespace Panda.Client
         /// <summary>
         ///     Gets or sets the text changed obs.
         /// </summary>
-        /// <value>
-        ///     The text changed obs.
-        /// </value>
+        /// <value>The text changed obs.</value>
         internal IObservable<string> TextChangedObs
         {
             get => _textChangedObs;
@@ -163,33 +178,25 @@ namespace Panda.Client
         /// <summary>
         ///     Gets or sets the launcher service.
         /// </summary>
-        /// <value>
-        ///     The launcher service.
-        /// </value>
+        /// <value>The launcher service.</value>
         private ILauncherService LauncherService { get; }
 
         /// <summary>
         ///     Gets or sets the view models.
         /// </summary>
-        /// <value>
-        ///     The view models.
-        /// </value>
+        /// <value>The view models.</value>
         private IEnumerable<LauncherViewModel> ViewModels { get; }
 
         /// <summary>
         ///     Gets or sets the launcher view models.
         /// </summary>
-        /// <value>
-        ///     The launcher view models.
-        /// </value>
+        /// <value>The launcher view models.</value>
         public ObservableCollection<LauncherViewModel> LauncherViewModels { get; set; }
 
         /// <summary>
         ///     Gets or sets the search text.
         /// </summary>
-        /// <value>
-        ///     The search text.
-        /// </value>
+        /// <value>The search text.</value>
         public string SearchText
         {
             get => _searchText;
@@ -203,9 +210,7 @@ namespace Panda.Client
         /// <summary>
         ///     Gets or sets the selection changed obs.
         /// </summary>
-        /// <value>
-        ///     The selection changed obs.
-        /// </value>
+        /// <value>The selection changed obs.</value>
         public IObservable<SelectionChangedEventArgs> SelectionChangedObs
         {
             get => _selectionChangedObs;
@@ -233,9 +238,7 @@ namespace Panda.Client
         /// <summary>
         ///     Gets or sets the preview mouse up obs.
         /// </summary>
-        /// <value>
-        ///     The preview mouse up obs.
-        /// </value>
+        /// <value>The preview mouse up obs.</value>
         internal IObservable<(LauncherViewModel, MouseButtonEventArgs)> MouseUpObs
         {
             get => _mouseUpObs;
@@ -246,20 +249,14 @@ namespace Panda.Client
                 _previewMouseUpSubscription = value
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .ObserveOn(UiScheduler)
-                    .Subscribe(tuple =>
-                    {
-                        tuple.Item1.Instance.Show();
-                        SearchText = "";
-                    });
+                    .Subscribe(tuple => ActivateLauncher(tuple.Item1));
             }
         }
 
         /// <summary>
         ///     Gets or sets the search text box preview key up obs.
         /// </summary>
-        /// <value>
-        ///     The search text box preview key up obs.
-        /// </value>
+        /// <value>The search text box preview key up obs.</value>
         internal IObservable<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpObs
         {
             get => _searchTextBoxPreviewKeyUpObs;
@@ -287,17 +284,13 @@ namespace Panda.Client
         /// <summary>
         ///     Gets or sets the hide action.
         /// </summary>
-        /// <value>
-        ///     The hide action.
-        /// </value>
+        /// <value>The hide action.</value>
         internal Action HideAction { get; set; }
 
         /// <summary>
         ///     Gets or sets the launcher selector key up obs.
         /// </summary>
-        /// <value>
-        ///     The launcher selector key up obs.
-        /// </value>
+        /// <value>The launcher selector key up obs.</value>
         internal IObservable<KeyEventArgs> LauncherSelectorKeyUpObs
         {
             get => _launcherSelectorKeyUpObs;
@@ -319,12 +312,29 @@ namespace Panda.Client
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the show action.
+        /// </summary>
+        /// <value>The show action.</value>
         public Action ShowAction { get; set; }
 
         /// <summary>
         ///     Occurs when [property changed].
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        ///     Activates the launcher.
+        /// </summary>
+        /// <param name="vm">The vm.</param>
+        private void ActivateLauncher(LauncherViewModel vm)
+        {
+            var instance = vm.Instance;
+            instance.Show();
+            instance.WindowState = WindowState.Normal;
+            instance.BringIntoView();
+            SearchText = "";
+        }
 
         /// <summary>
         ///     Called when [property changed].
@@ -335,9 +345,6 @@ namespace Panda.Client
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private IList<LauncherViewModel> _activeLaunchers=  new List<LauncherViewModel>();
-        private IKeyboardMouseService _keyboardMouseService;
-
         /// <summary>
         ///     Submits this instance.
         /// </summary>
@@ -345,8 +352,7 @@ namespace Panda.Client
         {
             var first = LauncherViewModels.FirstOrDefault();
             if (first == null) return;
-            first.Instance.Show();                                     
-            SearchText = "";
-        }           
+            ActivateLauncher(first);
+        }
     }
 }
