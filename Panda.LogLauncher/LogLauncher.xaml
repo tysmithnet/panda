@@ -27,7 +27,8 @@
             materialDesign:DataGridAssist.ColumnHeaderPadding="8"
             AutoGenerateColumns="False"
             ItemsSource="{Binding LogMessages}"
-            CanUserAddRows="False">
+            CanUserAddRows="False"
+            IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Binding="{Binding LogName}"
