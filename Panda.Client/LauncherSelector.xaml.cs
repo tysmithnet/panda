@@ -2,20 +2,20 @@
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Panda.CommonControls;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Panda.Client
 {
     /// <summary>
     ///     Interaction logic for LauncherSelector.xaml
     /// </summary>
+    /// <seealso cref="System.Windows.Window" />
+    /// <seealso cref="System.Windows.Markup.IComponentConnector" />
+    /// <seealso cref="System.Windows.Markup.IStyleConnector" />
     [Export(typeof(LauncherSelector))]
     public sealed partial class LauncherSelector : Window
     {
@@ -30,73 +30,61 @@ namespace Panda.Client
         /// <summary>
         ///     Gets or sets the launcher service.
         /// </summary>
-        /// <value>
-        ///     The launcher service.
-        /// </value>
+        /// <value>The launcher service.</value>
         [Import]
         private ILauncherService LauncherService { get; set; }
 
         /// <summary>
         ///     Gets or sets the keyboard mouse hook service.
         /// </summary>
-        /// <value>
-        ///     The keyboard mouse hook service.
-        /// </value>
+        /// <value>The keyboard mouse hook service.</value>
         [Import]
         private IKeyboardMouseService KeyboardMouseService { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the UI scheduler.
+        /// </summary>
+        /// <value>The UI scheduler.</value>
         [Import]
         private IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the view model.
         /// </summary>
-        /// <value>
-        ///     The view model.
-        /// </value>
+        /// <value>The view model.</value>
         private LauncherSelectorViewModel ViewModel { get; set; }
 
         /// <summary>
         ///     Gets the text changed observable.
         /// </summary>
-        /// <value>
-        ///     The text changed observable.
-        /// </value>
+        /// <value>The text changed observable.</value>
         private Subject<string> TextChangedSubject { get; } = new Subject<string>();
 
         /// <summary>
         ///     Gets or sets the selection changed observable.
         /// </summary>
-        /// <value>
-        ///     The selection changed observable.
-        /// </value>
+        /// <value>The selection changed observable.</value>
         private Subject<SelectionChangedEventArgs> SelectionChangedSubject { get; } =
             new Subject<SelectionChangedEventArgs>();
 
         /// <summary>
         ///     Gets or sets the mouse up subject.
         /// </summary>
-        /// <value>
-        ///     The mouse up subject.
-        /// </value>
+        /// <value>The mouse up subject.</value>
         private Subject<(LauncherViewModel, MouseButtonEventArgs)> MouseUpSubject { get; } =
             new Subject<(LauncherViewModel, MouseButtonEventArgs)>();
 
         /// <summary>
         ///     Gets or sets the search text box preview key up subject.
         /// </summary>
-        /// <value>
-        ///     The search text box preview key up subject.
-        /// </value>
+        /// <value>The search text box preview key up subject.</value>
         private Subject<(string, KeyEventArgs)> SearchTextBoxPreviewKeyUpSubject { get; } =
             new Subject<(string, KeyEventArgs)>();
 
         /// <summary>
         ///     Gets or sets the launcher selected key up subject.
         /// </summary>
-        /// <value>
-        ///     The launcher selected key up subject.
-        /// </value>
+        /// <value>The launcher selected key up subject.</value>
         private Subject<KeyEventArgs> LauncherSelectedKeyUpSubject { get; } = new Subject<KeyEventArgs>();
 
         /// <summary>
@@ -115,9 +103,9 @@ namespace Panda.Client
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void LauncherSelector_OnLoaded(object sender, EventArgs e)
-        {           
+        {
             SearchText.Focus();
-          
+
             ViewModel = new LauncherSelectorViewModel(UiScheduler, LauncherService, KeyboardMouseService)
             {
                 TextChangedObs = TextChangedSubject,

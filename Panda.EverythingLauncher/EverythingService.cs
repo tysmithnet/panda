@@ -17,7 +17,8 @@ namespace Panda.EverythingLauncher
     /// </summary>
     [Export(typeof(IEverythingService))]
     [Export(typeof(IFileSystemSearch))]
-    internal sealed class EverythingService : IEverythingService, IFileSystemSearch
+    [Export(typeof(IRequiresSetup))]
+    internal sealed class EverythingService : IEverythingService, IFileSystemSearch, IRequiresSetup
     {
         /// <summary>
         ///     Gets the log.
@@ -72,7 +73,7 @@ namespace Panda.EverythingLauncher
         /// <exception cref="ConfigurationErrorsException"></exception>
         private IObservable<string> Search(string query, CancellationToken cancellationToken)
         {
-            var executablePath = SettingsService.Get<EverythingSettings>().Single().EsExePath;
+            var executablePath = _settings.EsExePath;
             if (string.IsNullOrWhiteSpace(executablePath))
                 throw new ConfigurationErrorsException($"es.exe is not set in everything launcher settings");
             var obs = Observable.Create<string>(async (observer, token) =>
@@ -93,7 +94,9 @@ namespace Panda.EverythingLauncher
                     process.Start();
                     Log.Debug($"Started: {process.Id}");
                     string line;
-                    while ((line = await process.StandardOutput.ReadLineAsync()) != null)
+                    int count = 0;
+                    int max = Math.Max(0, _settings.SearchLimit);
+                    while (count++ < max && (line = await process.StandardOutput.ReadLineAsync()) != null)
                     {
                         Log.Debug($"Process Line: {process.Id} - {line}");
                         observer.OnNext(line);
@@ -110,5 +113,13 @@ namespace Panda.EverythingLauncher
             });
             return obs;
         }
+
+        public Task Setup(CancellationToken cancellationToken)
+        {
+            _settings = SettingsService.Get<EverythingSettings>().Single();
+            return Task.CompletedTask;
+        }
+
+        private EverythingSettings _settings;
     }
 }
