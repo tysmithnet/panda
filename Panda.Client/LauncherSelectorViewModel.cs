@@ -20,12 +20,7 @@ namespace Panda.Client
     /// </summary>
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public sealed class LauncherSelectorViewModel : INotifyPropertyChanged
-    {
-        /// <summary>
-        ///     The active launchers
-        /// </summary>
-        private IList<LauncherViewModel> _activeLaunchers = new List<LauncherViewModel>();
-
+    {                                                                                          
         /// <summary>
         ///     The global show launcher selector subscription
         /// </summary>
@@ -111,6 +106,8 @@ namespace Panda.Client
             LauncherViewModels = new ObservableCollection<LauncherViewModel>(ViewModels);
         }
 
+        private LauncherViewModel _lastActiveViewModel;
+
         /// <summary>
         ///     Gets or sets the keyboard mouse service.
         /// </summary>
@@ -127,7 +124,27 @@ namespace Panda.Client
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .ObserveOn(UiScheduler)
                     .Subscribe(args =>
-                    {
+                    {                               
+                        if (args.Control && args.Alt && args.KeyCode == Keys.Oem3)
+                        {
+                            foreach (var launcherViewModel in ViewModels.Where(vm => vm.Instance.IsLoaded))
+                            {
+                                ActivateLauncher(launcherViewModel);
+                                args.Handled = true;
+                            }
+                            return;
+                        }
+
+                        if (args.Control && args.Shift && args.KeyCode == Keys.Oem3)
+                        {
+                            if (_lastActiveViewModel != null)
+                            {
+                                ActivateLauncher(_lastActiveViewModel);
+                                args.Handled = true;
+                            }
+                            return;
+                        }
+                         
                         if (args.Control && args.KeyCode == Keys.Oem3) // `
                         {
                             ShowAction?.Invoke();
@@ -328,12 +345,13 @@ namespace Panda.Client
         /// </summary>
         /// <param name="vm">The vm.</param>
         private void ActivateLauncher(LauncherViewModel vm)
-        {
+        {   
             var instance = vm.Instance;
             instance.Show();
             instance.WindowState = WindowState.Normal;
             instance.BringIntoView();
             SearchText = "";
+            _lastActiveViewModel = vm;
         }
 
         /// <summary>
