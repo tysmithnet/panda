@@ -120,6 +120,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Bindings.cs" />
     <Compile Include="EventHub.cs" />
     <Compile Include="FileDeletedEvent.cs" />
     <Compile Include="FileSizeValueConverter.cs" />
