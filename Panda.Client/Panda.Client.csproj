@@ -124,6 +124,12 @@
     <Compile Include="EventHub.cs" />
     <Compile Include="FileDeletedEvent.cs" />
     <Compile Include="FileSizeValueConverter.cs" />
+    <Compile Include="Interop\HookEventArgs.cs" />
+    <Compile Include="Interop\HookType.cs" />
+    <Compile Include="Interop\LocalWindowsHook.cs" />
+    <Compile Include="Interop\ShellContextMenu.cs" />
+    <Compile Include="Interop\ShellContextMenuException.cs" />
+    <Compile Include="Interop\ShellHelper.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="ShellFileInfo.cs" />
     <Compile Include="ShellHelper.cs" />

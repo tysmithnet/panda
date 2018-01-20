@@ -1,4 +1,4 @@
-﻿namespace Panda.EverythingLauncher.Interop
+﻿namespace Panda.Client.Interop
 {
     public enum HookType
     {

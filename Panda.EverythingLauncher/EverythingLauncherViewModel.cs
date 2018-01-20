@@ -13,7 +13,7 @@ using System.Windows;
 using System.Windows.Input;
 using Common.Logging;
 using Panda.Client;
-using Panda.EverythingLauncher.Interop;
+using Panda.Client.Interop;
 using Point = System.Drawing.Point;
 
 namespace Panda.EverythingLauncher
@@ -133,9 +133,9 @@ namespace Panda.EverythingLauncher
                         (args, models) => (args, models))
                     .Subscribe(tuple =>
                     {
-                        if (!Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt)) return;
+                        if (!KeyboardMouseService.IsKeyDown(Key.LeftAlt) && !KeyboardMouseService.IsKeyDown(Key.RightAlt)) return;
                         var shellContextMenu = new ShellContextMenu();
-                        var point = Mouse.GetPosition(null);
+                        var point = KeyboardMouseService.GetMousePosition();
                         var fileInfos = tuple.Item2.Select(vm => new FileInfo(vm.FullName)).ToList();
                         var directories = fileInfos.Where(info =>
                             {

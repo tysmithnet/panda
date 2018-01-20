@@ -89,13 +89,7 @@
     <Compile Include="EverythingService.cs" />
     <Compile Include="EverythingSettings.cs" />
     <Compile Include="IEverythingService.cs" />
-    <Compile Include="Interop\HookEventArgs.cs" />
-    <Compile Include="Interop\HookType.cs" />
-    <Compile Include="Interop\LocalWindowsHook.cs" />
-    <Compile Include="Interop\ShellContextMenuException.cs" />
-    <Compile Include="Interop\ShellHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Interop\ShellContextMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="EverythingLauncher.xaml">

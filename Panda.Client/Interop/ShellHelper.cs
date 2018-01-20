@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Panda.EverythingLauncher.Interop
+namespace Panda.Client.Interop
 {
     internal static class ShellHelper
     {

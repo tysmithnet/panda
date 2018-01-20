@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Panda.EverythingLauncher.Interop
+namespace Panda.Client.Interop
 {
     public class LocalWindowsHook
     {

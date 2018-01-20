@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Panda.EverythingLauncher.Interop
+namespace Panda.Client.Interop
 {
     public class ShellContextMenu : NativeWindow
     {

@@ -22,11 +22,6 @@ namespace Panda.AppLauncher
     public sealed partial class ApplicationLauncher : Launcher
     {
         /// <summary>
-        ///     The add application button clicked subject
-        /// </summary>
-        private readonly Subject<RoutedEventArgs> _addApplicationButtonClickedSubject = new Subject<RoutedEventArgs>();
-
-        /// <summary>
         ///     Initializes a new instance of the <see cref="T:Panda.AppLauncher.AppLauncher" /> class.
         /// </summary>
         /// <inheritdoc />
@@ -34,6 +29,11 @@ namespace Panda.AppLauncher
         {
             InitializeComponent();
         }
+
+        /// <summary>
+        ///     The add application button clicked subject
+        /// </summary>
+        private Subject<RoutedEventArgs> AddApplicationButtonClickedSubject { get; } = new Subject<RoutedEventArgs>();
 
         /// <summary>
         ///     Gets or sets the text changed subject.
@@ -90,6 +90,13 @@ namespace Panda.AppLauncher
             PreviewMouseDoubleClickSubject { get; set; } =
             new Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>();
 
+        private Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>
+            MouseRightButtonUpSubject { get; } =
+            new Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>();
+
+        [Import]
+        private IKeyboardMouseService KeyboardMouseService { get; set; }
+
         /// <summary>
         ///     Handles the OnActivated event of the AppLauncher control.
         /// </summary>
@@ -97,7 +104,7 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void AppLauncher_OnLoaded(object sender, EventArgs e)
         {
-            ViewModel = new ApplicationLauncherViewModel(UiScheduler, LaunchableApplicationService,
+            ViewModel = new ApplicationLauncherViewModel(UiScheduler, LaunchableApplicationService, KeyboardMouseService,
                 LaunchableApplicationContextMenuProviders)
             {
                 SearchTextChangedObs = SearchTextChangedSubject,
@@ -105,7 +112,8 @@ namespace Panda.AppLauncher
                 PreviewKeyUpObs = PreviewKeyUpSubject,
                 PreviewMouseDoubleClickObs = PreviewMouseDoubleClickSubject,
                 SelectedItemsChangedObs = SelectedItemsChangedSubject,
-                AddApplicationButtonClickedObs = _addApplicationButtonClickedSubject
+                AddApplicationButtonClickedObs = AddApplicationButtonClickedSubject,
+                MouseRightButtonUpObs = MouseRightButtonUpSubject
             };
             ViewModel.SetupSubscriptions();
             DataContext = ViewModel;
@@ -128,7 +136,7 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="TextChangedEventArgs" /> instance containing the event data.</param>
-        private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+        private void SearchTextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             SearchTextChangedSubject.OnNext(SearchText.Text);
         }
@@ -148,7 +156,7 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="MouseButtonEventArgs" /> instance containing the event data.</param>
-        private void UIElement_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void LaunchableApplication_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var item = sender as ImageTextItem;
             var vm = item?.DataContext as LaunchableApplicationViewModel;
@@ -162,13 +170,20 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
         private void AddApplicationButton_OnClick(object sender, RoutedEventArgs e)
         {
-            _addApplicationButtonClickedSubject.OnNext(e);
+            AddApplicationButtonClickedSubject.OnNext(e);
         }
 
-        
         private void ApplicationLauncher_OnActivated(object sender, EventArgs e)
         {
+            if (!IsLoaded) return;
             ViewModel.OnActivated();
+        }
+
+        private void LaunchableApplication_OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var item = sender as ImageTextItem;
+            var vm = item?.DataContext as LaunchableApplicationViewModel;
+            MouseRightButtonUpSubject.OnNext((vm, e));
         }
     }
 }

@@ -22,7 +22,7 @@
         <TextBox x:Name="SearchText"
                  DockPanel.Dock="Top"
                  Text="{Binding SearchText}"
-                 TextChanged="TextBoxBase_OnTextChanged"
+                 TextChanged="SearchTextBoxBase_OnTextChanged"
                  PreviewKeyUp="SearchText_OnPreviewKeyUp" />
 
         <Grid>
@@ -38,12 +38,13 @@
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <commonControls:ImageTextItem PreviewMouseDoubleClick="UIElement_OnPreviewMouseDoubleClick"
+                        <commonControls:ImageTextItem PreviewMouseDoubleClick="LaunchableApplication_OnPreviewMouseDoubleClick"
                                                       ImageSource="{Binding ImageSource}"
                                                       HeaderText="{Binding AppName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                       SubHeaderText="{Binding ExecutableLocation, UpdateSourceTrigger=PropertyChanged}"
                                                       IsEditable="{Binding IsEditable, Mode=TwoWay}"
-                                                      MenuItems="{Binding MenuItems}" />
+                                                      MenuItems="{Binding MenuItems}" 
+                                                      MouseRightButtonUp="LaunchableApplication_OnMouseRightButtonUp"/>
 
                     </DataTemplate>
                 </ListBox.ItemTemplate>

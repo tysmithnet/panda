@@ -20,19 +20,9 @@ namespace Panda.AppLauncher
     public sealed class LaunchableApplicationViewModel : INotifyPropertyChanged
     {
         /// <summary>
-        ///     The UI scheduler
-        /// </summary>
-        private readonly IScheduler _uiScheduler;
-
-        /// <summary>
         ///     The application name
         /// </summary>
         private string _appName;
-
-        /// <summary>
-        ///     The edit menu item
-        /// </summary>
-        private MenuItem _editMenuItem;
 
         /// <summary>
         ///     The executable location
@@ -62,14 +52,15 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Initializes a new instance of the <see cref="LaunchableApplicationViewModel" /> class.
         /// </summary>
+        /// <param name="uiScheduler"></param>
         /// <param name="launcherService">The launcher service.</param>
         /// <exception cref="ArgumentNullException">launcherService</exception>
         public LaunchableApplicationViewModel(IScheduler uiScheduler, ILaunchableApplicationService launcherService)
         {
-            _uiScheduler = uiScheduler;
+            UiScheduler = uiScheduler;
             LaunchableApplicationService = launcherService ?? throw new ArgumentNullException(nameof(launcherService));
             SetupMenuItems();
-            MenuItems.Add(_editMenuItem);
+            MenuItems.Add(EditMenuItem);
             Observable.FromEvent<PropertyChangedEventHandler, PropertyChangedEventArgs>(handler =>
                     {
                         PropertyChangedEventHandler h = (sender, args) => handler(args);
@@ -79,9 +70,19 @@ namespace Panda.AppLauncher
                     h => { PropertyChanged -= h; })
                 .SubscribeOn(TaskPoolScheduler.Default)
                 .Throttle(TimeSpan.FromSeconds(5))
-                .ObserveOn(_uiScheduler)
+                .ObserveOn(UiScheduler)
                 .Subscribe(args => { LaunchableApplicationService.Save(); });
         }
+
+        /// <summary>
+        ///     The UI scheduler
+        /// </summary>
+        private IScheduler UiScheduler { get; }
+
+        /// <summary>
+        ///     The edit menu item
+        /// </summary>
+        private MenuItem EditMenuItem { get; set; }
 
         /// <summary>
         ///     Gets or sets the name of the application.
@@ -167,15 +168,15 @@ namespace Panda.AppLauncher
                 _isEditable = value;
                 if (value)
                 {
-                    if (MenuItems.Contains(_editMenuItem))
-                        MenuItems.Remove(_editMenuItem);
+                    if (MenuItems.Contains(EditMenuItem))
+                        MenuItems.Remove(EditMenuItem);
                     MenuItems.Add(_saveMenuItem);
                 }
                 else
                 {
                     if (MenuItems.Contains(_saveMenuItem))
                         MenuItems.Remove(_saveMenuItem);
-                    MenuItems.Add(_editMenuItem);
+                    MenuItems.Add(EditMenuItem);
                 }
 
                 OnPropertyChanged();
@@ -228,11 +229,20 @@ namespace Panda.AppLauncher
         /// </summary>
         private void SetupMenuItems()
         {
-            _editMenuItem = new MenuItem {Header = "Edit"};
-            _editMenuItem.Click += (sender, args) => { IsEditable = true; };
+            EditMenuItem = new MenuItem {Header = "Edit"};
+            EditMenuItem.Click += (sender, args) => { IsEditable = true; };
 
             _saveMenuItem = new MenuItem {Header = "Save"};
             _saveMenuItem.Click += (sender, args) => { IsEditable = false; };
+        }
+
+        /// <summary>
+        ///     Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+        public override string ToString()
+        {
+            return $"{AppName} - {ExecutableLocation}";
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -13,6 +14,8 @@ using System.Windows.Input;
 using Common.Logging;
 using Microsoft.Win32;
 using Panda.Client;
+using Panda.Client.Interop;
+using Point = System.Drawing.Point;
 
 namespace Panda.AppLauncher
 {
@@ -32,6 +35,16 @@ namespace Panda.AppLauncher
         ///     The add application button clicked subscription
         /// </summary>
         private IDisposable _addApplicationButtonClickedSubscription;
+
+        /// <summary>
+        ///     The mouse right button up obs
+        /// </summary>
+        private IObservable<(LaunchableApplicationViewModel, MouseButtonEventArgs)> _mouseRightButtonUpObs;
+
+        /// <summary>
+        ///     The mouse right button up subscription
+        /// </summary>
+        private IDisposable _mouseRightButtonUpSubscription;
 
         /// <summary>
         ///     The preview double click observable
@@ -88,28 +101,37 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="launchableApplicationService">The registered application service.</param>
+        /// <param name="keyboardMouseService"></param>
         /// <param name="launchableApplicationContextMenuProviders">The registered application context menu providers.</param>
         public ApplicationLauncherViewModel(
             IScheduler uiScheduler,
             ILaunchableApplicationService launchableApplicationService,
+            IKeyboardMouseService keyboardMouseService,
             ILaunchableApplicationContextMenuProvider[] launchableApplicationContextMenuProviders)
         {
+            KeyboardMouseService = keyboardMouseService;
             UiScheduler = uiScheduler;
             LaunchableApplicationService = launchableApplicationService;
             LaunchableApplicationContextMenuProviders = launchableApplicationContextMenuProviders;
         }
 
         /// <summary>
+        ///     Gets the keyboard mouse service.
+        /// </summary>
+        /// <value>The keyboard mouse service.</value>
+        private IKeyboardMouseService KeyboardMouseService { get; }
+
+        /// <summary>
         ///     Gets or sets the UI scheduler.
         /// </summary>
         /// <value>The UI scheduler.</value>
-        public IScheduler UiScheduler { get; set; }
+        private IScheduler UiScheduler { get; set; }
 
         /// <summary>
         ///     Gets or sets the preview double click observable
         /// </summary>
         /// <value>The preview double click observable.</value>
-        public IObservable<LaunchableApplicationViewModel> PreviewDoubleClickObs
+        internal IObservable<LaunchableApplicationViewModel> PreviewDoubleClickObs
         {
             get => _previewDoubleClickObs;
             set
@@ -130,7 +152,7 @@ namespace Panda.AppLauncher
         ///     Gets or sets the preview key up observable.
         /// </summary>
         /// <value>The preview key up observable.</value>
-        public IObservable<KeyEventArgs> PreviewKeyUpObs
+        internal IObservable<KeyEventArgs> PreviewKeyUpObs
         {
             get => _previewKeyUpObs;
             set
@@ -157,7 +179,7 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <value>The search text changed observable.</value>
         /// <exception cref="ArgumentNullException">value</exception>
-        public IObservable<string> SearchTextChangedObs
+        internal IObservable<string> SearchTextChangedObs
         {
             get => _searchTextChangedObs;
             set
@@ -245,7 +267,7 @@ namespace Panda.AppLauncher
         ///     Gets or sets the preview mouse double click observable.
         /// </summary>
         /// <value>The preview mouse double click observable.</value>
-        public IObservable<(LaunchableApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
+        internal IObservable<(LaunchableApplicationViewModel, MouseButtonEventArgs)> PreviewMouseDoubleClickObs
         {
             get => _previewMouseDoubleClickObs;
             set
@@ -266,7 +288,7 @@ namespace Panda.AppLauncher
         ///     Gets or sets the selected items changed observable.
         /// </summary>
         /// <value>The selected items changed observable.</value>
-        public IObservable<IEnumerable<LaunchableApplicationViewModel>> SelectedItemsChangedObs
+        internal IObservable<IEnumerable<LaunchableApplicationViewModel>> SelectedItemsChangedObs
         {
             get => _selectedItemsChangedObs;
             set
@@ -301,7 +323,7 @@ namespace Panda.AppLauncher
         ///     Gets or sets the add application button clicked obs.
         /// </summary>
         /// <value>The add application button clicked obs.</value>
-        public IObservable<RoutedEventArgs> AddApplicationButtonClickedObs
+        internal IObservable<RoutedEventArgs> AddApplicationButtonClickedObs
         {
             get => _addApplicationButtonClickedObs;
             set
@@ -327,13 +349,43 @@ namespace Panda.AppLauncher
                         }
                     });
             }
-        }
+        }                                            
 
         /// <summary>
-        ///     Gets or sets the new application path.
+        ///     Gets or sets the mouse right button up obs.
         /// </summary>
-        /// <value>The new application path.</value>
-        public string NewApplicationPath { get; set; }
+        /// <value>The mouse right button up obs.</value>
+        internal IObservable<(LaunchableApplicationViewModel, MouseButtonEventArgs)> MouseRightButtonUpObs
+        {
+            get => _mouseRightButtonUpObs;
+            set
+            {
+                _mouseRightButtonUpSubscription?.Dispose();
+                _mouseRightButtonUpObs = value;
+                _mouseRightButtonUpSubscription = value.SubscribeOn(TaskPoolScheduler.Default).ObserveOn(UiScheduler)
+                    .Subscribe(
+                        tuple =>
+                        {
+                            try
+                            {
+                                if (KeyboardMouseService.IsKeyDown(Key.LeftAlt) ||
+                                    KeyboardMouseService.IsKeyDown(Key.RightAlt))
+                                {
+                                    var shellContextMenu = new ShellContextMenu();
+                                    var point = KeyboardMouseService.GetMousePosition();
+                                    shellContextMenu.ShowContextMenu(
+                                        new[] {new FileInfo(tuple.Item1.ExecutableLocation)},
+                                        new Point((int) point.X, (int) point.Y));
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                Log.Error($"Unable to show shell context menu for {tuple.Item1.ToString()}");
+                                throw;
+                            }
+                        });
+            }
+        }
 
         /// <summary>
         ///     Releases unmanaged and - optionally - managed resources.
@@ -352,7 +404,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Setups this instance's primary subscriptions
         /// </summary>
-        public void SetupSubscriptions()
+        internal void SetupSubscriptions()
         {
             LaunchableApplicationService.Get()
                 .SubscribeOn(TaskPoolScheduler.Default)
@@ -410,7 +462,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Called when [activated].
         /// </summary>
-        public void OnActivated()
+        internal void OnActivated()
         {
             SearchText = "";
         }
