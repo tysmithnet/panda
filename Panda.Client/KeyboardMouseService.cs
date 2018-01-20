@@ -109,7 +109,7 @@ namespace Panda.Client
         ///     Gets the cursor position.
         /// </summary>
         /// <param name="lpPoint">The lp point.</param>
-        /// <returns></returns>
+        /// <returns>True if the operation succeeded, false otherwise</returns>
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out PointStruct lpPoint);
 

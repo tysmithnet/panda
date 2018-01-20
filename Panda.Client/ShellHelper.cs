@@ -75,7 +75,7 @@ namespace Panda.Client
         ///     To the icon flag.
         /// </summary>
         /// <param name="size">The size.</param>
-        /// <returns></returns>
+        /// <returns>The converted size</returns>
         private static uint ToIconFlag(this IconSize size)
         {
             return (uint) size;
@@ -85,7 +85,7 @@ namespace Panda.Client
         ///     Gets the fallback icon.
         /// </summary>
         /// <param name="size">The size.</param>
-        /// <returns></returns>
+        /// <returns>The fallback icon associated with the provided size</returns>
         /// <exception cref="ArgumentOutOfRangeException">size</exception>
         public static ImageSource GetFallbackIcon(IconSize size)
         {

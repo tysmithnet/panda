@@ -13,7 +13,7 @@ namespace Panda.WikipediaLauncher
         /// </summary>
         /// <param name="search">The search.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>An observable stream of wikipedia results matching the provided query</returns>
         IObservable<WikipediaResult> AutoComplete(string search, CancellationToken cancellationToken);
     }
 }

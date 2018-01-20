@@ -13,7 +13,7 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="query">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>An observable stream of everything search results</returns>
         IObservable<EverythingResult> Search(string query, CancellationToken cancellationToken);
     }
 }

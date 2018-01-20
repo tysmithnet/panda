@@ -30,7 +30,7 @@ namespace Panda.WikipediaLauncher
         /// </summary>
         /// <param name="search">The search.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>An observable stream of wikipedia results matching the provided query</returns>
         public IObservable<WikipediaResult> AutoComplete(string search, CancellationToken cancellationToken)
         {
             var obs = Observable.Create<WikipediaResult>(async (observer, token) =>
@@ -45,14 +45,14 @@ namespace Panda.WikipediaLauncher
 
                 try
                 {
-                     response = (HttpWebResponse) await request.GetResponseAsync();
+                    response = (HttpWebResponse) await request.GetResponseAsync();
                 }
                 catch (Exception e)
                 {
                     observer.OnError(e);
                     Log.Error($"Error getting response stream: {e.Message}");
                     return;
-                }          
+                }
 
                 var resStream = response.GetResponseStream();
 

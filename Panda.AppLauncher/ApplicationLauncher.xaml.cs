@@ -14,10 +14,9 @@ namespace Panda.AppLauncher
     /// <summary>
     ///     Interaction logic for AppLauncher.xaml
     /// </summary>
-    /// <seealso cref="Panda.Client.Launcher" />
-    /// <seealso cref="System.Windows.Markup.IComponentConnector" />
-    /// <seealso cref="System.Windows.Markup.IStyleConnector" />
-    /// <inheritdoc />
+    /// <seealso cref="T:Panda.Client.Launcher" />
+    /// <seealso cref="T:System.Windows.Markup.IComponentConnector" />
+    /// <seealso cref="T:System.Windows.Markup.IStyleConnector" />
     [Export(typeof(Launcher))]
     public sealed partial class ApplicationLauncher : Launcher
     {
@@ -33,6 +32,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     The add application button clicked subject
         /// </summary>
+        /// <value>The add application button clicked subject.</value>
         private Subject<RoutedEventArgs> AddApplicationButtonClickedSubject { get; } = new Subject<RoutedEventArgs>();
 
         /// <summary>
@@ -90,10 +90,18 @@ namespace Panda.AppLauncher
             PreviewMouseDoubleClickSubject { get; set; } =
             new Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>();
 
+        /// <summary>
+        ///     Gets the mouse right button up subject.
+        /// </summary>
+        /// <value>The mouse right button up subject.</value>
         private Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>
             MouseRightButtonUpSubject { get; } =
             new Subject<(LaunchableApplicationViewModel, MouseButtonEventArgs)>();
 
+        /// <summary>
+        ///     Gets or sets the keyboard mouse service.
+        /// </summary>
+        /// <value>The keyboard mouse service.</value>
         [Import]
         private IKeyboardMouseService KeyboardMouseService { get; set; }
 
@@ -104,7 +112,8 @@ namespace Panda.AppLauncher
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void AppLauncher_OnLoaded(object sender, EventArgs e)
         {
-            ViewModel = new ApplicationLauncherViewModel(UiScheduler, LaunchableApplicationService, KeyboardMouseService,
+            ViewModel = new ApplicationLauncherViewModel(UiScheduler, LaunchableApplicationService,
+                KeyboardMouseService,
                 LaunchableApplicationContextMenuProviders)
             {
                 SearchTextChangedObs = SearchTextChangedSubject,
@@ -173,12 +182,22 @@ namespace Panda.AppLauncher
             AddApplicationButtonClickedSubject.OnNext(e);
         }
 
+        /// <summary>
+        ///     Applications the launcher on activated.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
         private void ApplicationLauncher_OnActivated(object sender, EventArgs e)
         {
             if (!IsLoaded) return;
             ViewModel.OnActivated();
         }
 
+        /// <summary>
+        ///     Launchables the application on mouse right button up.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs" /> instance containing the event data.</param>
         private void LaunchableApplication_OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             var item = sender as ImageTextItem;

@@ -23,13 +23,13 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     The application registered subject
         /// </summary>
-        internal Subject<LaunchableApplication> ApplicationRegisteredSubject =
+        private Subject<LaunchableApplication> ApplicationRegisteredSubject { get; set; } =
             new Subject<LaunchableApplication>();
 
         /// <summary>
         ///     The application unregistered subject
         /// </summary>
-        internal Subject<LaunchableApplication> ApplicationUnregisteredSubject =
+        private Subject<LaunchableApplication> ApplicationUnregisteredSubject { get; set; }=
             new Subject<LaunchableApplication>();
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The registered applications.
         /// </value>
-        internal IList<LaunchableApplication> RegisteredApplications
+        private IList<LaunchableApplication> RegisteredApplications
         {
             get => Settings.RegisteredApplications;
             set => Settings.RegisteredApplications = value;
@@ -57,7 +57,7 @@ namespace Panda.AppLauncher
         ///     The settings service.
         /// </value>
         [Import]
-        internal ISettingsService SettingsService { get; set; }
+        private ISettingsService SettingsService { get; set; }
 
         /// <summary>
         ///     Gets or sets the settings.
@@ -65,7 +65,7 @@ namespace Panda.AppLauncher
         /// <value>
         ///     The settings.
         /// </value>
-        internal ApplicationLauncherSettings Settings { get; set; }
+        private ApplicationLauncherSettings Settings { get; set; }
 
         /// <inheritdoc />
         /// <summary>

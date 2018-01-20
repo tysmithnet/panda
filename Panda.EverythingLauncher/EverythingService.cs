@@ -43,7 +43,7 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="query">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>An observable stream of everything search results</returns>
         IObservable<EverythingResult> IEverythingService.Search(string query, CancellationToken cancellationToken)
         {
             return Search(query, cancellationToken).Select(line => new EverythingResult
@@ -58,7 +58,7 @@ namespace Panda.EverythingLauncher
         /// </summary>
         /// <param name="query">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>An observable collection of file system items matching the provided query</returns>
         IObservable<FileInfo> IFileSystemSearch.Search(string query, CancellationToken cancellationToken)
         {
             return Search(query, cancellationToken).Select(line => new FileInfo(line));

@@ -108,10 +108,11 @@ namespace Panda.WikipediaLauncher
                 _searchTextChangedObs = value;
                 _searchTextChangedSubscription = value
                     .SubscribeOn(TaskPoolScheduler.Default)
-                    .ObserveOn(UiScheduler)
                     .Throttle(TimeSpan.FromMilliseconds(333))
+                    .ObserveOn(UiScheduler)
                     .Subscribe(text =>
                     {
+                        // ObservableCollection can only be cleared on the thread in which it was created
                         Application.Current.Dispatcher.Invoke(() => { WikipediaResultViewModels.Clear(); });
                         _searchResultsSubscription?.Dispose();
                         _searchResultsSubscription = _wikipediaService

@@ -53,7 +53,7 @@ namespace Panda.EverythingLauncher
         ///     Gets the context menu items.
         /// </summary>
         /// <param name="items">The items.</param>
-        /// <returns></returns>
+        /// <returns>The context menu items applicable to the provided file items</returns>
         public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<FileInfo> items)
         {
             var menuItem = new MenuItem();

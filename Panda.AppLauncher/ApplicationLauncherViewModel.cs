@@ -101,7 +101,7 @@ namespace Panda.AppLauncher
         /// </summary>
         /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="launchableApplicationService">The registered application service.</param>
-        /// <param name="keyboardMouseService"></param>
+        /// <param name="keyboardMouseService">The keyboard mouse service.</param>
         /// <param name="launchableApplicationContextMenuProviders">The registered application context menu providers.</param>
         public ApplicationLauncherViewModel(
             IScheduler uiScheduler,
@@ -125,7 +125,7 @@ namespace Panda.AppLauncher
         ///     Gets or sets the UI scheduler.
         /// </summary>
         /// <value>The UI scheduler.</value>
-        private IScheduler UiScheduler { get; set; }
+        private IScheduler UiScheduler { get; }
 
         /// <summary>
         ///     Gets or sets the preview double click observable
@@ -349,7 +349,7 @@ namespace Panda.AppLauncher
                         }
                     });
             }
-        }                                            
+        }
 
         /// <summary>
         ///     Gets or sets the mouse right button up obs.

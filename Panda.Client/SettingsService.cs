@@ -74,7 +74,7 @@ namespace Panda.Client
         ///     Setups the specified cancellation token.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>A task, that when complete, will signal the completion of setup</returns>
         public Task Setup(CancellationToken cancellationToken)
         {
             foreach (var settings in AllPluginSettings)

@@ -14,7 +14,7 @@ namespace Panda.Client
         /// </summary>
         /// <param name="query">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>An observable stream of results matching the query</returns>
         IObservable<FileInfo> Search(string query, CancellationToken cancellationToken);
     }
 }

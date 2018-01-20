@@ -142,7 +142,7 @@ namespace Panda.EverythingLauncher
         /// <summary>
         ///     Loads the icon.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A task, that when complete, will signal the completion of the icon load</returns>
         public Task LoadIcon(uint retries = 0)
         {
             return Task.Run(async () =>

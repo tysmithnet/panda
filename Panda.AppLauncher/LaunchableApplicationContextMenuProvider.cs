@@ -25,7 +25,7 @@ namespace Panda.AppLauncher
         ///     The registered application service.
         /// </value>
         [Import]
-        internal ILaunchableApplicationService LaunchableApplicationService { get; set; }
+        private ILaunchableApplicationService LaunchableApplicationService { get; set; }
 
         /// <inheritdoc />
         /// <summary>

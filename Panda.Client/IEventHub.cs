@@ -17,7 +17,7 @@ namespace Panda.Client
         ///     Gets all domain events of a certain type
         /// </summary>
         /// <typeparam name="TEvent">The type of the event to listen for.</typeparam>
-        /// <returns></returns>
+        /// <returns>An observable stream of events of the specified type</returns>
         IObservable<TEvent> Get<TEvent>() where TEvent : IDomainEvent;
     }
 }
