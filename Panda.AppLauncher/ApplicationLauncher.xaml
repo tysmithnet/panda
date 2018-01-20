@@ -12,7 +12,8 @@
                  d:DataContext="{d:DesignInstance local:ApplicationLauncherViewModel}"
                  Loaded="AppLauncher_OnLoaded"
                  d:DesignHeight="300" d:DesignWidth="300"
-                 Title="App Launcher">
+                 Title="App Launcher"
+                 Activated="ApplicationLauncher_OnActivated">
     <Window.Resources>
         <ResourceDictionary
             Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />

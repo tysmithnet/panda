@@ -34,11 +34,6 @@ namespace Panda.AppLauncher
         private IDisposable _addApplicationButtonClickedSubscription;
 
         /// <summary>
-        ///     The is add dialog open
-        /// </summary>
-        private bool _isAddDialogOpen;
-
-        /// <summary>
         ///     The preview double click observable
         /// </summary>
         private IObservable<LaunchableApplicationViewModel> _previewDoubleClickObs;
@@ -410,6 +405,14 @@ namespace Panda.AppLauncher
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        ///     Called when [activated].
+        /// </summary>
+        public void OnActivated()
+        {
+            SearchText = "";
         }
     }
 }

@@ -164,5 +164,11 @@ namespace Panda.AppLauncher
         {
             _addApplicationButtonClickedSubject.OnNext(e);
         }
+
+        
+        private void ApplicationLauncher_OnActivated(object sender, EventArgs e)
+        {
+            ViewModel.OnActivated();
+        }
     }
 }
