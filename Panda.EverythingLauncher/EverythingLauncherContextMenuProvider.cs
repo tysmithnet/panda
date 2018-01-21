@@ -39,11 +39,11 @@ namespace Panda.EverythingLauncher
         /// <summary>
         ///     Determines whether this instance can handle the specified items.
         /// </summary>
-        /// <param name="items">The items.</param>
+        /// <param name="launchableApplicationViewModels">The items.</param>
         /// <returns>
         ///     <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanHandle(IEnumerable<FileInfo> items)
+        public bool CanHandle(IEnumerable<FileInfo> launchableApplicationViewModels)
         {
             return false;
         }
@@ -52,12 +52,12 @@ namespace Panda.EverythingLauncher
         /// <summary>
         ///     Gets the context menu items.
         /// </summary>
-        /// <param name="items">The items.</param>
+        /// <param name="launchableApplicationViewModels">The items.</param>
         /// <returns>The context menu items applicable to the provided file items</returns>
-        public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<FileInfo> items)
+        public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<FileInfo> launchableApplicationViewModels)
         {
             var menuItem = new MenuItem();
-            var arr = items.ToArray();
+            var arr = launchableApplicationViewModels.ToArray();
             menuItem.Header = $"Delete {arr.Length} Items";
 
             menuItem.Click += (sender, args) =>

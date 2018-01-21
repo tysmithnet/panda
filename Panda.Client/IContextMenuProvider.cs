@@ -12,17 +12,17 @@ namespace Panda.Client
         /// <summary>
         ///     Determines whether this instance can handle the specified items.
         /// </summary>
-        /// <param name="items">The items.</param>
+        /// <param name="launchableApplicationViewModels">The items.</param>
         /// <returns>
         ///     <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
         /// </returns>
-        bool CanHandle(IEnumerable<TItem> items);
+        bool CanHandle(IEnumerable<TItem> launchableApplicationViewModels);
 
         /// <summary>
         ///     Gets the context menu items for the provided items.
         /// </summary>
-        /// <param name="items">The items.</param>
+        /// <param name="launchableApplicationViewModels">The items.</param>
         /// <returns>The items to go in the ContextMenu</returns>
-        IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<TItem> items);
+        IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<TItem> launchableApplicationViewModels);
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using Panda.Client;
 
 namespace Panda.AppLauncher
@@ -11,6 +12,7 @@ namespace Panda.AppLauncher
     /// <summary>
     ///     Context menu provider for the registered application domain
     /// </summary>
+    /// <seealso cref="Panda.AppLauncher.ILaunchableApplicationContextMenuProvider" />
     /// <seealso cref="Panda.Client.IFileSystemContextMenuProvider" />
     /// <seealso cref="ILaunchableApplicationContextMenuProvider" />
     [Export(typeof(ILaunchableApplicationContextMenuProvider))]
@@ -21,13 +23,10 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets the registered application service.
         /// </summary>
-        /// <value>
-        ///     The registered application service.
-        /// </value>
+        /// <value>The registered application service.</value>
         [Import]
         private ILaunchableApplicationService LaunchableApplicationService { get; set; }
 
-        /// <inheritdoc />
         /// <summary>
         ///     Determines whether this instance can handle the specified file infos.
         /// </summary>
@@ -35,18 +34,97 @@ namespace Panda.AppLauncher
         /// <returns>
         ///     <c>true</c> if this instance can handle the specified file infos; otherwise, <c>false</c>.
         /// </returns>
+        /// <inheritdoc />
         public bool CanHandle(IEnumerable<FileInfo> fileInfos)
         {
             return fileInfos.Any();
         }
 
-        /// <inheritdoc />
         /// <summary>
         ///     Gets the context menu items.
         /// </summary>
         /// <param name="fileInfos">The file infos.</param>
         /// <returns>The context menu items for the provided file infos</returns>
+        /// <inheritdoc />
         public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<FileInfo> fileInfos)
+        {
+            var addToApplicationsMenuItem = CreateAddToApplicationsMenuItem(fileInfos);
+            return new[] {addToApplicationsMenuItem};
+        }
+
+        /// <summary>
+        ///     Determines whether this instance can handle the specified items.
+        /// </summary>
+        /// <param name="launchableApplicationViewModels">The items.</param>
+        /// <returns>
+        ///     <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
+        /// </returns>
+        /// <inheritdoc />
+        public bool CanHandle(IEnumerable<LaunchableApplicationViewModel> launchableApplicationViewModels)
+        {
+            return launchableApplicationViewModels.Any();
+        }
+
+        /// <summary>
+        ///     Gets the context menu items.
+        /// </summary>
+        /// <param name="launchableApplicationViewModels">The items.</param>
+        /// <returns>The context menu items for the provided registered applications</returns>
+        /// <inheritdoc />
+        public IEnumerable<FrameworkElement> GetContextMenuItems(
+            IEnumerable<LaunchableApplicationViewModel> launchableApplicationViewModels)
+        {
+            launchableApplicationViewModels = launchableApplicationViewModels.ToList();
+
+            var removeMenuItem = CreateRemoveMenuItem(launchableApplicationViewModels);
+            var editMenuItem = CreateEditMenuItem(launchableApplicationViewModels);    
+            var changeIconMenuItem = CreateChangeIconMenuItem(launchableApplicationViewModels);
+
+            return new[] {removeMenuItem, editMenuItem, changeIconMenuItem};
+        }
+
+        /// <summary>
+        ///     Creates the change icon menu item.
+        /// </summary>
+        /// <param name="vms">The VMS.</param>
+        /// <returns>System.Windows.Controls.MenuItem.</returns>
+        private MenuItem CreateChangeIconMenuItem(IEnumerable<LaunchableApplicationViewModel> vms)
+        {
+            var menuItem = new MenuItem
+            {
+                Header = "Change Icon"
+            };
+
+            menuItem.Click += (sender, args) =>
+            {
+                var dlg = new OpenFileDialog
+                {
+                    DefaultExt = ".exe",
+                    Filter = "Image Files |*.ico|*.png|*.jpg|*.jpeg|*.gif|All Files (*.*)|*.*"
+                };
+
+                var result = dlg.ShowDialog();
+
+                if (result != true) return;
+                var filename = dlg.FileName;
+                foreach (var launchableApplicationViewModel in vms)
+                {
+                    launchableApplicationViewModel.Instance.IconPath = filename;
+                    launchableApplicationViewModel.LoadIcon(IconSize.Large);
+                }
+
+                LaunchableApplicationService.Save();
+            };
+
+            return menuItem;
+        }
+
+        /// <summary>
+        ///     Creates the add to applications menu item.
+        /// </summary>
+        /// <param name="fileInfos">The file infos.</param>
+        /// <returns>System.Windows.Controls.MenuItem.</returns>
+        private MenuItem CreateAddToApplicationsMenuItem(IEnumerable<FileInfo> fileInfos)
         {
             var menuItem = new MenuItem
             {
@@ -66,42 +144,37 @@ namespace Panda.AppLauncher
                     LaunchableApplicationService.Add(registerdApp);
                 };
             menuItem.Click += (sender, args) => LaunchableApplicationService.Save();
-            return new[] {menuItem};
+            return menuItem;
         }
 
-        /// <inheritdoc />
         /// <summary>
-        ///     Determines whether this instance can handle the specified items.
+        ///     Creates the edit menu item.
         /// </summary>
-        /// <param name="items">The items.</param>
-        /// <returns>
-        ///     <c>true</c> if this instance can handle the specified items; otherwise, <c>false</c>.
-        /// </returns>
-        public bool CanHandle(IEnumerable<LaunchableApplicationViewModel> items)
+        /// <param name="launchableApplicationViewModels">The launchable application view models.</param>
+        /// <returns>System.Windows.Controls.MenuItem.</returns>
+        private static MenuItem CreateEditMenuItem(
+            IEnumerable<LaunchableApplicationViewModel> launchableApplicationViewModels)
         {
-            return items.Any();
-        }
-
-        /// <inheritdoc />
-        /// <summary>
-        ///     Gets the context menu items.
-        /// </summary>
-        /// <param name="items">The items.</param>
-        /// <returns>The context menu items for the provided registered applications</returns>
-        public IEnumerable<FrameworkElement> GetContextMenuItems(IEnumerable<LaunchableApplicationViewModel> items)
-        {
-            items = items.ToList();
-            var removeMenuItem = new MenuItem {Header = "Remove from Applications"};
-            foreach (var launchableApplication in items)
-                removeMenuItem.Click += (sender, args) =>
-                    LaunchableApplicationService.Remove(launchableApplication.LaunchableApplication);
-            removeMenuItem.Click += (sender, args) => LaunchableApplicationService.Save();
-
             var editMenuItem = new MenuItem {Header = "Edit"};
-            foreach (var launchableApplicationViewModel in items)
+            foreach (var launchableApplicationViewModel in launchableApplicationViewModels)
                 editMenuItem.Click += (sender, args) => { launchableApplicationViewModel.IsEditable = true; };
+            return editMenuItem;
+        }
 
-            return new[] {removeMenuItem, editMenuItem};
+        /// <summary>
+        ///     Creates the remove menu item.
+        /// </summary>
+        /// <param name="launchableApplicationViewModels">The launchable application view models.</param>
+        /// <returns>System.Windows.Controls.MenuItem.</returns>
+        private MenuItem CreateRemoveMenuItem(
+            IEnumerable<LaunchableApplicationViewModel> launchableApplicationViewModels)
+        {
+            var removeMenuItem = new MenuItem {Header = "Remove from Applications"};
+            foreach (var launchableApplication in launchableApplicationViewModels)
+                removeMenuItem.Click += (sender, args) =>
+                    LaunchableApplicationService.Remove(launchableApplication.Instance);
+            removeMenuItem.Click += (sender, args) => LaunchableApplicationService.Save();
+            return removeMenuItem;
         }
     }
 }

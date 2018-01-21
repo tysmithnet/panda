@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
@@ -8,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Common.Logging;
 using Panda.Client;
 using Panda.Client.Properties;
 
@@ -35,14 +39,14 @@ namespace Panda.AppLauncher
         private ImageSource _imageSource;
 
         /// <summary>
+        ///     The launchable application
+        /// </summary>
+        private LaunchableApplication _instance;
+
+        /// <summary>
         ///     The is editable
         /// </summary>
         private bool _isEditable;
-
-        /// <summary>
-        ///     The launchable application
-        /// </summary>
-        private LaunchableApplication _launchableApplication;
 
         /// <summary>
         ///     The save menu item
@@ -52,7 +56,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Initializes a new instance of the <see cref="LaunchableApplicationViewModel" /> class.
         /// </summary>
-        /// <param name="uiScheduler"></param>
+        /// <param name="uiScheduler">The UI scheduler.</param>
         /// <param name="launcherService">The launcher service.</param>
         /// <exception cref="ArgumentNullException">launcherService</exception>
         public LaunchableApplicationViewModel(IScheduler uiScheduler, ILaunchableApplicationService launcherService)
@@ -77,19 +81,19 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     The UI scheduler
         /// </summary>
+        /// <value>The UI scheduler.</value>
         private IScheduler UiScheduler { get; }
 
         /// <summary>
         ///     The edit menu item
         /// </summary>
+        /// <value>The edit menu item.</value>
         private MenuItem EditMenuItem { get; set; }
 
         /// <summary>
         ///     Gets or sets the name of the application.
         /// </summary>
-        /// <value>
-        ///     The name of the application.
-        /// </value>
+        /// <value>The name of the application.</value>
         public string AppName
         {
             get => _appName;
@@ -97,17 +101,15 @@ namespace Panda.AppLauncher
             {
                 OnPropertyChanged();
                 _appName = value;
-                if (_launchableApplication != null)
-                    _launchableApplication.DisplayName = value;
+                if (_instance != null)
+                    _instance.DisplayName = value;
             }
         }
 
         /// <summary>
         ///     Gets or sets the executable location.
         /// </summary>
-        /// <value>
-        ///     The executable location.
-        /// </value>
+        /// <value>The executable location.</value>
         public string ExecutableLocation
         {
             get => _executableLocation;
@@ -115,24 +117,22 @@ namespace Panda.AppLauncher
             {
                 OnPropertyChanged();
                 _executableLocation = value;
-                if (_launchableApplication != null)
-                    _launchableApplication.FullPath = value;
+                if (_instance != null)
+                    _instance.FullPath = value;
             }
         }
 
         /// <summary>
         ///     Gets or sets the registered application.
         /// </summary>
-        /// <value>
-        ///     The registered application.
-        /// </value>
-        public LaunchableApplication LaunchableApplication
+        /// <value>The registered application.</value>
+        public LaunchableApplication Instance
         {
-            get => _launchableApplication;
+            get => _instance;
             set
             {
                 OnPropertyChanged();
-                _launchableApplication = value;
+                _instance = value;
                 AppName = value?.DisplayName;
                 ExecutableLocation = value?.FullPath;
             }
@@ -141,9 +141,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets the image source.
         /// </summary>
-        /// <value>
-        ///     The image source.
-        /// </value>
+        /// <value>The image source.</value>
         public ImageSource ImageSource
         {
             get => _imageSource;
@@ -157,9 +155,7 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets a value indicating whether this instance is editable.
         /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance is editable; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if this instance is editable; otherwise, <c>false</c>.</value>
         public bool IsEditable
         {
             get => _isEditable;
@@ -186,19 +182,21 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Gets or sets the menu items.
         /// </summary>
-        /// <value>
-        ///     The menu items.
-        /// </value>
+        /// <value>The menu items.</value>
         public ObservableCollection<FrameworkElement> MenuItems { get; set; } =
             new ObservableCollection<FrameworkElement>();
 
         /// <summary>
         ///     Gets or sets the launchable application service.
         /// </summary>
-        /// <value>
-        ///     The launchable application service.
-        /// </value>
+        /// <value>The launchable application service.</value>
         internal ILaunchableApplicationService LaunchableApplicationService { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the log.
+        /// </summary>
+        /// <value>The log.</value>
+        private ILog Log { get; } = LogManager.GetLogger<LaunchableApplicationViewModel>();
 
         /// <summary>
         ///     Occurs when [property changed].
@@ -208,10 +206,43 @@ namespace Panda.AppLauncher
         /// <summary>
         ///     Loads the icon.
         /// </summary>
+        /// <param name="iconSize">Size of the icon.</param>
         /// <returns>A task, that when complete, will signal the completion of the loading of the image source</returns>
         public Task LoadIcon(IconSize iconSize)
         {
-            return Task.Run(() => { ImageSource = ShellHelper.IconFromFilePath(ExecutableLocation, iconSize); });
+            return Task.Run(() =>
+            {
+                try
+                {
+                    ImageSource = string.IsNullOrWhiteSpace(Instance.IconPath)
+                        ? ShellHelper.IconFromFilePath(ExecutableLocation, iconSize)
+                        : CreateImageSource(Instance.IconPath, iconSize);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Unable to load icon for {ExecutableLocation} - {e.Message}");
+                }
+            });
+        }
+
+        /// <summary>
+        ///     Creates the image source.
+        /// </summary>
+        /// <param name="iconPath">The icon path.</param>
+        /// <param name="iconSize">Size of the icon.</param>
+        /// <returns>ImageSource.</returns>
+        private ImageSource CreateImageSource(string iconPath, IconSize iconSize)
+        {
+            var fileInfo = new FileInfo(iconPath);
+            if (!new[] {"jpeg", "jpg", "png", "gif"}.Contains(fileInfo.Extension.ToLower()))
+                return ShellHelper.IconFromFilePath(fileInfo.FullName, iconSize);
+            BitmapImage bmi = null;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                bmi = new BitmapImage(new Uri(fileInfo.FullName, UriKind.Absolute));
+            });
+
+            return bmi;
         }
 
         /// <summary>

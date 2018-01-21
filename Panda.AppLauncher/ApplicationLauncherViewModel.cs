@@ -203,7 +203,7 @@ namespace Panda.AppLauncher
                             {
                                 AppName = registeredApplication.DisplayName,
                                 ExecutableLocation = registeredApplication.FullPath,
-                                LaunchableApplication = registeredApplication,
+                                Instance = registeredApplication,
                                 LaunchableApplicationService = LaunchableApplicationService
                             };
                             AppViewModels.Add(item);
@@ -415,7 +415,7 @@ namespace Panda.AppLauncher
                     {
                         AppName = application.DisplayName,
                         ExecutableLocation = application.FullPath,
-                        LaunchableApplication = application,
+                        Instance = application,
                         LaunchableApplicationService = LaunchableApplicationService
                     };
                     AppViewModels.Add(item);
@@ -432,7 +432,7 @@ namespace Panda.AppLauncher
                         {
                             AppName = application.DisplayName,
                             ExecutableLocation = application.FullPath,
-                            LaunchableApplication = application
+                            Instance = application
                         };
                         AppViewModels.Add(item);
                         await item.LoadIcon(IconSize.Large);
@@ -444,7 +444,7 @@ namespace Panda.AppLauncher
                     .ObserveOn(UiScheduler)
                     .Subscribe(application =>
                     {
-                        var toRemove = AppViewModels.Where(vm => vm.LaunchableApplication.Equals(application)).ToList();
+                        var toRemove = AppViewModels.Where(vm => vm.Instance.Equals(application)).ToList();
                         foreach (var appViewModel in toRemove)
                             AppViewModels.Remove(appViewModel);
                     });
