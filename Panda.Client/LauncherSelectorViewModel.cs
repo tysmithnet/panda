@@ -186,7 +186,16 @@ namespace Panda.Client
                         }
 
                         foreach (var launcherViewModel in ViewModels.Where(vm =>
-                            Regex.IsMatch(vm.Name, filter, RegexOptions.IgnoreCase)))
+                        {
+                            try
+                            {
+                                return Regex.IsMatch(vm.Name, filter, RegexOptions.IgnoreCase); // todo: allow for basic substring matching, and fuzzy
+                            }
+                            catch (Exception)
+                            {
+                                return false;
+                            }
+                        }))
                             LauncherViewModels.Add(launcherViewModel);
                     });
             }
