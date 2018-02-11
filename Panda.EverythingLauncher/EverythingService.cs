@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -46,10 +47,18 @@ namespace Panda.EverythingLauncher
         /// <returns>An observable stream of everything search results</returns>
         IObservable<EverythingResult> IEverythingService.Search(string query, CancellationToken cancellationToken)
         {
-            return Search(query, cancellationToken).Select(line => new EverythingResult
+            try
             {
-                FullPath = line
-            });
+                return Search(query, cancellationToken).Select(line => new EverythingResult
+                {
+                    FullPath = line
+                });
+            }
+            catch (Exception e)
+            {
+                Log.Error($"EverythingLauncher failed to search: {e.Message}");
+                return Observable.Throw<EverythingResult>(e);
+            }
         }
 
         /// <inheritdoc />
@@ -61,7 +70,15 @@ namespace Panda.EverythingLauncher
         /// <returns>An observable collection of file system items matching the provided query</returns>
         IObservable<FileInfo> IFileSystemSearch.Search(string query, CancellationToken cancellationToken)
         {
-            return Search(query, cancellationToken).Select(line => new FileInfo(line));
+            try
+            {
+                return Search(query, cancellationToken).Select(line => new FileInfo(line));
+            }
+            catch (Exception e)
+            {
+                Log.Error($"EverythingLauncher failed to search: {e.Message}");
+                throw;
+            }         
         }
 
         /// <summary>
